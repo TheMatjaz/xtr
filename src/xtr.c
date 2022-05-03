@@ -260,6 +260,7 @@ xtr_cmp(const xtr_t* const a, const xtr_t* const b)
 XTR_API size_t
 xtr_find(const xtr_t* const xtr, const xtr_t* const sub)
 {
+    // Consider returning const char*
     if (xtr == NULL || sub == NULL) { return 0U; } // TODO no distrinction from [0]
     if (xtr_is_empty(xtr)) { return 0U; } // TODO handle error case
     if (xtr_is_empty(sub)) { return 0U; } // TODO handle error case
@@ -319,9 +320,111 @@ xtr_rtrim(xtr_t* const xtr, const char* const chars)
 }
 
 XTR_API xtr_t*
-xtr_pop(xtr_t* const xtr, const size_t len){
+xtr_pop(xtr_t* const xtr, const size_t len)
+{
     if (xtr == NULL) { return NULL; }
     const size_t to_pop = XTR_MIN(len, xtr->used);
     xtr_t* const popped = xtr_new_from_ensure(&xtr->buffer[xtr->used - to_pop], to_pop);
     return xtr_resize(xtr, xtr->used - to_pop);
+}
+
+void utf8_encode(uint8_t* encoded, const uint32_t codepoint)
+{
+    if (codepoint <= 0x7FU)
+    {
+        // 7 bits, encoded as 0xxx_xxxx
+        encoded[0] = (uint8_t) codepoint;
+    }
+    else if (codepoint <= 0x3FFU)
+    {
+        // 11 bits, encoded as 110x_xxxx 10xx_xxxx
+        encoded[0] = 0xC0 | ((codepoint >> 6U) & 0x1FU);
+        encoded[1] = 0x80 | ((codepoint >> 0U) & 0x3FU);
+    }
+    else if (codepoint <= 0xFFFFU)
+    {
+        // 16 bits, encoded as 1110_xxxx 10xx_xxxx 10xx_xxxx
+        encoded[0] = 0xE0 | ((codepoint >> 12U) & 0x0FU);
+        encoded[1] = 0x80 | ((codepoint >> 6U) & 0x3FU);
+        encoded[2] = 0x80 | ((codepoint >> 0U) & 0x3FU);
+    }
+    else if (codepoint <= 0x1FFFFFU)
+    {
+        // 21 bits, encoded as 1111_0xxx 10xx_xxxx 10xx_xxxx 10xx_xxxx
+        encoded[0] = 0xF0 | ((codepoint >> 18U) & 0x07U);
+        encoded[1] = 0x80 | ((codepoint >> 12U) & 0x3FU);
+        encoded[2] = 0x80 | ((codepoint >> 6U) & 0x3FU);
+        encoded[3] = 0x80 | ((codepoint >> 0U) & 0x3FU);
+    }
+    else if (codepoint <= 0x3FFFFFFU)
+    {
+        // 26 bits, encoded as 1111_10xx 10xx_xxxx 10xx_xxxx 10xx_xxxx 10xx_xxxx
+        encoded[0] = 0xF8 | ((codepoint >> 24U) & 0x03U);
+        encoded[1] = 0x80 | ((codepoint >> 18U) & 0x3FU);
+        encoded[2] = 0x80 | ((codepoint >> 12U) & 0x3FU);
+        encoded[3] = 0x80 | ((codepoint >> 6U) & 0x3FU);
+        encoded[4] = 0x80 | ((codepoint >> 0U) & 0x3FU);
+    }
+    else if (codepoint <= 0x7FFFFFFFU)
+    {
+        // 31 bits, encoded as 1111_110x 10xx_xxxx 10xx_xxxx 10xx_xxxx 10xx_xxxx 10xx_xxxx
+        encoded[0] = 0xFC | ((codepoint >> 30U) & 0x01U);
+        encoded[1] = 0x80 | ((codepoint >> 24U) & 0x3FU);
+        encoded[2] = 0x80 | ((codepoint >> 18U) & 0x3FU);
+        encoded[3] = 0x80 | ((codepoint >> 12U) & 0x3FU);
+        encoded[4] = 0x80 | ((codepoint >> 6U) & 0x3FU);
+        encoded[5] = 0x80 | ((codepoint >> 0U) & 0x3FU);
+    }
+    else
+    {
+        // TODO unsupported codepoint
+    }
+}
+
+#define UNICODE_REPLACEMENT_CHAR 0xFFFDU
+
+uint32_t utf8_decode(const uint8_t* encoded)
+{
+    while ((*encoded & 0xC0U) == 0x80U)
+    {
+        // Non-first byte of UTF-8 encoding: 10xx_xxxx
+        // Skip until a first byte is found (self-sychronisation).
+        encoded++;
+    }
+    if ((*encoded & 0xC0U) == 0xC0U)
+    {
+        // First byte of UTF-8 encoding: 11xx_xxxx
+        // Search for most significant zero, to decode how many bytes follow.
+        register uint_fast8_t bytes_following = 1U;
+        register uint8_t mask = 0x20U;
+        while (*encoded & mask)
+        {
+            mask >>= 1U;
+            bytes_following++;
+        }
+        // mask-1 covers all useful bits of the first byte byte
+        uint32_t codepoint = encoded[0] & (mask - 1U);
+        while (bytes_following--)
+        {
+            encoded++;
+            if ((*encoded & 0xC0U) == 0x80U)
+            {
+                // Correct non-first byte of UTF-8 encoding: 10xx_xxxx
+                codepoint <<= 6U;
+                codepoint |= *encoded & 0x3FU;
+            }
+            else
+            {
+                // Unexpected byte after first one.
+                codepoint = UNICODE_REPLACEMENT_CHAR; // TODO yield
+                break;
+            }
+        }
+        return codepoint;
+    }
+    else
+    {
+        // First and only byte of UTF-8 encoding: ASCII character, 0xxx_xxxx
+        return *encoded;
+    }
 }
