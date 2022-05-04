@@ -82,7 +82,7 @@ XTR_API xtr_t* xtr_new_from_ensure(const char* str, size_t len);
 XTR_API xtr_t* xtr_new_clone(const xtr_t* xtr);
 XTR_API xtr_t* xtr_new_clone_ensure(const xtr_t* xtr, size_t len);
 XTR_API xtr_t* xtr_new_fill(char c, size_t len);
-XTR_API xtr_t* xtr_new_repeat(const char* str, size_t times);
+XTR_API xtr_t* xtr_new_repeat(const char* str, size_t repetitions);
 
 // Free
 XTR_API void xtr_free(xtr_t** pxtr);
@@ -100,11 +100,17 @@ XTR_API xtr_t* xtr_merge(const xtr_t* a, const xtr_t* b);
 
 // Allocation size
 XTR_API xtr_t* xtr_resize(xtr_t* xtr, size_t len);
-XTR_API xtr_t* xtr_compress(xtr_t* xtr, size_t len); // TODO No need, just clone
+XTR_API xtr_t* xtr_resize_free(xtr_t** pxtr, size_t len);
+XTR_API xtr_t* xtr_compress_free(xtr_t** pxtr);
 
 // Comparing
 XTR_API int xtr_cmp(const xtr_t* a, const xtr_t* b);
-XTR_API size_t xtr_find(const xtr_t* xtr, const xtr_t* sub);
+XTR_API bool xtr_contains(const xtr_t* xtr, const xtr_t* pattern);
+XTR_API const char* xtr_find(const xtr_t* xtr, const xtr_t* pattern);
+XTR_API const char* xtr_find_from(const xtr_t*  xtr, const xtr_t*  pattern,
+             size_t start);
+XTR_API const char* xtr_find_in(const xtr_t*  xtr, const xtr_t*  pattern,
+             size_t start,  size_t end);
 // TODO substring search, like strstr
 // TODO case compare
 // TODO constant time compare
@@ -112,23 +118,21 @@ XTR_API size_t xtr_find(const xtr_t* xtr, const xtr_t* sub);
 // TODO iterator?
 // TODO utf8 iterator
 
-// TODO is it a good idea to EAT a xtr if it needs reallocation?
-// Shouldn't the user free it?
-// Maybe consider functions that free internally and some that don't
-// like realloc and reallocf
 // TODO split between safe and fast functions, don't make it a compile-time
 // option, but a runtime option. I may not care for all strings, but for some.
 // TODo consider making functions WITHOUT side effects for max clarity, purely funcitonal
-XTR_API void xtr_extend(XTR_DESTROYS xtr_t** a, const xtr_t* b);
-XTR_API xtr_t* xtr_extend_many(xtr_t* xtr, char character, size_t times);
-XTR_API xtr_t* xtr_append(xtr_t* xtr, char character);
-XTR_API xtr_t* xtr_append_many(xtr_t* xtr, char character, size_t times);
+XTR_API void xtr_extend(xtr_t** pbase, const xtr_t* ext);
+XTR_API void xtr_extend_many(xtr_t** pbase, const xtr_t* ext, size_t repetitions);
+XTR_API void xtr_extend_from(xtr_t** pbase, const char* ext);
+XTR_API void xtr_extend_from_many(xtr_t** pbase, const char* ext, size_t repetitions);
+XTR_API void xtr_append(xtr_t** pbase, char character);
+XTR_API void xtr_append_many(xtr_t** pbase, char character, size_t repetitions);
 // TODO padding to size
 
 // Trimming
 XTR_API void xtr_clear(xtr_t* xtr);
-// TODO rtrim, ltrim whitespace with fast rtrim
-// TODO trim allocated space, i.e. realloc smaller
+XTR_API void xtr_ltrim(xtr_t* xtr, const char* chars);
+XTR_API void xtr_rtrim(xtr_t* xtr, const char* chars);
 
 // Utils
 //TODO count occurences
@@ -150,7 +154,6 @@ XTR_API void xtr_clear(xtr_t* xtr);
 //TODO isupper
 //TODO tolower
 //TODO toupper
-//TODO lstrip with memmove
 //TODO partition
 //TODO removeprefix - like ltrim but for more chars
 //TODO removesuffix - like rtrim but for more chars
@@ -164,6 +167,5 @@ XTR_API void xtr_clear(xtr_t* xtr);
 //TODO zerofill
 // TODO insert
 //TODO prepend
-//TODO reverse
 
 #endif /* XTR_H */
