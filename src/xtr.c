@@ -1,6 +1,6 @@
 /**
  * @file
- * Xtring - Extendible strings for C
+ * Xtring - Extendable strings for C
  *
  * @copyright Copyright © 2022, Matjaž Guštin <dev@matjaz.it>
  * <https://matjaz.it>. All rights reserved.
@@ -43,6 +43,29 @@ struct xtr
     size_t used; // BEFORE terminator
     char buffer[]; // TODO uint8_t or char
 };
+
+#ifndef memmem
+
+static char*
+memmem(const void* haystack, const size_t haystack_len,
+       const void* const needle, const size_t needle_len)
+{
+    // TODO consider boyer-moore search
+    size_t remaining = haystack_len;
+    const uint8_t* occurrence = haystack;
+    while (remaining < needle_len)
+    {
+        occurrence = memchr(occurrence, *(uint8_t*) needle, remaining);
+        if (memcmp(occurrence, needle, needle_len) == 0) { return (void*) occurrence; }
+        occurrence++;
+        remaining--;
+    }
+    return NULL;
+}
+
+#endif
+
+//TODO use ptrdiff_t for pointer arithmetic, not size_t
 
 XTR_INLINE static size_t
 allocation_size(const size_t len)
@@ -331,8 +354,8 @@ xtr_find_in(const xtr_t* const xtr, const xtr_t* const pattern,
     // Consider returning const char*
     if (xtr_is_empty(xtr) || xtr_is_empty(pattern)
         || start >= xtr->used || end >= xtr->used) { return NULL; }
-    const char* const location = memmem(xtr->buffer + start, end - start,
-                                        pattern->buffer, pattern->used);
+    const char* const location = memmem(xtr->buffer + start,
+                                        end - start, pattern->buffer, pattern->used);
     return location;
 }
 
@@ -632,8 +655,8 @@ xtr_occurrences(const xtr_t* const xtr, const xtr_t* const pattern)
     size_t remaining_len = xtr->used;
     do
     {
-        this_occurrence = memmem(prev_occurrence, remaining_len,
-                                 pattern->buffer, pattern->used);
+        this_occurrence = memmem(prev_occurrence,
+                                 pattern->buffer, remaining_len, pattern->used);
         if (this_occurrence != NULL)
         {
             count++;

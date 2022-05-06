@@ -89,22 +89,31 @@ XTR_API void xtr_free(xtr_t** pxtr);
 
 // Xtring properties
 XTR_API size_t xtr_len(const xtr_t* xtr);
+
 XTR_API size_t xtr_allocated(const xtr_t* xtr);
+
 XTR_API size_t xtr_available(const xtr_t* xtr);
+
 XTR_API bool xtr_is_empty(const xtr_t* xtr);
+
 XTR_API const char* xtr_cstring(const xtr_t* xtr);
 
 // Concatenation
 XTR_API xtr_t* xtr_merge(const xtr_t* a, const xtr_t* b);
+
+XTR_API xtr_t* xtr_repeat(const xtr_t* xtr, size_t repetitions);
 // TODO merge many? Varlena?
 
 // Allocation size
 XTR_API xtr_t* xtr_resize(xtr_t* xtr, size_t len);
+
 XTR_API xtr_t* xtr_resize_free(xtr_t** pxtr, size_t len);
+
 XTR_API xtr_t* xtr_compress_free(xtr_t** pxtr);
 
 // Comparing
 XTR_API int xtr_cmp(const xtr_t* a, const xtr_t* b);
+
 XTR_API bool xtr_contains(const xtr_t* xtr, const xtr_t* pattern);
 XTR_API const char* xtr_find(const xtr_t* xtr, const xtr_t* pattern);
 XTR_API const char* xtr_find_from(const xtr_t*  xtr, const xtr_t*  pattern,

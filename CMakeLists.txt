@@ -1,6 +1,30 @@
-# CMake configuration to build Xtr
-# License: BSD 3-Clause
+# Copyright © 2022, Matjaž Guštin <dev@matjaz.it>
+# <https://matjaz.it>. All rights reserved.
 #
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice,
+#    this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright notice,
+#    this list of conditions and the following disclaimer in the documentation
+#    and/or other materials provided with the distribution.
+# 3. Neither the name of nor the names of its contributors may be used to
+#    endorse or promote products derived from this software without specific
+#    prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS “AS IS”
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# CMake configuration to build Xtr
 # For example usage: see README.md
 
 cmake_minimum_required(VERSION 3.9)
@@ -129,7 +153,7 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_ALIASES license="**License:**")
     set(DOXYGEN_PREDEFINED WIN32 ASCON_INPUT_ASSERTS)
 
-    doxygen_add_docs(ascon_doxygen
+    doxygen_add_docs(xtr_doxygen
             # Do NOT build doxygen on make-all, to avoid polluting the stdout
             # List of input files for Doxygen
             ${PROJECT_SOURCE_DIR}/inc/ascon.h
@@ -141,7 +165,3 @@ if (DOXYGEN_FOUND)
 else (DOXYGEN_FOUND)
     message(WARNING "Doxygen not found. Cannot generate documentation.")
 endif (DOXYGEN_FOUND)
-
-enable_testing()
-add_test(NAME testascon COMMAND ./testascon)
-add_test(NAME testasconshared COMMAND ./testasconshared)
