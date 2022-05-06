@@ -219,14 +219,14 @@ XTR_API XTR_INLINE size_t
 xtr_allocated(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return 0U; }
-    return xtr->buffer_len;
+    return xtr->buffer_len - TERMINATOR_LEN;
 }
 
 XTR_API XTR_INLINE size_t
 xtr_available(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return 0U; }
-    return xtr->buffer_len - xtr->used;
+    return (xtr->buffer_len - TERMINATOR_LEN) - xtr->used;
 }
 
 XTR_API bool

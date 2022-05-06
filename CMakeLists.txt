@@ -62,6 +62,13 @@ endif ()
 # -----------------------------------------------------------------------------
 set(LIB_HEADER src/xtr.h)
 set(LIB_SRC ${LIB_HEADER} src/xtr.c)
+set(TEST_SRC
+        # Test frameworks
+        tst/atto/atto.c
+        tst/xtrtest_main.c
+        tst/xtrtest_malloc.c
+        # Test cases
+        tst/xtrtest_new.c)
 
 
 # -----------------------------------------------------------------------------
@@ -88,6 +95,41 @@ set_target_properties(xtr PROPERTIES
         # Remove any "msys-" and enforce the same lib name with all toolchains
         PREFIX lib
         OUTPUT_NAME xtr)
+
+enable_testing()
+# Test runner executable testing the static library
+add_executable(xtrtest_static ${TEST_SRC})
+target_include_directories(xtrtest_static
+        PUBLIC src/
+        PRIVATE tst/
+        PRIVATE tst/atto/)
+add_dependencies(xtrtest_static xtr_static)
+target_link_libraries(xtrtest_static PUBLIC xtr_static)
+set_target_properties(xtrtest_static PROPERTIES
+        POSITION_INDEPENDENT_CODE ON
+        INTERPROCEDURAL_OPTIMISATION TRUE)
+target_link_options(xtrtest_static PUBLIC
+        -Wl,--wrap=malloc
+        -Wl,--wrap=calloc
+        -Wl,--wrap=realloc)
+add_test(COMMAND xtrtest_static TARGET xtrtest_static)
+
+# Test runner executable testing the shared library
+add_executable(xtrtest ${TEST_SRC})
+target_include_directories(xtrtest
+        PUBLIC src/
+        PRIVATE tst/
+        PRIVATE tst/atto/)
+add_dependencies(xtrtest xtr)
+target_link_libraries(xtrtest PUBLIC xtr)
+set_target_properties(xtrtest PROPERTIES
+        POSITION_INDEPENDENT_CODE ON
+        INTERPROCEDURAL_OPTIMISATION TRUE)
+target_link_options(xtrtest PUBLIC
+        -Wl,--wrap=malloc
+        -Wl,--wrap=calloc
+        -Wl,--wrap=realloc)
+add_test(COMMAND xtrtest TARGET xtrtest)
 
 # Doxygen documentation builder
 find_package(Doxygen OPTIONAL_COMPONENTS dot)
@@ -142,14 +184,14 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_WARN_NO_PARAMDOC YES)
     set(DOXYGEN_WARN_AS_ERROR YES)
     if (DOT_FOUND)
-        set(DOXYGEN_DOT_PATH ) # Empty = find it in PATH
+        set(DOXYGEN_DOT_PATH) # Empty = find it in PATH
         set(DOXYGEN_DOT_NUM_THREADS 0)  # As many as CPU cores
         set(DOXYGEN_CALL_GRAPH YES)
         set(DOXYGEN_CALLER_GRAPH YES)
         set(DOXYGEN_DIRECTORY_GRAPH YES)
-    endif()
+    endif ()
 
-        # Customisations
+    # Customisations
     set(DOXYGEN_ALIASES license="**License:**")
     set(DOXYGEN_PREDEFINED WIN32 ASCON_INPUT_ASSERTS)
 

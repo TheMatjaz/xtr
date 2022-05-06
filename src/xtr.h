@@ -33,6 +33,11 @@
 #ifndef XTR_H
 #define XTR_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /**
  * @def XTR_API
  * Marker of all the library's public API functions. Used to add exporting
@@ -177,4 +182,8 @@ XTR_API void xtr_rtrim(xtr_t* xtr, const char* chars);
 // TODO insert
 //TODO prepend
 
-#endif /* XTR_H */
+#ifdef __cplusplus
+}
+#endif
+
+#endif  /* XTR_H */
