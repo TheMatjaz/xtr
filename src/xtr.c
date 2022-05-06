@@ -67,6 +67,15 @@ memmem(const void* haystack, const size_t haystack_len,
 
 //TODO use ptrdiff_t for pointer arithmetic, not size_t
 
+XTR_INLINE static void
+update_terminator(xtr_t* const xtr)
+{
+    // Keep a terminator at the end of the string and another at the end of
+    // the buffer, just in case if it helps to avoid overruns.
+    xtr->buffer[xtr->used] = TERMINATOR;
+    xtr->buffer[xtr->buffer_len] = TERMINATOR;
+}
+
 XTR_INLINE static size_t
 allocation_size(const size_t len)
 {
@@ -99,7 +108,8 @@ xtr_new_ensure(size_t len)
 #endif
     if (new == NULL) { return NULL; }
     new->buffer_len = len + TERMINATOR_LEN;
-    new->buffer[len] = TERMINATOR; // Keep always a termination at buffer end
+    new->used = 0U;
+    update_terminator(new);
     xtr_clear(new);
     return new;
 }
@@ -189,7 +199,7 @@ xtr_repeat_raw(const char* const part, const size_t repetitions, const size_t pa
         memcpy(&new->buffer[i * part_len], part, part_len);
     }
     new->used = total_len;
-    new->buffer[total_len] = TERMINATOR;
+    update_terminator(new);
     return new;
 }
 
@@ -246,8 +256,8 @@ xtr_merge(const xtr_t* const a, const xtr_t* const b)
     if (merged == NULL) { return NULL; }
     memcpy(merged->buffer, a->buffer, a->used);
     memcpy(merged->buffer + a->used, b->buffer, b->used);
-    merged->buffer[merged_len] = TERMINATOR;
     merged->used = merged_len;
+    update_terminator(merged);
     return merged;
 }
 
@@ -262,7 +272,7 @@ xtr_resize(xtr_t* const xtr, const size_t len)
         xtr_zero_out(xtr->buffer + len, xtr->used - len);
 #endif
         xtr->used = len;
-        xtr->buffer[len] = TERMINATOR;
+        update_terminator(xtr);
         return xtr;
     }
     else
@@ -280,6 +290,7 @@ xtr_resize(xtr_t* const xtr, const size_t len)
 XTR_API xtr_t*
 xtr_resize_free(xtr_t** const pxtr, const size_t len)
 {
+    // TODO copy *pxtr into a local pointer, if the outer changes in the meantime
     if (pxtr == NULL || *pxtr == NULL) { return NULL; }
     if ((*pxtr)->used > len)
     {
@@ -288,7 +299,7 @@ xtr_resize_free(xtr_t** const pxtr, const size_t len)
         xtr_zero_out((*pxtr)->buffer + len, (*pxtr)->used - len);
 #endif
         (*pxtr)->used = len;
-        (*pxtr)->buffer[len] = TERMINATOR;
+        update_terminator((*pxtr));
         return (*pxtr);
     }
     else
@@ -368,7 +379,7 @@ xtr_clear(xtr_t* const xtr)
         xtr_zero_out(xtr->buffer, xtr->buffer_len);
 #endif
         xtr->used = 0U;
-        xtr->buffer[0] = TERMINATOR;
+        update_terminator(xtr);
     }
 }
 
@@ -376,45 +387,47 @@ XTR_API void
 xtr_rtrim(xtr_t* const xtr, const char* const chars)
 {
     if (xtr_is_empty(xtr)) { return; }
-    const char* last = &xtr->buffer[xtr->used - 1U]; // Not empty xtr
+    size_t last = xtr->used - 1U; // Shifting index of last character, moving towards 0.
+    // Stop when non-space found or when `last` loops around (`0--`)
+    // thus the entire buffer was already explored.
     if (chars == NULL || *chars == TERMINATOR)
     {
         // No characters to trim given: trimming whitespace.
-        while (isspace(*last)) { last--; }
+        while (last < xtr->used && isspace(xtr->buffer[last])) { last--; }
     }
     else
     {
-        while (strchr(chars, *last)) { last--; }
+        while (last < xtr->used && strchr(chars, xtr->buffer[last])) { last--; }
     }
-    const size_t trimmed_len = (last + 1U) - xtr->buffer;
 #if (defined(XTR_SAFE) && XTR_SAFE)
-    xtr_zero_out(&xtr->buffer[trimmed_len], xtr->used - trimmed_len);
+    xtr_zero_out(&xtr->buffer[last], (xtr->used - 1U) - last);
 #endif
-    xtr->used = trimmed_len;
-    xtr->buffer[trimmed_len] = TERMINATOR;
+    xtr->used = last;
+    update_terminator(xtr);
 }
 
 XTR_API void // O(n) operation!
 xtr_ltrim(xtr_t* const xtr, const char* const chars)
 {
     if (xtr_is_empty(xtr)) { return; }
-    const char* first = xtr->buffer;
+    size_t first = 0U; // Shifting index of first character, moving towards end.
+    // Stop when non-space found or when `first` hits string end,
+    // thus the entire buffer was already explored.
     if (chars == NULL || *chars == TERMINATOR)
     {
         // No characters to trim given: trimming whitespace.
-        while (isspace(*first)) { first++; }
+        while (first < xtr->used && isspace(xtr->buffer[first])) { first++; }
     }
     else
     {
-        while (strchr(chars, *first)) { first--; }
+        while (first < xtr->used && strchr(chars, xtr->buffer[first])) { first++; }
     }
-    const size_t trimmed_len = xtr->used - (xtr->buffer - first);
-    memmove(xtr->buffer, first, trimmed_len);
+    memmove(xtr->buffer, &xtr->buffer[first], xtr->used - first);
 #if (defined(XTR_SAFE) && XTR_SAFE)
-    xtr_zero_out(&xtr->buffer[trimmed_len], xtr->buffer - first);
+    xtr_zero_out(&xtr->buffer[xtr->used - first], first); // first == amount of discarded
 #endif
-    xtr->used = trimmed_len;
-    xtr->buffer[trimmed_len] = TERMINATOR;
+    xtr->used -= first;
+    update_terminator(xtr);
 }
 
 XTR_API bool
@@ -434,10 +447,12 @@ xtr_pop(xtr_t* const xtr, const size_t len)
     if (xtr == NULL) { return NULL; }
     const size_t to_pop = XTR_MIN(len, xtr->used);
     xtr_t* const popped = xtr_new_from_ensure(&xtr->buffer[xtr->used - to_pop], to_pop);
+    // FIXME returning the wrong thing
     return xtr_resize(xtr, xtr->used - to_pop);
 }
 
-void utf8_encode(uint8_t* encoded, const uint32_t codepoint)
+static void
+utf8_encode(uint8_t* encoded, const uint32_t codepoint)
 {
     if (codepoint <= 0x7FU)
     {
@@ -447,42 +462,42 @@ void utf8_encode(uint8_t* encoded, const uint32_t codepoint)
     else if (codepoint <= 0x3FFU)
     {
         // 11 bits, encoded as 110x_xxxx 10xx_xxxx
-        encoded[0] = 0xC0 | ((codepoint >> 6U) & 0x1FU);
-        encoded[1] = 0x80 | ((codepoint >> 0U) & 0x3FU);
+        encoded[0] = (uint8_t) (0xC0U | ((codepoint >> 6U) & 0x1FU));
+        encoded[1] = (uint8_t) (0x80U | ((codepoint >> 0U) & 0x3FU));
     }
     else if (codepoint <= 0xFFFFU)
     {
         // 16 bits, encoded as 1110_xxxx 10xx_xxxx 10xx_xxxx
-        encoded[0] = 0xE0 | ((codepoint >> 12U) & 0x0FU);
-        encoded[1] = 0x80 | ((codepoint >> 6U) & 0x3FU);
-        encoded[2] = 0x80 | ((codepoint >> 0U) & 0x3FU);
+        encoded[0] = (uint8_t) (0xE0U | ((codepoint >> 12U) & 0x0FU));
+        encoded[1] = (uint8_t) (0x80U | ((codepoint >> 6U) & 0x3FU));
+        encoded[2] = (uint8_t) (0x80U | ((codepoint >> 0U) & 0x3FU));
     }
     else if (codepoint <= 0x1FFFFFU)
     {
         // 21 bits, encoded as 1111_0xxx 10xx_xxxx 10xx_xxxx 10xx_xxxx
-        encoded[0] = 0xF0 | ((codepoint >> 18U) & 0x07U);
-        encoded[1] = 0x80 | ((codepoint >> 12U) & 0x3FU);
-        encoded[2] = 0x80 | ((codepoint >> 6U) & 0x3FU);
-        encoded[3] = 0x80 | ((codepoint >> 0U) & 0x3FU);
+        encoded[0] = (uint8_t) (0xF0U | ((codepoint >> 18U) & 0x07U));
+        encoded[1] = (uint8_t) (0x80U | ((codepoint >> 12U) & 0x3FU));
+        encoded[2] = (uint8_t) (0x80U | ((codepoint >> 6U) & 0x3FU));
+        encoded[3] = (uint8_t) (0x80U | ((codepoint >> 0U) & 0x3FU));
     }
     else if (codepoint <= 0x3FFFFFFU)
     {
         // 26 bits, encoded as 1111_10xx 10xx_xxxx 10xx_xxxx 10xx_xxxx 10xx_xxxx
-        encoded[0] = 0xF8 | ((codepoint >> 24U) & 0x03U);
-        encoded[1] = 0x80 | ((codepoint >> 18U) & 0x3FU);
-        encoded[2] = 0x80 | ((codepoint >> 12U) & 0x3FU);
-        encoded[3] = 0x80 | ((codepoint >> 6U) & 0x3FU);
-        encoded[4] = 0x80 | ((codepoint >> 0U) & 0x3FU);
+        encoded[0] = (uint8_t) (0xF8U | ((codepoint >> 24U) & 0x03U));
+        encoded[1] = (uint8_t) (0x80U | ((codepoint >> 18U) & 0x3FU));
+        encoded[2] = (uint8_t) (0x80U | ((codepoint >> 12U) & 0x3FU));
+        encoded[3] = (uint8_t) (0x80U | ((codepoint >> 6U) & 0x3FU));
+        encoded[4] = (uint8_t) (0x80U | ((codepoint >> 0U) & 0x3FU));
     }
     else if (codepoint <= 0x7FFFFFFFU)
     {
         // 31 bits, encoded as 1111_110x 10xx_xxxx 10xx_xxxx 10xx_xxxx 10xx_xxxx 10xx_xxxx
-        encoded[0] = 0xFC | ((codepoint >> 30U) & 0x01U);
-        encoded[1] = 0x80 | ((codepoint >> 24U) & 0x3FU);
-        encoded[2] = 0x80 | ((codepoint >> 18U) & 0x3FU);
-        encoded[3] = 0x80 | ((codepoint >> 12U) & 0x3FU);
-        encoded[4] = 0x80 | ((codepoint >> 6U) & 0x3FU);
-        encoded[5] = 0x80 | ((codepoint >> 0U) & 0x3FU);
+        encoded[0] = (uint8_t) (0xFCU | ((codepoint >> 30U) & 0x01U));
+        encoded[1] = (uint8_t) (0x80U | ((codepoint >> 24U) & 0x3FU));
+        encoded[2] = (uint8_t) (0x80U | ((codepoint >> 18U) & 0x3FU));
+        encoded[3] = (uint8_t) (0x80U | ((codepoint >> 12U) & 0x3FU));
+        encoded[4] = (uint8_t) (0x80U | ((codepoint >> 6U) & 0x3FU));
+        encoded[5] = (uint8_t) (0x80U | ((codepoint >> 0U) & 0x3FU));
     }
     else
     {
@@ -492,7 +507,8 @@ void utf8_encode(uint8_t* encoded, const uint32_t codepoint)
 
 #define UNICODE_REPLACEMENT_CHAR 0xFFFDU
 
-uint32_t utf8_decode(const uint8_t* encoded)
+static uint32_t
+utf8_decode(const uint8_t* encoded)
 {
     while ((*encoded & 0xC0U) == 0x80U)
     {
@@ -548,12 +564,12 @@ xtr_extend_raw(xtr_t** const pbase, const char* const part,
     // TODO not all overflow  cases are checkde
     xtr_t* const resized = xtr_resize_free(pbase, total_len);
     if (resized == NULL) { return; }
-    for (size_t i = 0; i < repetitions; i++)
+    for (size_t i = 0U; i < repetitions; i++)
     {
         memcpy(&resized->buffer[i * part_len], part, part_len);
     }
-    resized->buffer[total_len] = TERMINATOR;
     resized->used = total_len;
+    update_terminator(resized);
 }
 
 XTR_API void
@@ -614,7 +630,7 @@ XTR_API char
 xtr_last(const xtr_t* const xtr)
 {
     if (xtr_is_empty(xtr)) { return TERMINATOR; }
-    else { return xtr->buffer[xtr->buffer_len - 1U]; }
+    else { return xtr->buffer[xtr->used - 1U]; }
 }
 
 XTR_API xtr_t*
@@ -628,7 +644,7 @@ xtr_reversed(const xtr_t* const xtr)
         reversed->buffer[s] = xtr->buffer[e];
     }
     reversed->used = xtr->used;
-    reversed->buffer[reversed->used] = TERMINATOR;
+    update_terminator(reversed);
     return reversed;
 }
 
@@ -655,11 +671,12 @@ xtr_occurrences(const xtr_t* const xtr, const xtr_t* const pattern)
     size_t remaining_len = xtr->used;
     do
     {
-        this_occurrence = memmem(prev_occurrence,
-                                 pattern->buffer, remaining_len, pattern->used);
+        this_occurrence = memmem(prev_occurrence, remaining_len,
+                                 pattern->buffer, pattern->used);
         if (this_occurrence != NULL)
         {
             count++;
+            // TODO use ptrdiff
             remaining_len -= (this_occurrence - prev_occurrence - pattern->used);
             prev_occurrence = this_occurrence + pattern->used;
         }
@@ -696,7 +713,8 @@ xtr_split_at(const xtr_t* const xtr, const xtr_t* const pattern) // TODO return 
             if (part != NULL)
             {
                 parts[i++] = part;
-            } else
+            }
+            else
             {
                 // Free existing parts
                 for (size_t p = 0; p < parts_amount; p++)
@@ -720,6 +738,7 @@ xtr_split_every(const xtr_t* const xtr, const size_t part_len) // TODO return am
 {
     if (xtr_is_empty(xtr) || part_len == 0) { return NULL; }
     // TODO
+    return NULL;
 }
 
 XTR_API xtr_t**
@@ -727,4 +746,5 @@ xtr_split_into(const xtr_t* const xtr, const size_t parts_amount)
 {
     if (xtr_is_empty(xtr) || parts_amount == 0) { return NULL; }
     // TODO
+    return NULL;
 }

@@ -37,6 +37,14 @@ extern void* __real_calloc(size_t count, size_t len);
 
 extern void* __real_realloc(void* data, size_t len);
 
+// Declarations of the functions in this file to avoid compiler warning
+// about functions that were never declared.
+void* __wrap_malloc(size_t len);
+
+void* __wrap_calloc(size_t count, size_t len);
+
+void* __wrap_realloc(void* data, size_t len);
+
 static volatile size_t counter_calls_until_failure = SIZE_MAX;
 static volatile bool failing_enabled = false;
 

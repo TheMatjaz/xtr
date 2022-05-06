@@ -103,6 +103,29 @@ XTR_API bool xtr_is_empty(const xtr_t* xtr);
 
 XTR_API const char* xtr_cstring(const xtr_t* xtr);
 
+XTR_API bool xtr_is_space(const xtr_t* xtr);
+
+XTR_API xtr_t* xtr_pop(xtr_t* xtr, size_t len);
+
+XTR_API char xtr_last(const xtr_t* xtr);
+
+XTR_API xtr_t* xtr_reversed(const xtr_t* xtr);
+
+XTR_API void xtr_reverse(xtr_t* xtr);
+
+XTR_API size_t xtr_occurrences(const xtr_t* xtr, const xtr_t* pattern);
+
+XTR_API xtr_t**
+xtr_split_at(const xtr_t* xtr, const xtr_t* pattern);
+
+XTR_API xtr_t**
+xtr_split_every(const xtr_t* xtr, size_t part_len);
+
+XTR_API xtr_t**
+xtr_split_into(const xtr_t* xtr, size_t parts_amount);
+
+
+
 // Concatenation
 XTR_API xtr_t* xtr_merge(const xtr_t* a, const xtr_t* b);
 
