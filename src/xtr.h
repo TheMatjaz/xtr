@@ -87,27 +87,29 @@ XTR_API xtr_t* xtr_new_from_ensure(const char* str, size_t len);
 XTR_API xtr_t* xtr_new_clone(const xtr_t* xtr);
 XTR_API xtr_t* xtr_new_clone_ensure(const xtr_t* xtr, size_t len);
 XTR_API xtr_t* xtr_new_fill(char c, size_t len);
+
 XTR_API xtr_t* xtr_new_repeat(const char* str, size_t repetitions);
 
 // Free
 XTR_API void xtr_free(xtr_t** pxtr);
 
-// Xtring properties
+// Xtring getters
 XTR_API size_t xtr_len(const xtr_t* xtr);
 
 XTR_API size_t xtr_allocated(const xtr_t* xtr);
 
 XTR_API size_t xtr_available(const xtr_t* xtr);
 
-XTR_API bool xtr_is_empty(const xtr_t* xtr);
-
 XTR_API const char* xtr_cstring(const xtr_t* xtr);
+
+XTR_API char xtr_last(const xtr_t* xtr);
+
+// Xtring analysis
+XTR_API bool xtr_is_empty(const xtr_t* xtr);
 
 XTR_API bool xtr_is_space(const xtr_t* xtr);
 
 XTR_API xtr_t* xtr_pop(xtr_t* xtr, size_t len);
-
-XTR_API char xtr_last(const xtr_t* xtr);
 
 XTR_API xtr_t* xtr_reversed(const xtr_t* xtr);
 

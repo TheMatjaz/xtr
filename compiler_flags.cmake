@@ -1,7 +1,7 @@
 # CMake compiler flags as used by LibAscon
 # License: Creative Commons Zero (CC0) 1.0
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 message(STATUS "C compiler ID: ${CMAKE_C_COMPILER_ID}")
 

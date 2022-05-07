@@ -1,6 +1,5 @@
 /**
  * @file
- * Tests run by the xtrtest_main/main().
  *
  * @copyright Copyright © 2022, Matjaž Guštin <dev@matjaz.it>
  * <https://matjaz.it>. All rights reserved.
@@ -30,25 +29,33 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef XTRTEST_H
-#define XTRTEST_H
+#include "xtrtest.h"
 
-#ifdef __cplusplus
-extern "C"
+static void
+xtrtest_new_empty_valid(void)
 {
-#endif
-
-#include "atto.h"
-#include "xtr.h"
-
-void xtrtest_malloc_fail_after(size_t count);
-
-void xtrtest_malloc_disable_failing(void);
-
-void xtrtest_new(void);
-
-#ifdef __cplusplus
+    xtr_t* obtained = xtr_new_empty();
+    atto_neq(obtained, NULL);
+    atto_eq(xtr_allocated(obtained), 0);
+    atto_eq(xtr_available(obtained), 0);
+    atto_eq(xtr_len(obtained), 0);
+    atto_neq(xtr_cstring(obtained), NULL);
+    atto_memeq(xtr_cstring(obtained), "", 1);
+    xtr_free(&obtained);
 }
-#endif
 
-#endif  /* XTRTEST_H */
+static void
+xtrtest_new_empty_fail_malloc(void)
+{
+    xtrtest_malloc_fail_after(0);
+    xtr_t* obtained = xtr_new_empty();
+    atto_eq(obtained, NULL);
+}
+
+void
+xtrtest_new_empty(void)
+{
+    xtrtest_new_empty_valid();
+    xtrtest_new_empty_fail_malloc();
+    atto_report();
+}

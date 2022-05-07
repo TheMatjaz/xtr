@@ -1,5 +1,7 @@
 /**
  * @file
+ * Replacements of malloc functions with wrapped versions that fail on
+ * command for testing out-of-memory situations.
  *
  * @copyright Copyright © 2022, Matjaž Guštin <dev@matjaz.it>
  * <https://matjaz.it>. All rights reserved.

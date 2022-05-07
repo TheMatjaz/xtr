@@ -37,11 +37,15 @@
 #define XTR_MIN(a, b) ((a) <  (b) ? (a) : (b))
 #define XTR_MAX(a, b) ((a) >= (b) ? (a) : (b))
 
+// TODO auto garbage collection?
+// Consider making it a smart-pointer-like struct: add a counter of references
+// a the free function actually reduces the counter. On zero: it frees.
+// A self-garbage-collected thing?
 struct xtr
 {
     size_t buffer_len;
     size_t used; // BEFORE terminator
-    char buffer[]; // TODO uint8_t or char
+    char buffer[1U]; // TODO uint8_t or char
 };
 
 #ifndef memmem
@@ -68,8 +72,9 @@ memmem(const void* haystack, const size_t haystack_len,
 //TODO use ptrdiff_t for pointer arithmetic, not size_t
 
 XTR_INLINE static void
-update_terminator(xtr_t* const xtr)
+set_len_and_terminator(xtr_t* const xtr, const size_t len)
 {
+    xtr->used = len;
     // Keep a terminator at the end of the string and another at the end of
     // the buffer, just in case if it helps to avoid overruns.
     xtr->buffer[xtr->used] = TERMINATOR;
@@ -108,8 +113,7 @@ xtr_new_ensure(size_t len)
 #endif
     if (new == NULL) { return NULL; }
     new->buffer_len = len + TERMINATOR_LEN;
-    new->used = 0U;
-    update_terminator(new);
+    set_len_and_terminator(new, 0U);
     xtr_clear(new);
     return new;
 }
@@ -141,17 +145,20 @@ xtr_new_from(const char* const str) // TODO what about uint8_t arrays?
     xtr_t* const new = xtr_new_ensure(len);
     if (new == NULL) { return NULL; }
     memcpy(new->buffer, str, len);
+    set_len_and_terminator(new, len);
     return new;
 }
 
 XTR_API xtr_t*
-xtr_new_from_ensure(const char* const str, const size_t len) // TODO what about uint8_t arrays?
+xtr_new_from_ensure(const char* const str, const size_t len)
 {
-    if (str == NULL) { return NULL; }
-    const size_t ensure_len = XTR_MAX(strlen(str), len);
+    if (str == NULL) { return xtr_new_ensure(len); }
+    const size_t str_len = strlen(str);
+    const size_t ensure_len = XTR_MAX(str_len, len);
     xtr_t* const new = xtr_new_ensure(ensure_len);
     if (new == NULL) { return NULL; }
-    memcpy(new->buffer, str, ensure_len);
+    memcpy(new->buffer, str, str_len);
+    set_len_and_terminator(new, str_len);
     return new;
 }
 
@@ -198,8 +205,7 @@ xtr_repeat_raw(const char* const part, const size_t repetitions, const size_t pa
     {
         memcpy(&new->buffer[i * part_len], part, part_len);
     }
-    new->used = total_len;
-    update_terminator(new);
+    set_len_and_terminator(new, total_len);
     return new;
 }
 
@@ -256,8 +262,7 @@ xtr_merge(const xtr_t* const a, const xtr_t* const b)
     if (merged == NULL) { return NULL; }
     memcpy(merged->buffer, a->buffer, a->used);
     memcpy(merged->buffer + a->used, b->buffer, b->used);
-    merged->used = merged_len;
-    update_terminator(merged);
+    set_len_and_terminator(merged, merged_len);
     return merged;
 }
 
@@ -271,8 +276,7 @@ xtr_resize(xtr_t* const xtr, const size_t len)
 #if (defined(XTR_SAFE) && XTR_SAFE)
         xtr_zero_out(xtr->buffer + len, xtr->used - len);
 #endif
-        xtr->used = len;
-        update_terminator(xtr);
+        set_len_and_terminator(xtr, len);
         return xtr;
     }
     else
@@ -298,8 +302,7 @@ xtr_resize_free(xtr_t** const pxtr, const size_t len)
 #if (defined(XTR_SAFE) && XTR_SAFE)
         xtr_zero_out((*pxtr)->buffer + len, (*pxtr)->used - len);
 #endif
-        (*pxtr)->used = len;
-        update_terminator((*pxtr));
+        set_len_and_terminator((*pxtr), len);
         return (*pxtr);
     }
     else
@@ -378,8 +381,7 @@ xtr_clear(xtr_t* const xtr)
 #if (defined(XTR_SAFE) && XTR_SAFE)
         xtr_zero_out(xtr->buffer, xtr->buffer_len);
 #endif
-        xtr->used = 0U;
-        update_terminator(xtr);
+        set_len_and_terminator(xtr, 0U);
     }
 }
 
@@ -402,8 +404,7 @@ xtr_rtrim(xtr_t* const xtr, const char* const chars)
 #if (defined(XTR_SAFE) && XTR_SAFE)
     xtr_zero_out(&xtr->buffer[last], (xtr->used - 1U) - last);
 #endif
-    xtr->used = last;
-    update_terminator(xtr);
+    set_len_and_terminator(xtr, last);
 }
 
 XTR_API void // O(n) operation!
@@ -426,8 +427,7 @@ xtr_ltrim(xtr_t* const xtr, const char* const chars)
 #if (defined(XTR_SAFE) && XTR_SAFE)
     xtr_zero_out(&xtr->buffer[xtr->used - first], first); // first == amount of discarded
 #endif
-    xtr->used -= first;
-    update_terminator(xtr);
+    set_len_and_terminator(xtr, xtr->used - first);
 }
 
 XTR_API bool
@@ -568,8 +568,7 @@ xtr_extend_raw(xtr_t** const pbase, const char* const part,
     {
         memcpy(&resized->buffer[i * part_len], part, part_len);
     }
-    resized->used = total_len;
-    update_terminator(resized);
+    set_len_and_terminator(resized, total_len);
 }
 
 XTR_API void
@@ -643,8 +642,7 @@ xtr_reversed(const xtr_t* const xtr)
     {
         reversed->buffer[s] = xtr->buffer[e];
     }
-    reversed->used = xtr->used;
-    update_terminator(reversed);
+    set_len_and_terminator(reversed, xtr->used);
     return reversed;
 }
 

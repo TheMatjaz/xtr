@@ -64,11 +64,17 @@ set(LIB_HEADER src/xtr.h)
 set(LIB_SRC ${LIB_HEADER} src/xtr.c)
 set(TEST_SRC
         # Test frameworks
-        tst/atto/atto.c
-        tst/xtrtest_main.c
-        tst/xtrtest_malloc.c
+        tst/framework/atto/atto.c
+        tst/framework/xtrtest_main.c
+        tst/framework/xtrtest_malloc.c
         # Test cases
-        tst/xtrtest_new.c)
+        tst/xtrtest_new_empty.c
+        tst/xtrtest_new_ensure.c
+        tst/xtrtest_free.c
+        tst/xtrtest_getters.c
+        tst/xtrtest_new_from.c
+        tst/xtrtest_new_from_ensure.c
+        )
 
 
 # -----------------------------------------------------------------------------
@@ -101,8 +107,8 @@ enable_testing()
 add_executable(xtrtest_static ${TEST_SRC})
 target_include_directories(xtrtest_static
         PUBLIC src/
-        PRIVATE tst/
-        PRIVATE tst/atto/)
+        PRIVATE tst/framework/
+        PRIVATE tst/framework/atto/)
 add_dependencies(xtrtest_static xtr_static)
 target_link_libraries(xtrtest_static PUBLIC xtr_static)
 set_target_properties(xtrtest_static PROPERTIES
@@ -118,8 +124,8 @@ add_test(COMMAND xtrtest_static TARGET xtrtest_static)
 add_executable(xtrtest ${TEST_SRC})
 target_include_directories(xtrtest
         PUBLIC src/
-        PRIVATE tst/
-        PRIVATE tst/atto/)
+        PRIVATE tst/framework/
+        PRIVATE tst/framework/atto/)
 add_dependencies(xtrtest xtr)
 target_link_libraries(xtrtest PUBLIC xtr)
 set_target_properties(xtrtest PROPERTIES

@@ -41,7 +41,12 @@ int main(void)
            XTR_API_VERSION_MINOR,
            XTR_API_VERSION_BUGFIX,
            XTR_API_VERSION);
-    xtrtest_new();
+    xtrtest_new_empty();
+    xtrtest_new_ensure();
+    xtrtest_free();
+    xtrtest_getters();
+    xtrtest_new_from();
+    xtrtest_new_from_ensure();
     atto_report();
     return atto_at_least_one_fail;
 }

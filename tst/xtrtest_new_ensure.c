@@ -40,7 +40,7 @@ xtrtest_new_ensure_valid_0(void)
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
-    atto_eq(*xtr_cstring(obtained), '\0');
+    atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
 }
 
@@ -53,7 +53,7 @@ xtrtest_new_ensure_valid_1(void)
     atto_eq(xtr_available(obtained), 1);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
-    atto_eq(*xtr_cstring(obtained), '\0');
+    atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
 }
 
@@ -66,7 +66,20 @@ xtrtest_new_ensure_valid_15(void)
     atto_eq(xtr_available(obtained), 15);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
-    atto_eq(*xtr_cstring(obtained), '\0');
+    atto_memeq(xtr_cstring(obtained), "", 1);
+    xtr_free(&obtained);
+}
+
+static void
+xtrtest_new_ensure_valid_65536(void)
+{
+    xtr_t* obtained = xtr_new_ensure(0x10000);
+    atto_neq(obtained, NULL);
+    atto_eq(xtr_allocated(obtained), 0x10000);
+    atto_eq(xtr_available(obtained), 0x10000);
+    atto_eq(xtr_len(obtained), 0);
+    atto_neq(xtr_cstring(obtained), NULL);
+    atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
 }
 
@@ -81,26 +94,18 @@ xtrtest_new_ensure_fail_malloc(void)
 static void
 xtrtest_new_ensure_fail_size_overflow(void)
 {
-    xtr_t* obtained = xtr_new_ensure(UINT64_MAX);
+    xtr_t* obtained = xtr_new_ensure(SIZE_MAX);
     atto_eq(obtained, NULL);
 }
 
-static void
-xtrtest_getters_fail_null(void)
-{
-    atto_eq(xtr_available(NULL), 0);
-    atto_eq(xtr_allocated(NULL), 0);
-    atto_eq(xtr_len(NULL), 0);
-}
-
 void
-xtrtest_new(void)
+xtrtest_new_ensure(void)
 {
     xtrtest_new_ensure_valid_0();
     xtrtest_new_ensure_valid_1();
     xtrtest_new_ensure_valid_15();
+    xtrtest_new_ensure_valid_65536();
     xtrtest_new_ensure_fail_malloc();
     xtrtest_new_ensure_fail_size_overflow();
-    xtrtest_getters_fail_null();
     atto_report();
 }
