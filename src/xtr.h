@@ -75,23 +75,61 @@ extern "C"
 #include <stdlib.h>
 // TODO make stdlib optional for embedded
 
+/** Opaque xtring structure. */
 typedef struct xtr xtr_t;
 
 #define XTR_SAFE 1
 
-// New Xtrings
-XTR_API xtr_t* xtr_new_ensure(size_t len);
+// -------- New Xtrings --------
+/**
+ * Constructs a new empty xtring with `max_len` bytes pre-allocated free space.
+ * @param [in] max_len length the xtring could be expanded to without reallocating.
+ * @return the new xtring or NULL in case of malloc failure or integer overflows.
+ */
+XTR_API xtr_t* xtr_new_ensure(size_t max_len);
 
+/**
+ * Constructs a new empty xtring with no pre-allocated free space.
+ * Equivalent to xtr_new_ensure(0).
+ * @return the new xtring or NULL in case of malloc failure or integer overflows.
+ */
 XTR_API xtr_t* xtr_new_empty(void);
 
+/**
+ * Constructs a new xtring, copying the content of a C-string.
+ * No additional free space is pre-allocated.
+ * @param [in] str data to copy into the xtring.
+ * @return the new xtring or NULL in case of malloc failure or integer overflows or NULL input.
+ */
 XTR_API xtr_t* xtr_new_from(const char* str);
 
-XTR_API xtr_t* xtr_new_from_ensure(const char* str, size_t len);
+/**
+ * Constructs a new xtring, copying the content of a C-string, while ensuring
+ * \p at_least bytes are being allocated overall.
+ *
+ * The amount of pre-allocated free space at the end of the data will be
+ * `max{0, at_least - strlen(str)}`.
+ *
+ * @param [in] str data to copy into the xtring.
+ * @param [in] at_least minimum size of the internal buffer, used to ensure
+ * a maximum xtring size without reallocation. If `at_least < strlen(str)`,
+ * then `strlen(str)` will be allocated instead.
+ * @return the new xtring or NULL in case of malloc failure or integer overflows or NULL input.
+ */
+XTR_API xtr_t* xtr_new_from_ensure(const char* str, size_t at_least);
+
+XTR_API xtr_t* xtr_new_from_at_least(const char* str, size_t at_least);
+
+XTR_API xtr_t* xtr_new_from_at_most(const char* str, size_t at_most);
+
+XTR_API xtr_t* xtr_new_from_with_space(const char* str, size_t at_most);
+
 
 XTR_API xtr_t* xtr_new_clone(const xtr_t* xtr);
 
-XTR_API xtr_t* xtr_new_clone_ensure(const xtr_t* xtr, size_t len); // Ensure min total len
-XTR_API xtr_t* xtr_new_clone_increase(const xtr_t* xtr, size_t len); // Ensure len additional
+XTR_API xtr_t* xtr_new_clone_ensure(const xtr_t* xtr, size_t max_len); // Ensure min total max_len
+XTR_API xtr_t*
+xtr_new_clone_increase(const xtr_t* xtr, size_t max_len); // Ensure max_len additional
 // free space
 XTR_API xtr_t* xtr_new_fill(char c, size_t len);
 

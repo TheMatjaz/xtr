@@ -36,16 +36,22 @@
 #define TERMINATOR '\0'
 #define XTR_MIN(a, b) ((a) <  (b) ? (a) : (b))
 #define XTR_MAX(a, b) ((a) >= (b) ? (a) : (b))
+#define SIZE_OVERFLOW 0U
 
 // TODO auto garbage collection?
 // Consider making it a smart-pointer-like struct: add a counter of references
 // a the free function actually reduces the counter. On zero: it frees.
 // A self-garbage-collected thing?
+/** @internal Xtring private structure */
 struct xtr
 {
+    /** Available bytes for content in str_buffer, before terminator. */
     size_t max_str_len;
-    size_t used_str_len; // BEFORE terminator
-    char str_buffer[1U]; // TODO uint8_t or char
+    /** Occupied bytes with content in str_buffer, before terminator. */
+    size_t used_str_len;
+    /** Buffer with content long `max_str_len+1`, always NULL-terminated at
+     * `str_buffer[used_str_len]` and at `str_buffer[max_str_len]`. */
+    char str_buffer[1U];
 };
 
 #ifndef memmem
@@ -68,38 +74,59 @@ memmem(const void* haystack, const size_t haystack_len,
 }
 
 #endif
-
+/**
+ * @internal
+ * Updates the length of the string in the buffer, terminating both string
+ * and buffer to help against buffer overruns.
+ *
+ * @param [in, out] xtr to shrink/expand
+ * @param [in] used_len new length of the string, before terminator
+ */
 XTR_INLINE static void
 set_used_str_len_and_terminator(xtr_t* const xtr, const size_t used_len)
 {
     xtr->used_str_len = used_len;
-    // Keep a terminator at the end of the string and another at the end of
-    // the str_buffer, just in case if it helps to avoid overruns.
     xtr->str_buffer[xtr->used_str_len] = TERMINATOR;
     xtr->str_buffer[xtr->max_str_len] = TERMINATOR;
 }
 
+/**
+ * @internal
+ * Updates the maximum string length and terminating the buffer to help against
+ * buffer overruns.
+ *
+ * @param [in, out] xtr to shrink/expand
+ * @param [in] max_len new length of the buffer, before terminator
+ */
 XTR_INLINE static void
 set_max_str_len_and_terminator(xtr_t* const xtr, const size_t max_len)
 {
     xtr->max_str_len = max_len;
-    // Keep a terminator at the end  of the str_buffer, just in case if it
-    // helps to avoid overruns.
     xtr->str_buffer[xtr->max_str_len] = TERMINATOR;
 }
 
+/**
+ * @internal
+ * `sizeof(struct xtr)`, given the wanted max string length the struct should
+ * hold.
+ *
+ * @param [in] max_str_len
+ * @return size of the xtr struct or #SIZE_OVERFLOW if an integer overflow of
+ * #size_t occurred.
+ */
 XTR_INLINE static size_t
 struct_size(const size_t max_str_len)
 {
-    return sizeof(size_t) * 2U + max_str_len + TERMINATOR_LEN;
+    const size_t size = sizeof(size_t) * 2U + max_str_len + TERMINATOR_LEN;
+    if (size <= max_str_len) { return SIZE_OVERFLOW; } else { return size; }
 }
 
-XTR_INLINE static bool
-did_size_overflow(const size_t to_allocate, const size_t len)
-{
-    return to_allocate <= len; // Struct size must always be > str_buffer len
-}
-
+/**
+ * @internal
+ * Securely sets the data to all-zeros.
+ * @param [in] data location to erase
+ * @param [in] len length of \p data in bytes
+ */
 XTR_INLINE static void
 xtr_zero_out(void* const data, volatile const size_t len)
 {
@@ -109,17 +136,17 @@ xtr_zero_out(void* const data, volatile const size_t len)
 }
 
 XTR_API xtr_t*
-xtr_new_ensure(size_t len)
+xtr_new_ensure(size_t max_len)
 {
-    const size_t to_allocate = struct_size(len);
-    if (did_size_overflow(to_allocate, len)) { return NULL; }
+    const size_t to_allocate = struct_size(max_len);
+    if (to_allocate == SIZE_OVERFLOW) { return NULL; }
 #if (defined(XTR_SAFE) && XTR_SAFE)
     xtr_t* const new = calloc(to_allocate, 1U);
 #else
     xtr_t* const new = malloc(to_allocate);
 #endif
     if (new == NULL) { return NULL; }
-    set_max_str_len_and_terminator(new, len);
+    set_max_str_len_and_terminator(new, max_len);
     set_used_str_len_and_terminator(new, 0U);
     return new;
 }
@@ -133,7 +160,7 @@ xtr_free(xtr_t** const pxtr)
         xtr_zero_out((*pxtr)->str_buffer, (*pxtr)->max_str_len);
 #endif
         free((*pxtr));
-        *pxtr = NULL;// To avoid use-after free
+        *pxtr = NULL;  // Clear outside reference to avoid use-after-free
     }
 }
 
@@ -156,11 +183,11 @@ xtr_new_from(const char* const str) // TODO what about uint8_t arrays?
 }
 
 XTR_API xtr_t*
-xtr_new_from_ensure(const char* const str, const size_t len)
+xtr_new_from_ensure(const char* const str, const size_t at_least)
 {
-    if (str == NULL) { return xtr_new_ensure(len); }
+    if (str == NULL) { return xtr_new_ensure(at_least); }
     const size_t str_len = strlen(str);
-    const size_t ensure_len = XTR_MAX(str_len, len);
+    const size_t ensure_len = XTR_MAX(str_len, at_least);
     xtr_t* const new = xtr_new_ensure(ensure_len);
     if (new == NULL) { return NULL; }
     memcpy(new->str_buffer, str, str_len);
@@ -180,11 +207,11 @@ xtr_new_clone(const xtr_t* const xtr)
 }
 
 XTR_API xtr_t*
-xtr_new_clone_ensure(const xtr_t* const xtr, const size_t len)
+xtr_new_clone_ensure(const xtr_t* const xtr, const size_t max_len)
 {
     if (xtr == NULL) { return NULL; }
     const size_t xlen = xtr_len(xtr);
-    xtr_t* const new = xtr_new_ensure(XTR_MAX(xlen, len));
+    xtr_t* const new = xtr_new_ensure(XTR_MAX(xlen, max_len));
     if (new == NULL) { return NULL; }
     memcpy(new, xtr, xlen);
     return new;
@@ -289,7 +316,7 @@ xtr_resize(xtr_t* const xtr, const size_t len)
     {
         // Buffer needs to be expanded, reallocate
         const size_t to_allocate = struct_size(len);
-        if (did_size_overflow(to_allocate, len)) { return NULL; }
+        if (to_allocate == SIZE_OVERFLOW) { return NULL; }
         xtr_t* const new = realloc(xtr, to_allocate);
         if (new == NULL) { return NULL; }
         set_max_str_len_and_terminator(new, len);
@@ -315,7 +342,7 @@ xtr_resize_free(xtr_t** const pxtr, const size_t len)
     {
         // Buffer needs to be expanded, reallocate
         const size_t to_allocate = struct_size(len);
-        if (did_size_overflow(to_allocate, len)) { return NULL; }
+        if (to_allocate == SIZE_OVERFLOW) { return NULL; }
         xtr_t* const new = realloc((*pxtr), to_allocate);
         if (new == NULL) { return NULL; }
         if (new != (*pxtr))
