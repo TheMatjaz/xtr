@@ -144,7 +144,7 @@ XTR_API void xtr_free(xtr_t** pxtr);
 // Xtring getters
 XTR_API size_t xtr_len(const xtr_t* xtr);
 
-XTR_API size_t xtr_maxlen(const xtr_t* const xtr);
+XTR_API size_t xtr_maxlen(const xtr_t* xtr);
 
 XTR_API size_t xtr_available(const xtr_t* xtr);
 
@@ -196,9 +196,19 @@ XTR_API xtr_t* xtr_compress_free(xtr_t** pxtr);
 // Comparing
 XTR_API int xtr_cmp(const xtr_t* a, const xtr_t* b);
 
-XTR_API int xtr_cmp_c(const xtr_t* a, const char* b);
+XTR_API int xtr_cmp_consttime(const xtr_t* a, const xtr_t* b);
 
+XTR_API int xtr_lencmp(const xtr_t* a, const xtr_t* b);
+
+XTR_API int xtr_cmp_c(const xtr_t* a, const char* b);
+// TODO different comparisons if one string is shorter than the others
+// TODO xtr_cmp should provide also the lexicographical difference between the strings,
+// i.e. the byte1-byte2 difference as signed output
 XTR_API bool xtr_equal(const xtr_t* a, const xtr_t* b);
+
+XTR_API bool xtr_equal_until(const xtr_t* a, const xtr_t* b, size_t len);
+
+XTR_API bool xtr_equal_shortest(const xtr_t* a, const xtr_t* b);
 
 XTR_API bool xtr_equal_c(const xtr_t* a, const char* b);
 
