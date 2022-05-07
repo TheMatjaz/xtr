@@ -72,8 +72,8 @@ set(TEST_SRC
         tst/xtrtest_new_ensure.c
         tst/xtrtest_free.c
         tst/xtrtest_getters.c
-        tst/xtrtest_new_from.c
-        tst/xtrtest_new_from_ensure.c
+        tst/xtrtest_new_from_c.c
+        tst/xtrtest_new_from_c_ensure.c
         tst/xtrtest_new_clone.c
         )
 

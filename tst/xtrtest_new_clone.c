@@ -54,7 +54,7 @@ xtrtest_new_clone_valid_empty_xtr(void)
 static void
 xtrtest_new_clone_valid_1_char_xtr(void)
 {
-    xtr_t* original = xtr_new_from("a");
+    xtr_t* original = xtr_new_from_c("a");
     atto_neq(original, NULL);
 
     xtr_t* clone = xtr_new_clone(original);
@@ -74,7 +74,7 @@ xtrtest_new_clone_valid_1_char_xtr(void)
 static void
 xtrtest_new_clone_valid_6_char_xtr(void)
 {
-    xtr_t* original = xtr_new_from("Abcdef");
+    xtr_t* original = xtr_new_from_c("Abcdef");
     atto_neq(original, NULL);
 
     xtr_t* clone = xtr_new_clone(original);
@@ -114,7 +114,7 @@ xtrtest_new_clone_valid_empty_xtr_with_free_space(void)
 static void
 xtrtest_new_clone_valid_1_char_xtr_with_free_space(void)
 {
-    xtr_t* original = xtr_new_from_ensure("a", 6);
+    xtr_t* original = xtr_new_from_c_ensure("a", 6);
     atto_neq(original, NULL);
 
     xtr_t* clone = xtr_new_clone(original);
@@ -134,7 +134,7 @@ xtrtest_new_clone_valid_1_char_xtr_with_free_space(void)
 static void
 xtrtest_new_clone_valid_6_char_xtr_with_free_space(void)
 {
-    xtr_t* original = xtr_new_from_ensure("Abcdef", 10);
+    xtr_t* original = xtr_new_from_c_ensure("Abcdef", 10);
     atto_neq(original, NULL);
 
     xtr_t* clone = xtr_new_clone(original);

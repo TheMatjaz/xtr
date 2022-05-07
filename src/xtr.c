@@ -171,7 +171,7 @@ xtr_new_empty(void)
 }
 
 XTR_API xtr_t*
-xtr_new_from(const char* const str) // TODO what about uint8_t arrays?
+xtr_new_from_c(const char* const str) // TODO what about uint8_t arrays?
 {
     if (str == NULL) { return NULL; }
     const size_t len = strlen(str);
@@ -183,7 +183,7 @@ xtr_new_from(const char* const str) // TODO what about uint8_t arrays?
 }
 
 XTR_API xtr_t*
-xtr_new_from_ensure(const char* const str, const size_t at_least)
+xtr_new_from_c_ensure(const char* str, size_t at_least)
 {
     if (str == NULL) { return xtr_new_ensure(at_least); }
     const size_t str_len = strlen(str);
@@ -480,7 +480,8 @@ xtr_pop(xtr_t* const xtr, const size_t len)
 {
     if (xtr == NULL) { return NULL; }
     const size_t to_pop = XTR_MIN(len, xtr->used_str_len);
-    xtr_t* const popped = xtr_new_from_ensure(&xtr->str_buffer[xtr->used_str_len - to_pop], to_pop);
+    xtr_t* const popped = xtr_new_from_c_ensure(&xtr->str_buffer[xtr->used_str_len - to_pop],
+                                                to_pop);
     // FIXME returning the wrong thing
     return xtr_resize(xtr, xtr->used_str_len - to_pop);
 }

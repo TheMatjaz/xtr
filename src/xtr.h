@@ -56,6 +56,7 @@ extern "C"
 #endif
 
 #define XTR_INLINE inline
+
 #define XTR_DESTROYS
 
 /** Major version of this API conforming to semantic versioning. */
@@ -101,7 +102,7 @@ XTR_API xtr_t* xtr_new_empty(void);
  * @param [in] str data to copy into the xtring.
  * @return the new xtring or NULL in case of malloc failure or integer overflows or NULL input.
  */
-XTR_API xtr_t* xtr_new_from(const char* str);
+XTR_API xtr_t* xtr_new_from_c(const char* str);
 
 /**
  * Constructs a new xtring, copying the content of a C-string, while ensuring
@@ -116,13 +117,15 @@ XTR_API xtr_t* xtr_new_from(const char* str);
  * then `strlen(str)` will be allocated instead.
  * @return the new xtring or NULL in case of malloc failure or integer overflows or NULL input.
  */
-XTR_API xtr_t* xtr_new_from_ensure(const char* str, size_t at_least);
+XTR_API xtr_t* xtr_new_from_c_ensure(const char* str, size_t at_least);
 
-XTR_API xtr_t* xtr_new_from_at_least(const char* str, size_t at_least);
+XTR_API xtr_t* xtr_new_from_c_at_least(const char* str, size_t at_least);
 
-XTR_API xtr_t* xtr_new_from_at_most(const char* str, size_t at_most);
+XTR_API xtr_t* xtr_new_from_c_at_most(const char* str, size_t at_most);
 
-XTR_API xtr_t* xtr_new_from_with_space(const char* str, size_t at_most);
+XTR_API xtr_t* xtr_new_from_c_with_space(const char* str, size_t at_most);
+
+XTR_API xtr_t* xtr_new_from_c_hex(const char* str);
 
 
 XTR_API xtr_t* xtr_new_clone(const xtr_t* xtr);
@@ -182,19 +185,44 @@ XTR_API xtr_t* xtr_repeat(const xtr_t* xtr, size_t repetitions);
 // Allocation size
 XTR_API xtr_t* xtr_resize(xtr_t* xtr, size_t len);
 
+XTR_API xtr_t* xtr_resize_double(xtr_t* xtr);
+
 XTR_API xtr_t* xtr_resize_free(xtr_t** pxtr, size_t len);
+
+XTR_API xtr_t* xtr_resize_free_double(xtr_t** pxtr);
 
 XTR_API xtr_t* xtr_compress_free(xtr_t** pxtr);
 
 // Comparing
 XTR_API int xtr_cmp(const xtr_t* a, const xtr_t* b);
 
+XTR_API int xtr_cmp_c(const xtr_t* a, const char* b);
+
+XTR_API bool xtr_equal(const xtr_t* a, const xtr_t* b);
+
+XTR_API bool xtr_equal_c(const xtr_t* a, const char* b);
+
+XTR_API bool xtr_not_equal(const xtr_t* a, const xtr_t* b);
+
+XTR_API bool xtr_not_equal_c(const xtr_t* a, const char* b);
+
+XTR_API bool xtr_zeros(const xtr_t* a);
+
+XTR_API bool xtr_not_zeros(const xtr_t* a);
+
+XTR_API bool xtr_startswith(const xtr_t* a);
+
+XTR_API bool xtr_endswith(const xtr_t* a);
+
 XTR_API bool xtr_contains(const xtr_t* xtr, const xtr_t* pattern);
+
 XTR_API const char* xtr_find(const xtr_t* xtr, const xtr_t* pattern);
-XTR_API const char* xtr_find_from(const xtr_t*  xtr, const xtr_t*  pattern,
-             size_t start);
-XTR_API const char* xtr_find_in(const xtr_t*  xtr, const xtr_t*  pattern,
-             size_t start,  size_t end);
+
+XTR_API const char* xtr_find_from(const xtr_t* xtr, const xtr_t* pattern,
+                                  size_t start);
+
+XTR_API const char* xtr_find_in(const xtr_t* xtr, const xtr_t* pattern,
+                                size_t start, size_t end);
 // TODO substring search, like strstr
 // TODO case compare
 // TODO constant time compare
@@ -206,17 +234,36 @@ XTR_API const char* xtr_find_in(const xtr_t*  xtr, const xtr_t*  pattern,
 // option, but a runtime option. I may not care for all strings, but for some.
 // TODo consider making functions WITHOUT side effects for max clarity, purely funcitonal
 XTR_API void xtr_extend(xtr_t** pbase, const xtr_t* ext);
+
 XTR_API void xtr_extend_many(xtr_t** pbase, const xtr_t* ext, size_t repetitions);
+
 XTR_API void xtr_extend_from(xtr_t** pbase, const char* ext);
+
 XTR_API void xtr_extend_from_many(xtr_t** pbase, const char* ext, size_t repetitions);
+
 XTR_API void xtr_append(xtr_t** pbase, char character);
+
 XTR_API void xtr_append_many(xtr_t** pbase, char character, size_t repetitions);
+
+XTR_API void xtr_prepend(xtr_t** pbase, char character);
+
+XTR_API void xtr_prepend_many(xtr_t** pbase, char character, size_t repetitions);
+// TODO prepending another char* or xtr
 // TODO padding to size
 
 // Trimming
 XTR_API void xtr_clear(xtr_t* xtr);
+
 XTR_API void xtr_ltrim(xtr_t* xtr, const char* chars);
+
 XTR_API void xtr_rtrim(xtr_t* xtr, const char* chars);
+
+XTR_API void xtr_remove_suffix(xtr_t* xtr, const char* str);
+
+XTR_API void xtr_remove_prefix(xtr_t* xtr, const char* str);
+
+// Printing
+XTR_API xtr_t* xtr_hex(const xtr_t* xtr);
 
 // Utils
 //TODO count occurences
@@ -239,8 +286,6 @@ XTR_API void xtr_rtrim(xtr_t* xtr, const char* chars);
 //TODO tolower
 //TODO toupper
 //TODO partition
-//TODO removeprefix - like ltrim but for more chars
-//TODO removesuffix - like rtrim but for more chars
 //TODO replace
 //TODO rfind
 //TODO justify

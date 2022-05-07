@@ -45,8 +45,8 @@ int main(void)
     xtrtest_new_ensure();
     xtrtest_free();
     xtrtest_getters();
-    xtrtest_new_from();
-    xtrtest_new_from_ensure();
+    xtrtest_new_from_c();
+    xtrtest_new_from_c_ensure();
     xtrtest_new_clone();
     atto_report();
     return atto_at_least_one_fail;

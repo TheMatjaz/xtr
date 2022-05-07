@@ -32,9 +32,9 @@
 #include "xtrtest.h"
 
 static void
-xtrtest_new_from_valid_empty_string(void)
+xtrtest_new_from_c_valid_empty_string(void)
 {
-    xtr_t* obtained = xtr_new_from("");
+    xtr_t* obtained = xtr_new_from_c("");
     atto_neq(obtained, NULL);
     atto_eq(xtr_maxlen(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
@@ -45,9 +45,9 @@ xtrtest_new_from_valid_empty_string(void)
 }
 
 static void
-xtrtest_new_from_valid_1_byte_string(void)
+xtrtest_new_from_c_valid_1_byte_string(void)
 {
-    xtr_t* obtained = xtr_new_from("a");
+    xtr_t* obtained = xtr_new_from_c("a");
     atto_neq(obtained, NULL);
     atto_eq(xtr_maxlen(obtained), 1);
     atto_eq(xtr_available(obtained), 0);
@@ -58,9 +58,9 @@ xtrtest_new_from_valid_1_byte_string(void)
 }
 
 static void
-xtrtest_new_from_valid_6_bytes_string(void)
+xtrtest_new_from_c_valid_6_bytes_string(void)
 {
-    xtr_t* obtained = xtr_new_from("Abcdef");
+    xtr_t* obtained = xtr_new_from_c("Abcdef");
     atto_neq(obtained, NULL);
     atto_eq(xtr_maxlen(obtained), 6);
     atto_eq(xtr_available(obtained), 0);
@@ -71,26 +71,26 @@ xtrtest_new_from_valid_6_bytes_string(void)
 }
 
 static void
-xtrtest_new_from_fail_malloc(void)
+xtrtest_new_from_c_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
-    xtr_t* obtained = xtr_new_from("abc");
+    xtr_t* obtained = xtr_new_from_c("abc");
     atto_eq(obtained, NULL);
 }
 
 static void
-xtrtest_new_from_fail_null(void)
+xtrtest_new_from_c_fail_null(void)
 {
-    xtr_t* obtained = xtr_new_from(NULL);
+    xtr_t* obtained = xtr_new_from_c(NULL);
     atto_eq(obtained, NULL);
 }
 
-void xtrtest_new_from(void)
+void xtrtest_new_from_c(void)
 {
-    xtrtest_new_from_valid_empty_string();
-    xtrtest_new_from_valid_1_byte_string();
-    xtrtest_new_from_valid_6_bytes_string();
-    xtrtest_new_from_fail_malloc();
-    xtrtest_new_from_fail_null();
+    xtrtest_new_from_c_valid_empty_string();
+    xtrtest_new_from_c_valid_1_byte_string();
+    xtrtest_new_from_c_valid_6_bytes_string();
+    xtrtest_new_from_c_fail_malloc();
+    xtrtest_new_from_c_fail_null();
     atto_report();
 }

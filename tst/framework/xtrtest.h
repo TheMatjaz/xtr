@@ -53,9 +53,9 @@ void xtrtest_getters(void);
 
 void xtrtest_free(void);
 
-void xtrtest_new_from(void);
+void xtrtest_new_from_c(void);
 
-void xtrtest_new_from_ensure(void);
+void xtrtest_new_from_c_ensure(void);
 
 void xtrtest_new_clone(void);
 
