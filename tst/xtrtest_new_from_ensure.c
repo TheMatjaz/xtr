@@ -32,11 +32,12 @@
 #include "xtrtest.h"
 
 static void
-xtrtest_new_from_ensure_valid_null_0(void)
+xtrtest_new_from_ensure_valid_null_string_0_bytes_provides(void)
 {
-    xtr_t* obtained = xtr_new_from_ensure("", 0);
+    // Should provide an empty string with 0 available free bytes
+    xtr_t* obtained = xtr_new_from_ensure(NULL, 0);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 0);
+    atto_eq(xtr_maxlen(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -45,24 +46,12 @@ xtrtest_new_from_ensure_valid_null_0(void)
 }
 
 static void
-xtrtest_new_from_ensure_valid_null_1(void)
+xtrtest_new_from_ensure_valid_null_string_6_bytes(void)
 {
-    xtr_t* obtained = xtr_new_from_ensure(NULL, 1);
-    atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 1);
-    atto_eq(xtr_available(obtained), 1);
-    atto_eq(xtr_len(obtained), 0);
-    atto_neq(xtr_cstring(obtained), NULL);
-    atto_memeq(xtr_cstring(obtained), "", 1);
-    xtr_free(&obtained);
-}
-
-static void
-xtrtest_new_from_ensure_valid_null_6(void)
-{
+    // Should provide an empty string with 6 available free bytes
     xtr_t* obtained = xtr_new_from_ensure(NULL, 6);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 6);
+    atto_eq(xtr_maxlen(obtained), 6);
     atto_eq(xtr_available(obtained), 6);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -71,11 +60,12 @@ xtrtest_new_from_ensure_valid_null_6(void)
 }
 
 static void
-xtrtest_new_from_ensure_valid_0_0(void)
+xtrtest_new_from_ensure_valid_empty_string_0_bytes(void)
 {
+    // Should provide an empty string with 0 available free bytes
     xtr_t* obtained = xtr_new_from_ensure("", 0);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 0);
+    atto_eq(xtr_maxlen(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -84,11 +74,12 @@ xtrtest_new_from_ensure_valid_0_0(void)
 }
 
 static void
-xtrtest_new_from_ensure_valid_0_1(void)
+xtrtest_new_from_ensure_valid_empty_string_1_byte(void)
 {
+    // Should provide an empty string with 1 available free bytes
     xtr_t* obtained = xtr_new_from_ensure("", 1);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 1);
+    atto_eq(xtr_maxlen(obtained), 1);
     atto_eq(xtr_available(obtained), 1);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -97,11 +88,12 @@ xtrtest_new_from_ensure_valid_0_1(void)
 }
 
 static void
-xtrtest_new_from_ensure_valid_0_15(void)
+xtrtest_new_from_ensure_valid_empty_string_15_bytes(void)
 {
+    // Should provide an empty string with 15 available free bytes
     xtr_t* obtained = xtr_new_from_ensure("", 15);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 15);
+    atto_eq(xtr_maxlen(obtained), 15);
     atto_eq(xtr_available(obtained), 15);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -110,11 +102,13 @@ xtrtest_new_from_ensure_valid_0_15(void)
 }
 
 static void
-xtrtest_new_from_ensure_valid_1_0(void)
+xtrtest_new_from_ensure_valid_1_char_0_bytes(void)
 {
+    // Should provide a 1-char string with 0 available free bytes
+    // because the string is longer than the ensured space
     xtr_t* obtained = xtr_new_from_ensure("a", 0);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 1);
+    atto_eq(xtr_maxlen(obtained), 1);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 1);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -123,11 +117,13 @@ xtrtest_new_from_ensure_valid_1_0(void)
 }
 
 static void
-xtrtest_new_from_ensure_valid_1_1(void)
+xtrtest_new_from_ensure_valid_1_char_1_bytes(void)
 {
+    // Should provide a 1-char string with 0 available free bytes
+    // because the string is equal than the ensured space
     xtr_t* obtained = xtr_new_from_ensure("a", 1);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 1);
+    atto_eq(xtr_maxlen(obtained), 1);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 1);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -136,11 +132,13 @@ xtrtest_new_from_ensure_valid_1_1(void)
 }
 
 static void
-xtrtest_new_from_ensure_valid_6_6(void)
+xtrtest_new_from_ensure_valid_6_chars_6_bytes(void)
 {
+    // Should provide a 6-char string with 0 available free bytes
+    // because the string is equal than the ensured space
     xtr_t* obtained = xtr_new_from_ensure("Abcdef", 6);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 6);
+    atto_eq(xtr_maxlen(obtained), 6);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 6);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -149,11 +147,13 @@ xtrtest_new_from_ensure_valid_6_6(void)
 }
 
 static void
-xtrtest_new_from_ensure_valid_6_4(void)
+xtrtest_new_from_ensure_valid_6_chars_4_bytes(void)
 {
+    // Should provide a 6-char string with 0 available free bytes
+    // because the string is longer than the ensured space
     xtr_t* obtained = xtr_new_from_ensure("Abcdef", 4);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 6);
+    atto_eq(xtr_maxlen(obtained), 6);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 6);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -162,11 +162,12 @@ xtrtest_new_from_ensure_valid_6_4(void)
 }
 
 static void
-xtrtest_new_from_ensure_valid_6_10(void)
+xtrtest_new_from_ensure_valid_6_chars_10_bytes(void)
 {
+    // Should provide a 6-char string with 4 available free bytes
     xtr_t* obtained = xtr_new_from_ensure("Abcdef", 10);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 10);
+    atto_eq(xtr_maxlen(obtained), 10);
     atto_eq(xtr_available(obtained), 4);
     atto_eq(xtr_len(obtained), 6);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -193,17 +194,16 @@ xtrtest_new_ensure_fail_size_overflow(void)
 
 void xtrtest_new_from_ensure(void)
 {
-    xtrtest_new_from_ensure_valid_null_0();
-    xtrtest_new_from_ensure_valid_null_1();
-    xtrtest_new_from_ensure_valid_null_6();
-    xtrtest_new_from_ensure_valid_0_0();
-    xtrtest_new_from_ensure_valid_0_1();
-    xtrtest_new_from_ensure_valid_0_15();
-    xtrtest_new_from_ensure_valid_1_0();
-    xtrtest_new_from_ensure_valid_1_1();
-    xtrtest_new_from_ensure_valid_6_6();
-    xtrtest_new_from_ensure_valid_6_4();
-    xtrtest_new_from_ensure_valid_6_10();
+    xtrtest_new_from_ensure_valid_empty_string_0_bytes();
+    xtrtest_new_from_ensure_valid_null_string_0_bytes_provides();
+    xtrtest_new_from_ensure_valid_null_string_6_bytes();
+    xtrtest_new_from_ensure_valid_empty_string_1_byte();
+    xtrtest_new_from_ensure_valid_empty_string_15_bytes();
+    xtrtest_new_from_ensure_valid_1_char_0_bytes();
+    xtrtest_new_from_ensure_valid_1_char_1_bytes();
+    xtrtest_new_from_ensure_valid_6_chars_6_bytes();
+    xtrtest_new_from_ensure_valid_6_chars_4_bytes();
+    xtrtest_new_from_ensure_valid_6_chars_10_bytes();
     xtrtest_new_from_ensure_fail_malloc();
     xtrtest_new_ensure_fail_size_overflow();
     atto_report();

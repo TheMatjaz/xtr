@@ -36,7 +36,7 @@ xtrtest_new_empty_valid(void)
 {
     xtr_t* obtained = xtr_new_empty();
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 0);
+    atto_eq(xtr_maxlen(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);

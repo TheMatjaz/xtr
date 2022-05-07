@@ -32,14 +32,14 @@
 #include "xtrtest.h"
 
 // Only getter failures are tested here, because they are tested in-practice
-// while being used for all other test cases, as we need them to verify
+// while being used_str_len for all other test cases, as we need them to verify
 // the state of the xtr_t structure.
 
 static void
-xtrtest_getters_fail_null(void)
+xtrtest_getters_do_nothing_on_null_input(void)
 {
     atto_eq(xtr_available(NULL), 0);
-    atto_eq(xtr_allocated(NULL), 0);
+    atto_eq(xtr_maxlen(NULL), 0);
     atto_eq(xtr_len(NULL), 0);
     atto_eq(xtr_cstring(NULL), NULL);
 }
@@ -47,6 +47,6 @@ xtrtest_getters_fail_null(void)
 void
 xtrtest_getters(void)
 {
-    xtrtest_getters_fail_null();
+    xtrtest_getters_do_nothing_on_null_input();
     atto_report();
 }

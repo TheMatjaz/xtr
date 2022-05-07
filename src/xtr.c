@@ -43,9 +43,9 @@
 // A self-garbage-collected thing?
 struct xtr
 {
-    size_t buffer_len;
-    size_t used; // BEFORE terminator
-    char buffer[1U]; // TODO uint8_t or char
+    size_t max_str_len;
+    size_t used_str_len; // BEFORE terminator
+    char str_buffer[1U]; // TODO uint8_t or char
 };
 
 #ifndef memmem
@@ -69,28 +69,35 @@ memmem(const void* haystack, const size_t haystack_len,
 
 #endif
 
-//TODO use ptrdiff_t for pointer arithmetic, not size_t
+XTR_INLINE static void
+set_used_str_len_and_terminator(xtr_t* const xtr, const size_t used_len)
+{
+    xtr->used_str_len = used_len;
+    // Keep a terminator at the end of the string and another at the end of
+    // the str_buffer, just in case if it helps to avoid overruns.
+    xtr->str_buffer[xtr->used_str_len] = TERMINATOR;
+    xtr->str_buffer[xtr->max_str_len] = TERMINATOR;
+}
 
 XTR_INLINE static void
-set_len_and_terminator(xtr_t* const xtr, const size_t len)
+set_max_str_len_and_terminator(xtr_t* const xtr, const size_t max_len)
 {
-    xtr->used = len;
-    // Keep a terminator at the end of the string and another at the end of
-    // the buffer, just in case if it helps to avoid overruns.
-    xtr->buffer[xtr->used] = TERMINATOR;
-    xtr->buffer[xtr->buffer_len] = TERMINATOR;
+    xtr->max_str_len = max_len;
+    // Keep a terminator at the end  of the str_buffer, just in case if it
+    // helps to avoid overruns.
+    xtr->str_buffer[xtr->max_str_len] = TERMINATOR;
 }
 
 XTR_INLINE static size_t
-allocation_size(const size_t len)
+struct_size(const size_t max_str_len)
 {
-    return sizeof(size_t) * 2U + TERMINATOR_LEN + len;
+    return sizeof(size_t) * 2U + max_str_len + TERMINATOR_LEN;
 }
 
 XTR_INLINE static bool
 did_size_overflow(const size_t to_allocate, const size_t len)
 {
-    return to_allocate <= len; // Struct size must always be > buffer len
+    return to_allocate <= len; // Struct size must always be > str_buffer len
 }
 
 XTR_INLINE static void
@@ -104,7 +111,7 @@ xtr_zero_out(void* const data, volatile const size_t len)
 XTR_API xtr_t*
 xtr_new_ensure(size_t len)
 {
-    const size_t to_allocate = allocation_size(len);
+    const size_t to_allocate = struct_size(len);
     if (did_size_overflow(to_allocate, len)) { return NULL; }
 #if (defined(XTR_SAFE) && XTR_SAFE)
     xtr_t* const new = calloc(to_allocate, 1U);
@@ -112,9 +119,8 @@ xtr_new_ensure(size_t len)
     xtr_t* const new = malloc(to_allocate);
 #endif
     if (new == NULL) { return NULL; }
-    new->buffer_len = len + TERMINATOR_LEN;
-    set_len_and_terminator(new, 0U);
-    xtr_clear(new);
+    set_max_str_len_and_terminator(new, len);
+    set_used_str_len_and_terminator(new, 0U);
     return new;
 }
 
@@ -124,7 +130,7 @@ xtr_free(xtr_t** const pxtr)
     if (pxtr != NULL && *pxtr != NULL)
     {
 #if (defined(XTR_SAFE) && XTR_SAFE)
-        xtr_zero_out((*pxtr)->buffer, (*pxtr)->buffer_len);
+        xtr_zero_out((*pxtr)->str_buffer, (*pxtr)->max_str_len);
 #endif
         free((*pxtr));
         *pxtr = NULL;// To avoid use-after free
@@ -144,8 +150,8 @@ xtr_new_from(const char* const str) // TODO what about uint8_t arrays?
     const size_t len = strlen(str);
     xtr_t* const new = xtr_new_ensure(len);
     if (new == NULL) { return NULL; }
-    memcpy(new->buffer, str, len);
-    set_len_and_terminator(new, len);
+    memcpy(new->str_buffer, str, len);
+    set_used_str_len_and_terminator(new, len);
     return new;
 }
 
@@ -157,19 +163,19 @@ xtr_new_from_ensure(const char* const str, const size_t len)
     const size_t ensure_len = XTR_MAX(str_len, len);
     xtr_t* const new = xtr_new_ensure(ensure_len);
     if (new == NULL) { return NULL; }
-    memcpy(new->buffer, str, str_len);
-    set_len_and_terminator(new, str_len);
+    memcpy(new->str_buffer, str, str_len);
+    set_used_str_len_and_terminator(new, str_len);
     return new;
 }
 
 XTR_API xtr_t*
-xtr_new_clone(const xtr_t* xtr)
+xtr_new_clone(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return NULL; }
-    const size_t len = xtr_len(xtr);
-    xtr_t* const new = xtr_new_ensure(len);
+    const size_t allocation_size = struct_size(xtr->max_str_len);
+    xtr_t* const new = malloc(allocation_size);
     if (new == NULL) { return NULL; }
-    memcpy(new, xtr, len);
+    memcpy(new, xtr, allocation_size);
     return new;
 }
 
@@ -189,8 +195,8 @@ xtr_new_fill(const char c, const size_t len)
 {
     xtr_t* const new = xtr_new_ensure(len);
     if (new == NULL) { return NULL; }
-    memset(new->buffer, c, len);
-    new->used = len;
+    memset(new->str_buffer, c, len);
+    new->used_str_len = len;
     return new;
 }
 
@@ -203,9 +209,9 @@ xtr_repeat_raw(const char* const part, const size_t repetitions, const size_t pa
     if (new == NULL) { return NULL; }
     for (size_t i = 0; i < repetitions; i++)
     {
-        memcpy(&new->buffer[i * part_len], part, part_len);
+        memcpy(&new->str_buffer[i * part_len], part, part_len);
     }
-    set_len_and_terminator(new, total_len);
+    set_used_str_len_and_terminator(new, total_len);
     return new;
 }
 
@@ -221,48 +227,48 @@ XTR_API xtr_t*
 xtr_repeat(const xtr_t* const xtr, const size_t repetitions)
 {
     if (xtr == NULL) { return NULL; }
-    return xtr_repeat_raw(xtr->buffer, repetitions, xtr->used);
+    return xtr_repeat_raw(xtr->str_buffer, repetitions, xtr->used_str_len);
 }
 
 XTR_API XTR_INLINE size_t
 xtr_len(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return 0U; }
-    return xtr->used;
+    return xtr->used_str_len;
 }
 
 XTR_API XTR_INLINE size_t
-xtr_allocated(const xtr_t* const xtr)
+xtr_maxlen(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return 0U; }
-    return xtr->buffer_len - TERMINATOR_LEN;
+    return xtr->max_str_len;
 }
 
 XTR_API XTR_INLINE size_t
 xtr_available(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return 0U; }
-    return (xtr->buffer_len - TERMINATOR_LEN) - xtr->used;
+    return xtr->max_str_len - xtr->used_str_len;
 }
 
 XTR_API bool
 xtr_is_empty(const xtr_t* const xtr)
 {
-    return xtr == NULL || xtr->used == 0U;
+    return xtr == NULL || xtr->used_str_len == 0U;
 }
 
 XTR_API xtr_t*
 xtr_merge(const xtr_t* const a, const xtr_t* const b)
 {
     if (a == NULL || b == NULL) { return NULL; }
-    const size_t merged_len = a->used + b->used;
+    const size_t merged_len = a->used_str_len + b->used_str_len;
     // Check for size_t overflow
-    if (merged_len < a->used || merged_len < b->used) { return NULL; }
+    if (merged_len < a->used_str_len || merged_len < b->used_str_len) { return NULL; }
     xtr_t* const merged = xtr_new_ensure(merged_len);
     if (merged == NULL) { return NULL; }
-    memcpy(merged->buffer, a->buffer, a->used);
-    memcpy(merged->buffer + a->used, b->buffer, b->used);
-    set_len_and_terminator(merged, merged_len);
+    memcpy(merged->str_buffer, a->str_buffer, a->used_str_len);
+    memcpy(merged->str_buffer + a->used_str_len, b->str_buffer, b->used_str_len);
+    set_used_str_len_and_terminator(merged, merged_len);
     return merged;
 }
 
@@ -270,23 +276,23 @@ XTR_API xtr_t*
 xtr_resize(xtr_t* const xtr, const size_t len)
 {
     if (xtr == NULL) { return NULL; }
-    if (xtr->used > len)
+    if (xtr->used_str_len > len)
     {
-        // Clear bytes at the end, do keep same allocation buffer
+        // Clear bytes at the end, do keep same allocation str_buffer
 #if (defined(XTR_SAFE) && XTR_SAFE)
-        xtr_zero_out(xtr->buffer + len, xtr->used - len);
+        xtr_zero_out(xtr->str_buffer + len, xtr->used_str_len - len);
 #endif
-        set_len_and_terminator(xtr, len);
+        set_used_str_len_and_terminator(xtr, len);
         return xtr;
     }
     else
     {
         // Buffer needs to be expanded, reallocate
-        const size_t to_allocate = allocation_size(len);
+        const size_t to_allocate = struct_size(len);
         if (did_size_overflow(to_allocate, len)) { return NULL; }
         xtr_t* const new = realloc(xtr, to_allocate);
         if (new == NULL) { return NULL; }
-        new->buffer_len = allocation_size(len);
+        set_max_str_len_and_terminator(new, len);
         return new;
     }
 }
@@ -296,19 +302,19 @@ xtr_resize_free(xtr_t** const pxtr, const size_t len)
 {
     // TODO copy *pxtr into a local pointer, if the outer changes in the meantime
     if (pxtr == NULL || *pxtr == NULL) { return NULL; }
-    if ((*pxtr)->used > len)
+    if ((*pxtr)->used_str_len > len)
     {
-        // Clear bytes at the end, do keep same allocation buffer
+        // Clear bytes at the end, do keep same allocation str_buffer
 #if (defined(XTR_SAFE) && XTR_SAFE)
-        xtr_zero_out((*pxtr)->buffer + len, (*pxtr)->used - len);
+        xtr_zero_out((*pxtr)->str_buffer + len, (*pxtr)->used_str_len - len);
 #endif
-        set_len_and_terminator((*pxtr), len);
+        set_used_str_len_and_terminator((*pxtr), len);
         return (*pxtr);
     }
     else
     {
         // Buffer needs to be expanded, reallocate
-        const size_t to_allocate = allocation_size(len);
+        const size_t to_allocate = struct_size(len);
         if (did_size_overflow(to_allocate, len)) { return NULL; }
         xtr_t* const new = realloc((*pxtr), to_allocate);
         if (new == NULL) { return NULL; }
@@ -317,7 +323,7 @@ xtr_resize_free(xtr_t** const pxtr, const size_t len)
             xtr_free(pxtr);
             *pxtr = new;
         }
-        new->buffer_len = allocation_size(len);
+        set_max_str_len_and_terminator(new, len);
         return new;
     }
 }
@@ -336,7 +342,7 @@ XTR_API const char*
 xtr_cstring(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return NULL; }
-    else { return xtr->buffer; }
+    else { return xtr->str_buffer; }
 }
 
 XTR_API int
@@ -345,20 +351,20 @@ xtr_cmp(const xtr_t* const a, const xtr_t* const b)
     if (a == NULL || b == NULL) { return 0; }
     else
     {
-        return strncmp(a->buffer, b->buffer, XTR_MIN(a->used, b->used));
+        return strncmp(a->str_buffer, b->str_buffer, XTR_MIN(a->used_str_len, b->used_str_len));
     }
 }
 
 XTR_API const char*
 xtr_find(const xtr_t* const xtr, const xtr_t* const pattern)
 {
-    return xtr_find_in(xtr, pattern, 0U, xtr->used);
+    return xtr_find_in(xtr, pattern, 0U, xtr->used_str_len);
 }
 
 XTR_API const char*
 xtr_find_from(const xtr_t* const xtr, const xtr_t* const pattern, const size_t start)
 {
-    return xtr_find_in(xtr, pattern, start, xtr->used);
+    return xtr_find_in(xtr, pattern, start, xtr->used_str_len);
 }
 
 XTR_API const char*
@@ -367,9 +373,9 @@ xtr_find_in(const xtr_t* const xtr, const xtr_t* const pattern,
 {
     // Consider returning const char*
     if (xtr_is_empty(xtr) || xtr_is_empty(pattern)
-        || start >= xtr->used || end >= xtr->used) { return NULL; }
-    const char* const location = memmem(xtr->buffer + start,
-                                        end - start, pattern->buffer, pattern->used);
+        || start >= xtr->used_str_len || end >= xtr->used_str_len) { return NULL; }
+    const char* const location = memmem(xtr->str_buffer + start,
+                                        end - start, pattern->str_buffer, pattern->used_str_len);
     return location;
 }
 
@@ -379,9 +385,9 @@ xtr_clear(xtr_t* const xtr)
     if (xtr != NULL)
     {
 #if (defined(XTR_SAFE) && XTR_SAFE)
-        xtr_zero_out(xtr->buffer, xtr->buffer_len);
+        xtr_zero_out(xtr->str_buffer, xtr->max_str_len);
 #endif
-        set_len_and_terminator(xtr, 0U);
+        set_used_str_len_and_terminator(xtr, 0U);
     }
 }
 
@@ -389,22 +395,22 @@ XTR_API void
 xtr_rtrim(xtr_t* const xtr, const char* const chars)
 {
     if (xtr_is_empty(xtr)) { return; }
-    size_t last = xtr->used - 1U; // Shifting index of last character, moving towards 0.
+    size_t last = xtr->used_str_len - 1U; // Shifting index of last character, moving towards 0.
     // Stop when non-space found or when `last` loops around (`0--`)
-    // thus the entire buffer was already explored.
+    // thus the entire str_buffer was already explored.
     if (chars == NULL || *chars == TERMINATOR)
     {
         // No characters to trim given: trimming whitespace.
-        while (last < xtr->used && isspace(xtr->buffer[last])) { last--; }
+        while (last < xtr->used_str_len && isspace(xtr->str_buffer[last])) { last--; }
     }
     else
     {
-        while (last < xtr->used && strchr(chars, xtr->buffer[last])) { last--; }
+        while (last < xtr->used_str_len && strchr(chars, xtr->str_buffer[last])) { last--; }
     }
 #if (defined(XTR_SAFE) && XTR_SAFE)
-    xtr_zero_out(&xtr->buffer[last], (xtr->used - 1U) - last);
+    xtr_zero_out(&xtr->str_buffer[last], (xtr->used_str_len - 1U) - last);
 #endif
-    set_len_and_terminator(xtr, last);
+    set_used_str_len_and_terminator(xtr, last);
 }
 
 XTR_API void // O(n) operation!
@@ -413,30 +419,31 @@ xtr_ltrim(xtr_t* const xtr, const char* const chars)
     if (xtr_is_empty(xtr)) { return; }
     size_t first = 0U; // Shifting index of first character, moving towards end.
     // Stop when non-space found or when `first` hits string end,
-    // thus the entire buffer was already explored.
+    // thus the entire str_buffer was already explored.
     if (chars == NULL || *chars == TERMINATOR)
     {
         // No characters to trim given: trimming whitespace.
-        while (first < xtr->used && isspace(xtr->buffer[first])) { first++; }
+        while (first < xtr->used_str_len && isspace(xtr->str_buffer[first])) { first++; }
     }
     else
     {
-        while (first < xtr->used && strchr(chars, xtr->buffer[first])) { first++; }
+        while (first < xtr->used_str_len && strchr(chars, xtr->str_buffer[first])) { first++; }
     }
-    memmove(xtr->buffer, &xtr->buffer[first], xtr->used - first);
+    memmove(xtr->str_buffer, &xtr->str_buffer[first], xtr->used_str_len - first);
 #if (defined(XTR_SAFE) && XTR_SAFE)
-    xtr_zero_out(&xtr->buffer[xtr->used - first], first); // first == amount of discarded
+    xtr_zero_out(&xtr->str_buffer[xtr->used_str_len - first],
+                 first); // first == amount of discarded
 #endif
-    set_len_and_terminator(xtr, xtr->used - first);
+    set_used_str_len_and_terminator(xtr, xtr->used_str_len - first);
 }
 
 XTR_API bool
 xtr_is_space(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return false; }
-    for (size_t i = 0; i < xtr->used; i++)
+    for (size_t i = 0; i < xtr->used_str_len; i++)
     {
-        if (!isspace(xtr->buffer[i])) { return false; }
+        if (!isspace(xtr->str_buffer[i])) { return false; }
     }
     return true;
 }
@@ -445,10 +452,10 @@ XTR_API xtr_t*
 xtr_pop(xtr_t* const xtr, const size_t len)
 {
     if (xtr == NULL) { return NULL; }
-    const size_t to_pop = XTR_MIN(len, xtr->used);
-    xtr_t* const popped = xtr_new_from_ensure(&xtr->buffer[xtr->used - to_pop], to_pop);
+    const size_t to_pop = XTR_MIN(len, xtr->used_str_len);
+    xtr_t* const popped = xtr_new_from_ensure(&xtr->str_buffer[xtr->used_str_len - to_pop], to_pop);
     // FIXME returning the wrong thing
-    return xtr_resize(xtr, xtr->used - to_pop);
+    return xtr_resize(xtr, xtr->used_str_len - to_pop);
 }
 
 static void
@@ -558,17 +565,17 @@ static void
 xtr_extend_raw(xtr_t** const pbase, const char* const part,
                const size_t part_len, const size_t repetitions)
 {
-    const size_t total_len = ((*pbase)->used + part_len) * repetitions;
+    const size_t total_len = ((*pbase)->used_str_len + part_len) * repetitions;
     // Check for size_t overflow
-    if (total_len < (*pbase)->used || total_len < part_len) { return; }
+    if (total_len < (*pbase)->used_str_len || total_len < part_len) { return; }
     // TODO not all overflow  cases are checkde
     xtr_t* const resized = xtr_resize_free(pbase, total_len);
     if (resized == NULL) { return; }
     for (size_t i = 0U; i < repetitions; i++)
     {
-        memcpy(&resized->buffer[i * part_len], part, part_len);
+        memcpy(&resized->str_buffer[i * part_len], part, part_len);
     }
-    set_len_and_terminator(resized, total_len);
+    set_used_str_len_and_terminator(resized, total_len);
 }
 
 XTR_API void
@@ -576,7 +583,7 @@ xtr_extend(xtr_t** const pbase, const xtr_t* ext)
 // TODO some error code
 {
     if (pbase == NULL || *pbase == NULL || ext == NULL) { return; }
-    xtr_extend_raw(pbase, ext->buffer, ext->used, 1);
+    xtr_extend_raw(pbase, ext->str_buffer, ext->used_str_len, 1);
 }
 
 XTR_API void
@@ -584,7 +591,7 @@ xtr_extend_many(xtr_t** const pbase, const xtr_t* ext, const size_t repetitions)
 // TODO some error code
 {
     if (pbase == NULL || *pbase == NULL || ext == NULL) { return; }
-    xtr_extend_raw(pbase, ext->buffer, ext->used, repetitions);
+    xtr_extend_raw(pbase, ext->str_buffer, ext->used_str_len, repetitions);
 }
 
 XTR_API void
@@ -622,27 +629,27 @@ xtr_append_many(xtr_t** const pbase, const char c, const size_t repetitions)
 XTR_API bool
 xtr_contains(const xtr_t* const xtr, const xtr_t* const pattern)
 {
-    return xtr_find_in(xtr, pattern, 0U, xtr->used) != NULL;
+    return xtr_find_in(xtr, pattern, 0U, xtr->used_str_len) != NULL;
 }
 
 XTR_API char
 xtr_last(const xtr_t* const xtr)
 {
     if (xtr_is_empty(xtr)) { return TERMINATOR; }
-    else { return xtr->buffer[xtr->used - 1U]; }
+    else { return xtr->str_buffer[xtr->used_str_len - 1U]; }
 }
 
 XTR_API xtr_t*
 xtr_reversed(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return NULL; }
-    xtr_t* const reversed = xtr_new_ensure(xtr->used);
+    xtr_t* const reversed = xtr_new_ensure(xtr->used_str_len);
     if (reversed == NULL) { return NULL; }
-    for (size_t s = 0U, e = xtr->used - 1U; s < xtr->used; s++, e--)
+    for (size_t s = 0U, e = xtr->used_str_len - 1U; s < xtr->used_str_len; s++, e--)
     {
-        reversed->buffer[s] = xtr->buffer[e];
+        reversed->str_buffer[s] = xtr->str_buffer[e];
     }
-    set_len_and_terminator(reversed, xtr->used);
+    set_used_str_len_and_terminator(reversed, xtr->used_str_len);
     return reversed;
 }
 
@@ -651,11 +658,11 @@ xtr_reverse(xtr_t* const xtr)
 {
     if (xtr == NULL) { return; } // TODO errcodes
     char temp;
-    for (size_t s = 0U, e = xtr->used - 1U; s < xtr->used; s++, e--)
+    for (size_t s = 0U, e = xtr->used_str_len - 1U; s < xtr->used_str_len; s++, e--)
     {
-        temp = xtr->buffer[s];
-        xtr->buffer[s] = xtr->buffer[e];
-        xtr->buffer[e] = temp;
+        temp = xtr->str_buffer[s];
+        xtr->str_buffer[s] = xtr->str_buffer[e];
+        xtr->str_buffer[e] = temp;
     }
 }
 
@@ -664,19 +671,19 @@ xtr_occurrences(const xtr_t* const xtr, const xtr_t* const pattern)
 {
     if (xtr_is_empty(xtr) || xtr_is_empty(pattern)) { return 0U; }
     size_t count = 0U;
-    const char* prev_occurrence = xtr->buffer;
+    const char* prev_occurrence = xtr->str_buffer;
     const char* this_occurrence = NULL;
-    size_t remaining_len = xtr->used;
+    size_t remaining_len = xtr->used_str_len;
     do
     {
         this_occurrence = memmem(prev_occurrence, remaining_len,
-                                 pattern->buffer, pattern->used);
+                                 pattern->str_buffer, pattern->used_str_len);
         if (this_occurrence != NULL)
         {
             count++;
             // TODO use ptrdiff
-            remaining_len -= (this_occurrence - prev_occurrence - pattern->used);
-            prev_occurrence = this_occurrence + pattern->used;
+            remaining_len -= (this_occurrence - prev_occurrence - pattern->used_str_len);
+            prev_occurrence = this_occurrence + pattern->used_str_len;
         }
         else { break; }
     }
@@ -692,21 +699,21 @@ xtr_split_at(const xtr_t* const xtr, const xtr_t* const pattern) // TODO return 
     const size_t parts_amount = occurrences_amount + 1U;
     if (parts_amount <= occurrences_amount) { return NULL; }
     xtr_t** const parts = calloc(parts_amount, sizeof(xtr_t*));
-    const char* prev_occurrence = xtr->buffer;
+    const char* prev_occurrence = xtr->str_buffer;
     const char* this_occurrence = NULL;
     xtr_t* part = NULL;
     size_t part_len = 0U;
-    size_t remaining_len = xtr->used;
+    size_t remaining_len = xtr->used_str_len;
     size_t i = 0;
     do
     {
         // TODO find a way to combine the iterator function into one
         // from this function and occurences() and find()
         this_occurrence = memmem(prev_occurrence, remaining_len,
-                                 pattern->buffer, pattern->used);
+                                 pattern->str_buffer, pattern->used_str_len);
         if (this_occurrence != NULL)
         {
-            part_len = this_occurrence - prev_occurrence - pattern->used;
+            part_len = this_occurrence - prev_occurrence - pattern->used_str_len;
             part = xtr_new_ensure(part_len);
             if (part != NULL)
             {
@@ -723,7 +730,7 @@ xtr_split_at(const xtr_t* const xtr, const xtr_t* const pattern) // TODO return 
                 return NULL;
             }
             remaining_len -= this_occurrence - prev_occurrence;
-            prev_occurrence = this_occurrence + pattern->used;
+            prev_occurrence = this_occurrence + pattern->used_str_len;
         }
         else { break; }
     }

@@ -42,7 +42,7 @@ xtrtest_free_valid(void)
 }
 
 static void
-xtrtest_free_fail_null(void)
+xtrtest_free_valid_on_null_input(void)
 {
     // Just testing that nothing crashes
     xtr_free(NULL);
@@ -54,6 +54,6 @@ void
 xtrtest_free(void)
 {
     xtrtest_free_valid();
-    xtrtest_free_fail_null();
+    xtrtest_free_valid_on_null_input();
     atto_report();
 }

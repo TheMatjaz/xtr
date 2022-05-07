@@ -81,11 +81,18 @@ typedef struct xtr xtr_t;
 
 // New Xtrings
 XTR_API xtr_t* xtr_new_ensure(size_t len);
+
 XTR_API xtr_t* xtr_new_empty(void);
+
 XTR_API xtr_t* xtr_new_from(const char* str);
+
 XTR_API xtr_t* xtr_new_from_ensure(const char* str, size_t len);
+
 XTR_API xtr_t* xtr_new_clone(const xtr_t* xtr);
-XTR_API xtr_t* xtr_new_clone_ensure(const xtr_t* xtr, size_t len);
+
+XTR_API xtr_t* xtr_new_clone_ensure(const xtr_t* xtr, size_t len); // Ensure min total len
+XTR_API xtr_t* xtr_new_clone_increase(const xtr_t* xtr, size_t len); // Ensure len additional
+// free space
 XTR_API xtr_t* xtr_new_fill(char c, size_t len);
 
 XTR_API xtr_t* xtr_new_repeat(const char* str, size_t repetitions);
@@ -96,7 +103,7 @@ XTR_API void xtr_free(xtr_t** pxtr);
 // Xtring getters
 XTR_API size_t xtr_len(const xtr_t* xtr);
 
-XTR_API size_t xtr_allocated(const xtr_t* xtr);
+XTR_API size_t xtr_maxlen(const xtr_t* const xtr);
 
 XTR_API size_t xtr_available(const xtr_t* xtr);
 

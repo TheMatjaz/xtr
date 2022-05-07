@@ -32,11 +32,11 @@
 #include "xtrtest.h"
 
 static void
-xtrtest_new_ensure_valid_0(void)
+xtrtest_new_ensure_valid_allocate_0_bytes(void)
 {
     xtr_t* obtained = xtr_new_ensure(0);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 0);
+    atto_eq(xtr_maxlen(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -45,11 +45,11 @@ xtrtest_new_ensure_valid_0(void)
 }
 
 static void
-xtrtest_new_ensure_valid_1(void)
+xtrtest_new_ensure_valid_allocate_1_byte(void)
 {
     xtr_t* obtained = xtr_new_ensure(1);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 1);
+    atto_eq(xtr_maxlen(obtained), 1);
     atto_eq(xtr_available(obtained), 1);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -58,11 +58,11 @@ xtrtest_new_ensure_valid_1(void)
 }
 
 static void
-xtrtest_new_ensure_valid_15(void)
+xtrtest_new_ensure_valid_allocate_15_bytes(void)
 {
     xtr_t* obtained = xtr_new_ensure(15);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 15);
+    atto_eq(xtr_maxlen(obtained), 15);
     atto_eq(xtr_available(obtained), 15);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -71,11 +71,11 @@ xtrtest_new_ensure_valid_15(void)
 }
 
 static void
-xtrtest_new_ensure_valid_65536(void)
+xtrtest_new_ensure_valid_allocate_ffff_plus_1_bytes(void)
 {
     xtr_t* obtained = xtr_new_ensure(0x10000);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_allocated(obtained), 0x10000);
+    atto_eq(xtr_maxlen(obtained), 0x10000);
     atto_eq(xtr_available(obtained), 0x10000);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -101,10 +101,10 @@ xtrtest_new_ensure_fail_size_overflow(void)
 void
 xtrtest_new_ensure(void)
 {
-    xtrtest_new_ensure_valid_0();
-    xtrtest_new_ensure_valid_1();
-    xtrtest_new_ensure_valid_15();
-    xtrtest_new_ensure_valid_65536();
+    xtrtest_new_ensure_valid_allocate_0_bytes();
+    xtrtest_new_ensure_valid_allocate_1_byte();
+    xtrtest_new_ensure_valid_allocate_15_bytes();
+    xtrtest_new_ensure_valid_allocate_ffff_plus_1_bytes();
     xtrtest_new_ensure_fail_malloc();
     xtrtest_new_ensure_fail_size_overflow();
     atto_report();

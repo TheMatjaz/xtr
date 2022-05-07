@@ -57,6 +57,8 @@ void xtrtest_new_from(void);
 
 void xtrtest_new_from_ensure(void);
 
+void xtrtest_new_clone(void);
+
 #ifdef __cplusplus
 }
 #endif
