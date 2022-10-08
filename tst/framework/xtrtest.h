@@ -45,19 +45,23 @@ void xtrtest_malloc_fail_after(size_t count);
 
 void xtrtest_malloc_disable_failing(void);
 
-void xtrtest_new_empty(void);
+void xtrtest_new(void);
 
-void xtrtest_new_ensure(void);
+void xtrtest_new_with_capacity(void);
+
+void xtrtest_zeros(void);
 
 void xtrtest_getters(void);
 
 void xtrtest_free(void);
 
-void xtrtest_new_from_c(void);
+void xtrtest_from_str(void);
 
-void xtrtest_new_from_c_ensure(void);
+void xtrtest_from_str_with_capacity(void);
 
-void xtrtest_new_clone(void);
+void xtrtest_clone(void);
+
+void xtrtest_clone_with_capacity(void);
 
 #ifdef __cplusplus
 }

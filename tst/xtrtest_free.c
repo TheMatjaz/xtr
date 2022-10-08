@@ -35,7 +35,7 @@
 static void
 xtrtest_free_valid(void)
 {
-    xtr_t* obtained = xtr_new_empty();
+    xtr_t* obtained = xtr_new();
     atto_neq(obtained, NULL);
     xtr_free(&obtained);
     atto_eq(obtained, NULL);

@@ -54,8 +54,9 @@ xtr_from_str_repeated_with_capacity(const char* const str,
                                     const size_t amount,
                                     const size_t at_least)
 {
-    return xtr_from_array_repeated_with_capacity((const uint8_t*) str, strlen(str), amount,
-                                                 at_least);
+    size_t len = 0U;
+    if (str != NULL) { len = strlen(str); }
+    return xtr_from_array_repeated_with_capacity((const uint8_t*) str, len, amount, at_least);
 }
 
 XTR_API xtr_t*
@@ -78,7 +79,7 @@ xtr_from_array_repeated(const uint8_t* const array,
                         const size_t array_len,
                         const size_t repetitions)
 {
-    return xtr_from_array_repeated_with_capacity(array, array_len, 1U, 0U);
+    return xtr_from_array_repeated_with_capacity(array, array_len, repetitions, 0U);
 }
 
 XTR_API xtr_t*
@@ -87,11 +88,11 @@ xtr_from_array_repeated_with_capacity(const uint8_t* const array,
                                       const size_t repetitions,
                                       const size_t at_least)
 {
-    if (array == NULL) { return NULL; }
+    if (array == NULL && array_len != 0U) { return NULL; }
     size_t total_len = repetitions * array_len; // TODO overflow chance
-    total_len = XTR_MAX(total_len, at_least);
-    xtr_t* const new = xtr_new_with_capacity(total_len);
+    xtr_t* const new = xtr_new_with_capacity(XTR_MAX(total_len, at_least));
     if (new == NULL) { return NULL; }
+    if (array == NULL) { return new; } // Don't risk passing NULL to memcpy
     for (size_t i = 0U; i < repetitions; i++)
     {
         memcpy(&new->str_buffer[i * array_len], array, array_len);
@@ -114,9 +115,9 @@ xtr_from_byte_repeated(const uint8_t byte, const size_t len)
 }
 
 XTR_API xtr_t*
-xtr_from_byte_repeated_with_capacity(const uint8_t byte, const size_t len, const at_least)
+xtr_from_byte_repeated_with_capacity(const uint8_t byte, const size_t len, const size_t at_least)
 {
-    xtr_t* const new = xtr_new_with_capacity(MAX(len, at_least));
+    xtr_t* const new = xtr_new_with_capacity(XTR_MAX(len, at_least));
     if (new == NULL) { return NULL; }
     memset(new->str_buffer, byte, len);
     set_used_str_len_and_terminator(new, len);
@@ -127,6 +128,7 @@ XTR_API xtr_t*
 xtr_zeros(const size_t len)
 {
     xtr_t* const new = xtr_new_with_capacity(len);
+    if (new == NULL) { return NULL; }
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
     // Uses calloc already, no need to clear
 #else

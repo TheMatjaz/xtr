@@ -5,7 +5,6 @@ root = true
 charset = utf-8
 
 # Newlines
-end_of_line = lf
 insert_final_newline = true
 
 # Indentation

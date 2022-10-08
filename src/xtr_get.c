@@ -59,6 +59,13 @@ xtr_cstring(const xtr_t* const xtr)
     else { return xtr->str_buffer; }
 }
 
+XTR_API const uint8_t*
+xtr_array(const xtr_t* const xtr)
+{
+    if (xtr == NULL) { return NULL; }
+    else { return (uint8_t*) xtr->str_buffer; }
+}
+
 XTR_API const char*
 xtr_last(const xtr_t* const xtr)
 {

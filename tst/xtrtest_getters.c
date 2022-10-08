@@ -32,7 +32,7 @@
 #include "xtrtest.h"
 
 // Only getter failures are tested here, because they are tested in-practice
-// while being used_str_len for all other test cases, as we need them to verify
+// in every other test in the suite, as they are being used to verify
 // the state of the xtr_t structure.
 
 static void

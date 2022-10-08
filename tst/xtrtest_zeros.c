@@ -32,65 +32,58 @@
 #include "xtrtest.h"
 
 static void
-xtrtest_new_from_c_valid_empty_string(void)
+xtrtest_zeros_valid_empty(void)
 {
-    xtr_t* obtained = xtr_new_from_str("");
+    xtr_t* obtained = xtr_zeros(0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 0);
-    atto_neq(xtr_cstring(obtained), NULL);
-    atto_memeq(xtr_cstring(obtained), "", 1);
+    atto_neq(xtr_array(obtained), NULL);
+    atto_zeros(xtr_array(obtained), 1); // NULL terminator
     xtr_free(&obtained);
 }
 
 static void
-xtrtest_new_from_c_valid_1_byte_string(void)
+xtrtest_zeros_valid_1_byte(void)
 {
-    xtr_t* obtained = xtr_new_from_str("a");
+    xtr_t* obtained = xtr_zeros(1);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 1);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 1);
-    atto_neq(xtr_cstring(obtained), NULL);
-    atto_memeq(xtr_cstring(obtained), "a", 2);
+    atto_neq(xtr_array(obtained), NULL);
+    atto_zeros(xtr_array(obtained), 1); // Before NULL terminator
     xtr_free(&obtained);
 }
 
 static void
-xtrtest_new_from_c_valid_6_bytes_string(void)
+xtrtest_zeros_valid_6_bytes(void)
 {
-    xtr_t* obtained = xtr_new_from_str("Abcdef");
+    xtr_t* obtained = xtr_zeros(6);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 6);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 6);
-    atto_neq(xtr_cstring(obtained), NULL);
-    atto_memeq(xtr_cstring(obtained), "Abcdef", 7);
+    atto_neq(xtr_array(obtained), NULL);
+    atto_zeros(xtr_array(obtained), 6); // Before NULL terminator
     xtr_free(&obtained);
 }
 
 static void
-xtrtest_new_from_c_fail_malloc(void)
+xtrtest_zeros_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
-    xtr_t* obtained = xtr_new_from_str("abc");
+    const xtr_t* obtained = xtr_zeros(3);
     atto_eq(obtained, NULL);
 }
 
-static void
-xtrtest_new_from_c_fail_null(void)
+void
+xtrtest_zeros(void)
 {
-    xtr_t* obtained = xtr_new_from_str(NULL);
-    atto_eq(obtained, NULL);
-}
-
-void xtrtest_new_from_c(void)
-{
-    xtrtest_new_from_c_valid_empty_string();
-    xtrtest_new_from_c_valid_1_byte_string();
-    xtrtest_new_from_c_valid_6_bytes_string();
-    xtrtest_new_from_c_fail_malloc();
-    xtrtest_new_from_c_fail_null();
+    xtrtest_zeros_valid_empty();
+    xtrtest_zeros_valid_1_byte();
+    xtrtest_zeros_valid_6_bytes();
+    xtrtest_zeros_fail_malloc();
     atto_report();
 }

@@ -178,6 +178,8 @@ XTR_API size_t xtr_available(const xtr_t* xtr);
 
 XTR_API const char* xtr_cstring(const xtr_t* xtr);
 
+XTR_API const uint8_t* xtr_array(const xtr_t* xtr);
+
 XTR_API const char* xtr_last(const xtr_t* xtr);
 
 // ------------------- Single-Xtrings content analysis ------------------------------------

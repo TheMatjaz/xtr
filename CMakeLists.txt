@@ -83,13 +83,15 @@ set(TEST_SRC
         tst/framework/xtrtest_main.c
         tst/framework/xtrtest_malloc.c
         # Test cases
-        tst/xtrtest_new_empty.c
-        tst/xtrtest_new_ensure.c
+        tst/xtrtest_new.c
+        tst/xtrtest_new_with_capacity.c
+        tst/xtrtest_zeros.c
         tst/xtrtest_free.c
         tst/xtrtest_getters.c
-        tst/xtrtest_new_from_c.c
-        tst/xtrtest_new_from_c_ensure.c
-        tst/xtrtest_new_clone.c
+        tst/xtrtest_from_str.c
+        tst/xtrtest_from_str_with_capacity.c
+        tst/xtrtest_clone.c
+        tst/xtrtest_clone_with_capacity.c
         )
 
 
