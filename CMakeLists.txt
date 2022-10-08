@@ -94,6 +94,8 @@ set(TEST_SRC
         tst/xtrtest_from_str_repeated_with_capacity.c
         tst/xtrtest_clone.c
         tst/xtrtest_clone_with_capacity.c
+        tst/xtrtest_is_empty.c
+        tst/xtrtest_is_spaces.c
         )
 
 

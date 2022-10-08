@@ -61,10 +61,15 @@ void xtrtest_from_str_with_capacity(void);
 
 void xtrtest_from_str_repeated(void);
 
+void xtrtest_from_str_repeated_with_capacity(void);
+
 void xtrtest_clone(void);
 
 void xtrtest_clone_with_capacity(void);
 
+void xtrtest_is_empty(void);
+
+void xtrtest_is_spaces(void);
 
 #ifdef __cplusplus
 }

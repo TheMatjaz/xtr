@@ -1,8 +1,5 @@
 /**
  * @file
- * Main file of the test suite, running it.
- *
- * Returns non-zero in case at least 1 testcase failed.
  *
  * @copyright Copyright © 2022, Matjaž Guštin <dev@matjaz.it>
  * <https://matjaz.it>. All rights reserved.
@@ -34,26 +31,43 @@
 
 #include "xtrtest.h"
 
-int main(void)
+static void
+xtrtest_is_empty_valid_null(void)
 {
-    printf("Testing libxtr M:%d m:%d bf:%d = v%s\n",
-           XTR_API_VERSION_MAJOR,
-           XTR_API_VERSION_MINOR,
-           XTR_API_VERSION_BUGFIX,
-           XTR_API_VERSION);
-    xtrtest_getters();
-    xtrtest_new();
-    xtrtest_new_with_capacity();
-    xtrtest_free();
-    xtrtest_zeros();
-    xtrtest_from_str();
-    xtrtest_from_str_with_capacity();
-    xtrtest_from_str_repeated();
-    xtrtest_from_str_repeated_with_capacity();
-    xtrtest_clone();
-    xtrtest_clone_with_capacity();
-    xtrtest_is_empty();
-    xtrtest_is_spaces();
+    atto_true(xtr_is_empty(NULL));
+}
+
+static void
+xtrtest_is_empty_valid_empty(void)
+{
+    xtr_t* obtained = xtr_new();
+    atto_true(xtr_is_empty(obtained));
+    xtr_free(&obtained);
+}
+
+
+static void
+xtrtest_is_empty_valid_empty_with_capacity(void)
+{
+    xtr_t* obtained = xtr_new_with_capacity(1);
+    atto_true(xtr_is_empty(obtained));
+    xtr_free(&obtained);
+}
+
+static void
+xtrtestis_empty_valid_non_empty(void)
+{
+    xtr_t* obtained = xtr_from_str("a");
+    atto_false(xtr_is_empty(obtained));
+    xtr_free(&obtained);
+}
+
+void
+xtrtest_is_empty(void)
+{
+    xtrtest_is_empty_valid_null();
+    xtrtest_is_empty_valid_empty();
+    xtrtest_is_empty_valid_empty_with_capacity();
+    xtrtestis_empty_valid_non_empty();
     atto_report();
-    return atto_at_least_one_fail;
 }

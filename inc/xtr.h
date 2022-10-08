@@ -460,7 +460,8 @@ xtr_is_equal_consttime(const xtr_t* a, const xtr_t* b);
 XTR_API void
 xtr_clear(xtr_t* xtr);
 
-XTR_API xtr_t* xtr_pop(xtr_t* xtr, size_t len);
+XTR_API xtr_t*
+xtr_pop(xtr_t* xtr, size_t len);
 
 XTR_API void
 xtr_rtrim(xtr_t* xtr, const char* chars);
