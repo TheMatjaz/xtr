@@ -56,7 +56,7 @@ extern "C"
 struct xtr
 {
     /** Available bytes for content in str_buffer, before terminator. */
-    size_t max_str_len;
+    size_t max_str_len; // TODO rename to capacity
     /** Occupied bytes with content in str_buffer, before terminator. */
     size_t used_str_len;
     /** Buffer with content long `max_str_len+1`, always NULL-terminated at

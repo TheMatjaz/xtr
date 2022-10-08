@@ -76,7 +76,17 @@ extern "C"
 #include <stdlib.h>
 // TODO make stdlib optional for embedded
 
-/** Opaque xtring structure. */
+/** Opaque xtring structure.
+ * Internally it may preallocate more space than it requires.
+ *
+ *             capacity (buffer size)
+ *             __________________
+ *            /                  \
+ *           [abcde...............] buffer
+ *            \___/\_____________/
+ *           length       available
+ *         (used space)  (free space)
+ */
 typedef struct xtr xtr_t;
 
 /**
@@ -272,51 +282,161 @@ xtr_from_byte_repeated_with_capacity(uint8_t byte, size_t len, size_t at_least);
 XTR_API xtr_t*
 xtr_random(size_t len); // TODO
 
-/**
- * Constructs a new xtring, copying the content of a C-string, while ensuring
- * \p at_least bytes are being allocated overall.
- *
- * The amount of pre-allocated free space at the end of the data will be
- * `max{0, at_least - strlen(str)}`.
- *
- * @param [in] str data to copy into the xtring.
- * @param [in] at_least minimum size of the internal buffer, used to ensure
- * a maximum xtring size without reallocation. If `at_least < strlen(str)`,
- * then `strlen(str)` will be allocated instead.
- * @return the new xtring or NULL in case of malloc failure or integer overflows or NULL input.
- */
-
 // ------------------- New cloned xtrings ------------------------------------
+/**
+ * New xtring with same content as another one (copy by value).
+ *
+ * @param xtr to copy.
+ * @return the new xtring or NULL in case of malloc failure or when `xtr` is NULL.
+ */
 XTR_API xtr_t* xtr_clone(const xtr_t* xtr);
 
+/**
+ * New xtring with same content as another one (copy by value)
+ * and overall `at_least` allocated space.
+ *
+ * Ensures the `at_least - xtr_len(xtr)` available allocated free space at the
+ * clone's end, to have some space ready for expansions without reallocation.
+ * @param xtr to copy. Returns NULL if `xtr` is NULL.
+ * @param at_least minimum amount of bytes to allocate, but
+ *        `xtr_len(xtr)` is anyhow allocated not to truncate any data.
+ * @return the new xtring or NULL in case of malloc failure or when `xtr` is NULL.
+ */
 XTR_API xtr_t* xtr_clone_with_capacity(const xtr_t* xtr, size_t max_len);
 
 
 // ------------------- Xtring properties (getters) ------------------------------------
+/**
+ * Xtring length = amount of currently **used** bytes in the allocated buffer.
+ *
+ *             capacity (buffer size)
+ *             __________________
+ *            /                  \
+ *           [abcde...............] buffer
+ *            \___/\_____________/
+ *           length       available
+ *         (used space)  (free space)
+ *
+ * @param xtr xtring to inspect.
+ * @return the length or 0 if `xtr` is NULL.
+ */
 XTR_API size_t xtr_len(const xtr_t* xtr);
 
+/**
+ * Buffer size of the xtring = **maximum** possible length the xtring can reach without
+ * reallocating.
+ *
+ *             capacity (buffer size)
+ *             __________________
+ *            /                  \
+ *           [abcde...............] buffer
+ *            \___/\_____________/
+ *           length       available
+ *         (used space)  (free space)
+ *
+ * @param xtr xtring to inspect.
+ * @return the capacity or 0 if `xtr` is NULL.
+ */
 XTR_API size_t xtr_capacity(const xtr_t* xtr);
 
+/**
+ * Available xtring space =  amount of **free** bytes that can be appended to the xtring
+ * before reallocating.
+ *
+ *             capacity (buffer size)
+ *             __________________
+ *            /                  \
+ *           [abcde...............] buffer
+ *            \___/\_____________/
+ *           length       available
+ *         (used space)  (free space)
+ *
+ * @param xtr xtring to inspect.
+ * @return the capacity or 0 if `xtr` is NULL.
+ */
 XTR_API size_t xtr_available(const xtr_t* xtr);
 
+/**
+ * Read-only access to the internal buffer as C-string, null-terminated.
+ *
+ * DO NOT USE IT TO WRITE DATA. It will corrupt the internal structure.
+ *
+ * @param xtr xtring to inspect.
+ * @return null-terminated char array or NULL if `xtr` is NULL.
+ */
 XTR_API const char* xtr_cstring(const xtr_t* xtr);
 
+/**
+ * Read-only access to the internal buffer as `uint8_t[]`, null-terminated.
+ *
+ * DO NOT USE IT TO WRITE DATA. It will corrupt the internal structure.
+ *
+ * Although the null-termination is not required for binary arrays, it's
+ * included due to the internal construction.
+ * @param xtr xtring to inspect.
+ * @return null-terminated `uint8_t` array or NULL if `xtr` is NULL.
+ */
 XTR_API const uint8_t* xtr_array(const xtr_t* xtr);
 
+/**
+ * Read-only pointer to the last byte of the string.
+ *
+ * @param xtr xtring to inspect.
+ * @return pointer or NULL if `xtr` is NULL or empty.
+ */
 XTR_API const char* xtr_last(const xtr_t* xtr);
 
 // ------------------- Single-Xtrings content analysis ------------------------------------
 
+/**
+ * Checks whether the xtring contains any bytes.
+ * @param xtr xtring to inspect.
+ * @return true if `xtr` is empty (length == 0) or NULL, false otherwise.
+ */
 XTR_API bool xtr_is_empty(const xtr_t* xtr);
 
+/**
+ * Checks whether the xtring contains only whitespace characters.
+ * @param xtr xtring to inspect.
+ * @return true if `xtr` contains only `isspace()` characters, false otherwise.
+ *         Note: an empty or NULL xtring returns false.
+ */
 XTR_API bool xtr_is_spaces(const xtr_t* xtr);
 
+/**
+ * Checks whether the xtring contains only zero-valued bytes.
+ * @param xtr xtring to inspect.
+ * @return true if `xtr` contains only zeros, false otherwise.
+ *         Note: an empty or NULL xtring returns false.
+ */
 XTR_API bool xtr_is_zeros(const xtr_t* xtr);
 
+/**
+ * Like xtr_is_zeros() but with constant runtime for security application.
+ *
+ * The entire string is always scanned, even if a non-zero byte is found early.
+ * @param xtr xtring to inspect.
+ * @return true if `xtr` contains only zeros, false otherwise.
+ *         Note: an empty or NULL xtring returns false.
+ */
 XTR_API bool xtr_is_zeros_consttime(const xtr_t* xtr);
 
-XTR_API bool xtr_is_not_zeros(const xtr_t* a);
+/**
+ * Checks whether the xtring is not full of just zero-valued bytes.
+ * @param xtr xtring to inspect.
+ * @return true if `xtr` contains any non-zero byte, false otherwise.
+ *         Note: an empty or NULL xtring returns false.
+ */
+XTR_API bool xtr_is_not_zeros(const xtr_t* xtr);
 
+/**
+ * Like xtr_is_not_zeros() but with constant runtime for security application.
+ *
+ * The entire string is always scanned, even if a non-zero byte is found early.
+ * @param xtr xtring to inspect.
+ * @return true if `xtr` contains any non-zero byte, false otherwise.
+ *         Note: an empty or NULL xtring returns false.
+ */
 XTR_API bool xtr_is_not_zeros_consttime(const xtr_t* a);
 
 // ------------------- Xtring equality check ------------------------------------

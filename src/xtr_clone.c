@@ -34,6 +34,7 @@
 XTR_API xtr_t*
 xtr_clone(const xtr_t* const xtr)
 {
+    if (xtr == NULL) { return NULL; }
     return xtr_from_array(xtr->str_buffer, xtr->used_str_len);
 }
 

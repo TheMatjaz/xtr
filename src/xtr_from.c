@@ -93,7 +93,8 @@ xtr_from_array_repeated_with_capacity(const uint8_t* const array,
 {
     if (array == NULL && array_len != 0U) { return NULL; }
     if (repetitions == 0U) { return xtr_new_with_capacity(at_least); }
-    size_t total_len = repetitions * array_len; // TODO overflow chance
+    const size_t total_len = repetitions * array_len;
+    if (total_len < array_len) { return NULL; } // Integer overflow
     xtr_t* const new = xtr_new_with_capacity(XTR_MAX(total_len, at_least));
     if (new == NULL) { return NULL; }
     if (array == NULL) { return new; } // Don't risk passing NULL to memcpy
@@ -104,7 +105,6 @@ xtr_from_array_repeated_with_capacity(const uint8_t* const array,
     set_used_str_len_and_terminator(new, total_len);
     return new;
 }
-
 
 XTR_API xtr_t*
 xtr_from_byte(const uint8_t byte)

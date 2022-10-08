@@ -91,6 +91,7 @@ set(TEST_SRC
         tst/xtrtest_from_str.c
         tst/xtrtest_from_str_with_capacity.c
         tst/xtrtest_from_str_repeated.c
+        tst/xtrtest_from_str_repeated_with_capacity.c
         tst/xtrtest_clone.c
         tst/xtrtest_clone_with_capacity.c
         )
