@@ -32,58 +32,18 @@
 #include "xtr_internal.h"
 
 XTR_API bool
-xtr_is_empty(const xtr_t* const xtr)
+xtr_is_zeros(const xtr_t* const xtr)
 {
-    return xtr == NULL || xtr->used_str_len == 0U;
-}
-
-XTR_API int
-xtr_lencmp(const xtr_t* const a, const xtr_t* const b)
-{
-    if (a == NULL && b == NULL) { return 0; }
-    if (a == NULL) { return -1; }
-    if (b == NULL) { return +1; }
-    if (a->used_str_len < b->used_str_len) { return -1; }
-    else if (a->used_str_len > b->used_str_len) { return +1; }
-    return 0; // Both non-NULL and equal length
-}
-
-XTR_API bool
-xtr_equal(const xtr_t* const a, const xtr_t* const b)
-{
-    if (a == NULL && b == NULL) { return true; }
-    if (a == NULL || b == NULL) { return false; }
-    if (a->used_str_len != b->used_str_len) { return false; }
-    return memcmp(a->str_buffer, b->str_buffer, a->used_str_len);
-}
-
-XTR_API bool
-xtr_equal_consttime(const xtr_t* const a, const xtr_t* const b)
-{
-    if (a == NULL && b == NULL) { return true; }
-    if (a == NULL || b == NULL) { return false; }
-    if (a->used_str_len != b->used_str_len) { return false; }
-    bool differing = false;
-    for (size_t i = 0U; i < a->used_str_len; i++)
+    if (xtr == NULL) { return false; }
+    for (size_t i = 0U; i < xtr->used_str_len; i++)
     {
-        differing |= (a->str_buffer[i] == b->str_buffer[i]);
-    }
-    return !differing;
-}
-
-XTR_API bool
-xtr_zeros(const xtr_t* const a)
-{
-    if (a == NULL) { return false; }
-    for (size_t i = 0U; i < a->used_str_len; i++)
-    {
-        if (a->str_buffer[i]) { return false; }
+        if (xtr->str_buffer[i]) { return false; }
     }
     return true;
 }
 
 XTR_API bool
-xtr_zeros_consttime(const xtr_t* const a) // branchless
+xtr_is_zeros_consttime(const xtr_t* const a) // branchless
 {
     if (a == NULL) { return false; }
     int combined = 0U;
@@ -95,7 +55,7 @@ xtr_zeros_consttime(const xtr_t* const a) // branchless
 }
 
 XTR_API bool
-xtr_not_zeros(const xtr_t* const a)
+xtr_is_not_zeros(const xtr_t* const a)
 {
     if (a == NULL) { return false; }
     for (size_t i = 0U; i < a->used_str_len; i++)
@@ -106,7 +66,7 @@ xtr_not_zeros(const xtr_t* const a)
 }
 
 XTR_API bool
-xtr_not_zeros_consttime(const xtr_t* const a) // branchless
+xtr_is_not_zeros_consttime(const xtr_t* const a) // branchless
 {
     if (a == NULL) { return false; }
     int combined = 0U;
@@ -118,7 +78,7 @@ xtr_not_zeros_consttime(const xtr_t* const a) // branchless
 }
 
 XTR_API bool
-xtr_is_space(const xtr_t* const xtr)
+xtr_is_spaces(const xtr_t* xtr)
 {
     if (xtr == NULL) { return false; }
     for (size_t i = 0; i < xtr->used_str_len; i++)
@@ -126,14 +86,4 @@ xtr_is_space(const xtr_t* const xtr)
         if (!isspace(xtr->str_buffer[i])) { return false; }
     }
     return true;
-}
-
-XTR_API int
-xtr_cmp(const xtr_t* const a, const xtr_t* const b)
-{
-    if (a == NULL || b == NULL) { return 0; }
-    else
-    {
-        return strncmp(a->str_buffer, b->str_buffer, XTR_MIN(a->used_str_len, b->used_str_len));
-    }
 }

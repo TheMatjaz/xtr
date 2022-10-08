@@ -34,9 +34,9 @@
 static void
 xtrtest_new_ensure_valid_allocate_0_bytes(void)
 {
-    xtr_t* obtained = xtr_new_ensure(0);
+    xtr_t* obtained = xtr_new_with_capacity(0);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 0);
+    atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -47,9 +47,9 @@ xtrtest_new_ensure_valid_allocate_0_bytes(void)
 static void
 xtrtest_new_ensure_valid_allocate_1_byte(void)
 {
-    xtr_t* obtained = xtr_new_ensure(1);
+    xtr_t* obtained = xtr_new_with_capacity(1);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 1);
+    atto_eq(xtr_capacity(obtained), 1);
     atto_eq(xtr_available(obtained), 1);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -60,9 +60,9 @@ xtrtest_new_ensure_valid_allocate_1_byte(void)
 static void
 xtrtest_new_ensure_valid_allocate_15_bytes(void)
 {
-    xtr_t* obtained = xtr_new_ensure(15);
+    xtr_t* obtained = xtr_new_with_capacity(15);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 15);
+    atto_eq(xtr_capacity(obtained), 15);
     atto_eq(xtr_available(obtained), 15);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -73,9 +73,9 @@ xtrtest_new_ensure_valid_allocate_15_bytes(void)
 static void
 xtrtest_new_ensure_valid_allocate_ffff_plus_1_bytes(void)
 {
-    xtr_t* obtained = xtr_new_ensure(0x10000);
+    xtr_t* obtained = xtr_new_with_capacity(0x10000);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 0x10000);
+    atto_eq(xtr_capacity(obtained), 0x10000);
     atto_eq(xtr_available(obtained), 0x10000);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -87,14 +87,14 @@ static void
 xtrtest_new_ensure_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
-    xtr_t* obtained = xtr_new_ensure(15);
+    xtr_t* obtained = xtr_new_with_capacity(15);
     atto_eq(obtained, NULL);
 }
 
 static void
 xtrtest_new_ensure_fail_size_overflow(void)
 {
-    xtr_t* obtained = xtr_new_ensure(SIZE_MAX);
+    xtr_t* obtained = xtr_new_with_capacity(SIZE_MAX);
     atto_eq(obtained, NULL);
 }
 

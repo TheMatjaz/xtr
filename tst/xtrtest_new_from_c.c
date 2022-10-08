@@ -34,9 +34,9 @@
 static void
 xtrtest_new_from_c_valid_empty_string(void)
 {
-    xtr_t* obtained = xtr_new_from_c("");
+    xtr_t* obtained = xtr_new_from_str("");
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 0);
+    atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -47,9 +47,9 @@ xtrtest_new_from_c_valid_empty_string(void)
 static void
 xtrtest_new_from_c_valid_1_byte_string(void)
 {
-    xtr_t* obtained = xtr_new_from_c("a");
+    xtr_t* obtained = xtr_new_from_str("a");
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 1);
+    atto_eq(xtr_capacity(obtained), 1);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 1);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -60,9 +60,9 @@ xtrtest_new_from_c_valid_1_byte_string(void)
 static void
 xtrtest_new_from_c_valid_6_bytes_string(void)
 {
-    xtr_t* obtained = xtr_new_from_c("Abcdef");
+    xtr_t* obtained = xtr_new_from_str("Abcdef");
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 6);
+    atto_eq(xtr_capacity(obtained), 6);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 6);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -74,14 +74,14 @@ static void
 xtrtest_new_from_c_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
-    xtr_t* obtained = xtr_new_from_c("abc");
+    xtr_t* obtained = xtr_new_from_str("abc");
     atto_eq(obtained, NULL);
 }
 
 static void
 xtrtest_new_from_c_fail_null(void)
 {
-    xtr_t* obtained = xtr_new_from_c(NULL);
+    xtr_t* obtained = xtr_new_from_str(NULL);
     atto_eq(obtained, NULL);
 }
 

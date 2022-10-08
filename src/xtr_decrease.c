@@ -36,7 +36,7 @@ xtr_clear(xtr_t* const xtr)
 {
     if (xtr != NULL)
     {
-#if (defined(XTR_SAFE) && XTR_SAFE)
+#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
         zero_out(xtr->str_buffer, xtr->max_str_len);
 #endif
         set_used_str_len_and_terminator(xtr, 0U);
@@ -48,8 +48,8 @@ xtr_pop(xtr_t* const xtr, const size_t len)
 {
     if (xtr == NULL) { return NULL; }
     const size_t to_pop = XTR_MIN(len, xtr->used_str_len);
-    xtr_t* const popped = xtr_new_from_c_ensure(&xtr->str_buffer[xtr->used_str_len - to_pop],
-                                                to_pop);
+    xtr_t* const popped = xtr_from_str_with_capacity(&xtr->str_buffer[xtr->used_str_len - to_pop],
+                                                     to_pop);
     // FIXME returning the wrong thing
     return xtr_resize(xtr, xtr->used_str_len - to_pop);
 }
@@ -70,8 +70,8 @@ xtr_rtrim(xtr_t* const xtr, const char* const chars)
     {
         while (last < xtr->used_str_len && strchr(chars, xtr->str_buffer[last])) { last--; }
     }
-#if (defined(XTR_SAFE) && XTR_SAFE)
-    xtr_zero_out(&xtr->str_buffer[last], (xtr->used_str_len - 1U) - last);
+#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
+    zero_out(&xtr->str_buffer[last], (xtr->used_str_len - 1U) - last);
 #endif
     set_used_str_len_and_terminator(xtr, last);
 }
@@ -93,9 +93,9 @@ xtr_ltrim(xtr_t* const xtr, const char* const chars)
         while (first < xtr->used_str_len && strchr(chars, xtr->str_buffer[first])) { first++; }
     }
     memmove(xtr->str_buffer, &xtr->str_buffer[first], xtr->used_str_len - first);
-#if (defined(XTR_SAFE) && XTR_SAFE)
-    xtr_zero_out(&xtr->str_buffer[xtr->used_str_len - first],
-                 first); // first == amount of discarded
+#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
+    zero_out(&xtr->str_buffer[xtr->used_str_len - first],
+             first); // first == amount of discarded
 #endif
     set_used_str_len_and_terminator(xtr, xtr->used_str_len - first);
 }

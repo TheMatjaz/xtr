@@ -29,24 +29,60 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "xtrtest.h"
+#include "xtr_internal.h"
 
-// Only getter failures are tested here, because they are tested in-practice
-// while being used_str_len for all other test cases, as we need them to verify
-// the state of the xtr_t structure.
-
-static void
-xtrtest_getters_do_nothing_on_null_input(void)
+XTR_API bool
+xtr_is_empty(const xtr_t* const xtr)
 {
-    atto_eq(xtr_available(NULL), 0);
-    atto_eq(xtr_capacity(NULL), 0);
-    atto_eq(xtr_len(NULL), 0);
-    atto_eq(xtr_cstring(NULL), NULL);
+    return xtr == NULL || xtr->used_str_len == 0U;
 }
 
-void
-xtrtest_getters(void)
+XTR_API int
+xtr_cmp_length(const xtr_t* const a, const xtr_t* const b)
 {
-    xtrtest_getters_do_nothing_on_null_input();
-    atto_report();
+    if (a == NULL && b == NULL) { return 0; }
+    if (a == NULL) { return -1; }
+    if (b == NULL) { return +1; }
+    if (a->used_str_len < b->used_str_len) { return -1; }
+    else if (a->used_str_len > b->used_str_len) { return +1; }
+    return 0; // Both non-NULL and equal length
+}
+
+XTR_API bool
+xtr_is_equal_length(const xtr_t* a, const xtr_t* b)
+{
+    return xtr_cmp_length(a, b) == 0;
+}
+
+XTR_API bool
+xtr_is_equal(const xtr_t* const a, const xtr_t* const b)
+{
+    if (a == NULL && b == NULL) { return true; }
+    if (a == NULL || b == NULL) { return false; }
+    if (a->used_str_len != b->used_str_len) { return false; }
+    return memcmp(a->str_buffer, b->str_buffer, a->used_str_len);
+}
+
+XTR_API bool
+xtr_is_equal_consttime(const xtr_t* const a, const xtr_t* const b)
+{
+    if (a == NULL && b == NULL) { return true; }
+    if (a == NULL || b == NULL) { return false; }
+    if (a->used_str_len != b->used_str_len) { return false; }
+    bool differing = false;
+    for (size_t i = 0U; i < a->used_str_len; i++)
+    {
+        differing |= (a->str_buffer[i] == b->str_buffer[i]);
+    }
+    return !differing;
+}
+
+XTR_API int
+xtr_cmp_content(const xtr_t* const a, const xtr_t* const b)
+{
+    if (a == NULL || b == NULL) { return 0; }
+    else
+    {
+        return memcmp(a->str_buffer, b->str_buffer, XTR_MIN(a->used_str_len, b->used_str_len));
+    }
 }

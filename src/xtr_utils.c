@@ -31,6 +31,18 @@
 
 #include "xtr_internal.h"
 
+XTR_API const char*
+xtr_api_version(uint64_t* const version)
+{
+    if (version != NULL)
+    {
+        *version = (uint64_t) XTR_API_VERSION_MAJOR << 48U
+                   | (uint64_t) XTR_API_VERSION_MINOR << 32U
+                   | (uint64_t) XTR_API_VERSION_BUGFIX << 16U;
+    }
+    return XTR_API_VERSION;
+}
+
 XTR_INLINE void
 set_used_str_len_and_terminator(xtr_t* const xtr, const size_t used_len)
 {

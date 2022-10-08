@@ -40,7 +40,7 @@ xtrtest_new_clone_valid_empty_xtr(void)
     xtr_t* clone = xtr_new_clone(original);
     atto_neq(clone, NULL);
     atto_neq(original, clone);
-    atto_eq(xtr_maxlen(original), xtr_maxlen(clone));
+    atto_eq(xtr_capacity(original), xtr_capacity(clone));
     atto_eq(xtr_available(original), xtr_available(clone));
     atto_eq(xtr_len(original), xtr_len(clone));
     atto_neq(xtr_cstring(original), xtr_cstring(clone));
@@ -54,13 +54,13 @@ xtrtest_new_clone_valid_empty_xtr(void)
 static void
 xtrtest_new_clone_valid_1_char_xtr(void)
 {
-    xtr_t* original = xtr_new_from_c("a");
+    xtr_t* original = xtr_new_from_str("a");
     atto_neq(original, NULL);
 
     xtr_t* clone = xtr_new_clone(original);
     atto_neq(clone, NULL);
     atto_neq(original, clone);
-    atto_eq(xtr_maxlen(original), xtr_maxlen(clone));
+    atto_eq(xtr_capacity(original), xtr_capacity(clone));
     atto_eq(xtr_available(original), xtr_available(clone));
     atto_eq(xtr_len(original), xtr_len(clone));
     atto_neq(xtr_cstring(original), xtr_cstring(clone));
@@ -74,13 +74,13 @@ xtrtest_new_clone_valid_1_char_xtr(void)
 static void
 xtrtest_new_clone_valid_6_char_xtr(void)
 {
-    xtr_t* original = xtr_new_from_c("Abcdef");
+    xtr_t* original = xtr_new_from_str("Abcdef");
     atto_neq(original, NULL);
 
     xtr_t* clone = xtr_new_clone(original);
     atto_neq(clone, NULL);
     atto_neq(original, clone);
-    atto_eq(xtr_maxlen(original), xtr_maxlen(clone));
+    atto_eq(xtr_capacity(original), xtr_capacity(clone));
     atto_eq(xtr_available(original), xtr_available(clone));
     atto_eq(xtr_len(original), xtr_len(clone));
     atto_neq(xtr_cstring(original), xtr_cstring(clone));
@@ -94,13 +94,13 @@ xtrtest_new_clone_valid_6_char_xtr(void)
 static void
 xtrtest_new_clone_valid_empty_xtr_with_free_space(void)
 {
-    xtr_t* original = xtr_new_ensure(6);
+    xtr_t* original = xtr_new_with_capacity(6);
     atto_neq(original, NULL);
 
     xtr_t* clone = xtr_new_clone(original);
     atto_neq(clone, NULL);
     atto_neq(original, clone);
-    atto_eq(xtr_maxlen(original), xtr_maxlen(clone));
+    atto_eq(xtr_capacity(original), xtr_capacity(clone));
     atto_eq(xtr_available(original), xtr_available(clone));
     atto_eq(xtr_len(original), xtr_len(clone));
     atto_neq(xtr_cstring(original), xtr_cstring(clone));
@@ -120,7 +120,7 @@ xtrtest_new_clone_valid_1_char_xtr_with_free_space(void)
     xtr_t* clone = xtr_new_clone(original);
     atto_neq(clone, NULL);
     atto_neq(original, clone);
-    atto_eq(xtr_maxlen(original), xtr_maxlen(clone));
+    atto_eq(xtr_capacity(original), xtr_capacity(clone));
     atto_eq(xtr_available(original), xtr_available(clone));
     atto_eq(xtr_len(original), xtr_len(clone));
     atto_neq(xtr_cstring(original), xtr_cstring(clone));
@@ -140,7 +140,7 @@ xtrtest_new_clone_valid_6_char_xtr_with_free_space(void)
     xtr_t* clone = xtr_new_clone(original);
     atto_neq(clone, NULL);
     atto_neq(original, clone);
-    atto_eq(xtr_maxlen(original), xtr_maxlen(clone));
+    atto_eq(xtr_capacity(original), xtr_capacity(clone));
     atto_eq(xtr_available(original), xtr_available(clone));
     atto_eq(xtr_len(original), xtr_len(clone));
     atto_neq(xtr_cstring(original), xtr_cstring(clone));

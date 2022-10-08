@@ -103,7 +103,7 @@ xtr_repeat_raw(const char* const part, const size_t repetitions, const size_t pa
 {
     const size_t total_len = part_len * repetitions;
     if (total_len < part_len) { return NULL; }// TODO are all overflows cases handled correctly?
-    xtr_t* const new = xtr_new_ensure(total_len);
+    xtr_t* const new = xtr_new_with_capacity(total_len);
     if (new == NULL) { return NULL; }
     for (size_t i = 0; i < repetitions; i++)
     {
@@ -135,7 +135,7 @@ xtr_merge(const xtr_t* const a, const xtr_t* const b)
     const size_t merged_len = a->used_str_len + b->used_str_len;
     // Check for size_t overflowq
     if (merged_len < a->used_str_len || merged_len < b->used_str_len) { return NULL; }
-    xtr_t* const merged = xtr_new_ensure(merged_len);
+    xtr_t* const merged = xtr_new_with_capacity(merged_len);
     if (merged == NULL) { return NULL; }
     memcpy(merged->str_buffer, a->str_buffer, a->used_str_len);
     memcpy(merged->str_buffer + a->used_str_len, b->str_buffer, b->used_str_len);

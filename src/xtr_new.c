@@ -32,11 +32,11 @@
 #include "xtr_internal.h"
 
 XTR_API xtr_t*
-xtr_new_ensure(size_t max_len)
+xtr_new_with_capacity(const size_t max_len)
 {
     const size_t to_allocate = struct_size(max_len);
     if (to_allocate == SIZE_OVERFLOW) { return NULL; }
-#if (defined(XTR_SAFE) && XTR_SAFE)
+#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
     xtr_t* const new = XTR_CALLOC(to_allocate);
 #else
     xtr_t* const new = XTR_MALLOC(to_allocate);
@@ -47,12 +47,18 @@ xtr_new_ensure(size_t max_len)
     return new;
 }
 
+XTR_API XTR_INLINE xtr_t*
+xtr_new(void)
+{
+    return xtr_new_with_capacity(0);
+}
+
 XTR_API void
 xtr_free(xtr_t** const pxtr)
 {
     if (pxtr != NULL && *pxtr != NULL)
     {
-#if (defined(XTR_SAFE) && XTR_SAFE)
+#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
         zero_out((*pxtr)->str_buffer, (*pxtr)->max_str_len);
 #endif
         free((*pxtr));
@@ -60,43 +66,15 @@ xtr_free(xtr_t** const pxtr)
     }
 }
 
-XTR_API xtr_t*
-xtr_new_empty(void)
+XTR_API xtr_t* // TODO rename space->capacity
+xtr_new_from_c_with_space(const char* const str, const size_t extra)
 {
-    return xtr_new_ensure(0);
-}
-
-XTR_API xtr_t*
-xtr_new_from_c(const char* const str) // TODO what about uint8_t arrays?
-{
-    if (str == NULL) { return NULL; }
-    const size_t len = strlen(str);
-    xtr_t* const new = xtr_new_ensure(len);
-    if (new == NULL) { return NULL; }
-    memcpy(new->str_buffer, str, len);
-    set_used_str_len_and_terminator(new, len);
-    return new;
-}
-
-XTR_API xtr_t*
-xtr_new_from_c_ensure(const char* str, size_t at_least)
-{
-    if (str == NULL) { return xtr_new_ensure(at_least); }
+    if (str == NULL) { return xtr_new_with_capacity(extra); }
     const size_t str_len = strlen(str);
-    const size_t ensure_len = XTR_MAX(str_len, at_least);
-    xtr_t* const new = xtr_new_ensure(ensure_len);
+    const size_t ensure_len = str_len + extra;
+    xtr_t* const new = xtr_new_with_capacity(ensure_len);
     if (new == NULL) { return NULL; }
     memcpy(new->str_buffer, str, str_len);
     set_used_str_len_and_terminator(new, str_len);
-    return new;
-}
-
-XTR_API xtr_t*
-xtr_new_fill(const char c, const size_t len)
-{
-    xtr_t* const new = xtr_new_ensure(len);
-    if (new == NULL) { return NULL; }
-    memset(new->str_buffer, c, len);
-    new->used_str_len = len;
     return new;
 }

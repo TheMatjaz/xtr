@@ -38,7 +38,7 @@ xtr_resize(xtr_t* const xtr, const size_t len)
     if (xtr->used_str_len > len)
     {
         // Clear bytes at the end, do keep same allocation str_buffer
-#if (defined(XTR_SAFE) && XTR_SAFE)
+#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
         zero_out(xtr->str_buffer + len, xtr->used_str_len - len);
 #endif
         set_used_str_len_and_terminator(xtr, len);
@@ -64,7 +64,7 @@ xtr_resize_free(xtr_t** const pxtr, const size_t len)
     if ((*pxtr)->used_str_len > len)
     {
         // Clear bytes at the end, do keep same allocation str_buffer
-#if (defined(XTR_SAFE) && XTR_SAFE)
+#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
         zero_out((*pxtr)->str_buffer + len, (*pxtr)->used_str_len - len);
 #endif
         set_used_str_len_and_terminator((*pxtr), len);

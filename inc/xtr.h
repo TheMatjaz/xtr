@@ -60,11 +60,11 @@ extern "C"
 #define XTR_DESTROYS
 
 /** Major version of this API conforming to semantic versioning. */
-#define XTR_API_VERSION_MAJOR 0
+#define XTR_API_VERSION_MAJOR 0U
 /** Minor version of this API conforming to semantic versioning. */
-#define XTR_API_VERSION_MINOR 1
+#define XTR_API_VERSION_MINOR 1U
 /** Bugfix/patch version of this API conforming to semantic versioning. */
-#define XTR_API_VERSION_BUGFIX 0
+#define XTR_API_VERSION_BUGFIX 0U
 /** Version of this API conforming to semantic versioning as a string. */
 #define XTR_API_VERSION "0.1.0"
 
@@ -79,30 +79,75 @@ extern "C"
 /** Opaque xtring structure. */
 typedef struct xtr xtr_t;
 
-#define XTR_SAFE 1
+#define XTR_CLEAR_HEAP 1
 
-// -------- New Xtrings --------
+// =================== NEW XTRINGS ============================================
+// ------------------- New empty xtrings ------------------------------------------
+/**
+ * Constructs a new empty xtring with no pre-allocated free space.
+ * Equivalent to xtr_new_with_capacity(0).
+ * @return the new xtring or NULL in case of malloc failure or integer overflows.
+ */
+XTR_API xtr_t* xtr_new(void);
+
 /**
  * Constructs a new empty xtring with `max_len` bytes pre-allocated free space.
  * @param [in] max_len length the xtring could be expanded to without reallocating.
  * @return the new xtring or NULL in case of malloc failure or integer overflows.
  */
-XTR_API xtr_t* xtr_new_ensure(size_t max_len);
+XTR_API xtr_t* xtr_new_with_capacity(size_t max_len);
 
-/**
- * Constructs a new empty xtring with no pre-allocated free space.
- * Equivalent to xtr_new_ensure(0).
- * @return the new xtring or NULL in case of malloc failure or integer overflows.
- */
-XTR_API xtr_t* xtr_new_empty(void);
 
-/**
- * Constructs a new xtring, copying the content of a C-string.
- * No additional free space is pre-allocated.
- * @param [in] str data to copy into the xtring.
- * @return the new xtring or NULL in case of malloc failure or integer overflows or NULL input.
- */
-XTR_API xtr_t* xtr_new_from_c(const char* str);
+XTR_API void xtr_free(xtr_t** pxtr);
+
+// ------------------- New initialised xtrings from other data ------------------------------------
+XTR_API xtr_t* xtr_zeros(size_t len);
+
+XTR_API xtr_t*
+xtr_from_str(const char* str);
+
+XTR_API xtr_t*
+xtr_from_str_with_capacity(const char* str, size_t at_least);
+
+XTR_API xtr_t*
+xtr_from_str_repeated(const char* str, size_t amount);
+
+XTR_API xtr_t*
+xtr_from_str_repeated_with_capacity(const char* str,
+                                    size_t amount,
+                                    size_t at_least);
+
+XTR_API xtr_t*
+xtr_from_array(const uint8_t* array,
+               size_t array_len);
+
+XTR_API xtr_t*
+xtr_from_array_with_capacity(const uint8_t* array,
+                             size_t array_len,
+                             size_t at_least);
+
+XTR_API xtr_t*
+xtr_from_array_repeated(const uint8_t* array,
+                        size_t array_len,
+                        size_t repetitions);
+
+XTR_API xtr_t*
+xtr_from_array_repeated_with_capacity(const uint8_t* array,
+                                      size_t array_len,
+                                      size_t repetitions,
+                                      size_t at_least);
+
+XTR_API xtr_t*
+xtr_from_byte(uint8_t byte);
+
+XTR_API xtr_t*
+xtr_from_byte_repeated(uint8_t byte, size_t len);
+
+XTR_API xtr_t*
+xtr_from_byte_repeated_with_capacity(uint8_t byte, size_t len, size_t at_least);
+
+XTR_API xtr_t*
+xtr_random(size_t len); // TODO
 
 /**
  * Constructs a new xtring, copying the content of a C-string, while ensuring
@@ -117,48 +162,81 @@ XTR_API xtr_t* xtr_new_from_c(const char* str);
  * then `strlen(str)` will be allocated instead.
  * @return the new xtring or NULL in case of malloc failure or integer overflows or NULL input.
  */
-XTR_API xtr_t* xtr_new_from_c_ensure(const char* str, size_t at_least);
 
-XTR_API xtr_t* xtr_new_from_c_at_least(const char* str, size_t at_least);
+// ------------------- New cloned xtrings ------------------------------------
+XTR_API xtr_t* xtr_clone(const xtr_t* xtr);
 
-XTR_API xtr_t* xtr_new_from_c_at_most(const char* str, size_t at_most);
-
-XTR_API xtr_t* xtr_new_from_c_with_space(const char* str, size_t at_most);
-
-XTR_API xtr_t* xtr_new_from_c_hex(const char* str);
+XTR_API xtr_t* xtr_clone_with_capacity(const xtr_t* xtr, size_t max_len);
 
 
-XTR_API xtr_t* xtr_new_clone(const xtr_t* xtr);
-
-XTR_API xtr_t* xtr_new_clone_ensure(const xtr_t* xtr, size_t max_len); // Ensure min total max_len
-XTR_API xtr_t*
-xtr_new_clone_increase(const xtr_t* xtr, size_t max_len); // Ensure max_len additional
-// free space
-XTR_API xtr_t* xtr_new_fill(char c, size_t len);
-
-XTR_API xtr_t* xtr_new_repeat(const char* str, size_t repetitions);
-
-// Free
-XTR_API void xtr_free(xtr_t** pxtr);
-
-// Xtring getters
+// ------------------- Xtring properties (getters) ------------------------------------
 XTR_API size_t xtr_len(const xtr_t* xtr);
 
-XTR_API size_t xtr_maxlen(const xtr_t* xtr);
+XTR_API size_t xtr_capacity(const xtr_t* xtr);
 
 XTR_API size_t xtr_available(const xtr_t* xtr);
 
 XTR_API const char* xtr_cstring(const xtr_t* xtr);
 
-XTR_API char xtr_last(const xtr_t* xtr);
+XTR_API const char* xtr_last(const xtr_t* xtr);
 
-// Xtring analysis
+// ------------------- Single-Xtrings content analysis ------------------------------------
+
 XTR_API bool xtr_is_empty(const xtr_t* xtr);
 
-XTR_API bool xtr_is_space(const xtr_t* xtr);
+XTR_API bool xtr_is_spaces(const xtr_t* xtr);
+
+XTR_API bool xtr_is_zeros(const xtr_t* xtr);
+
+XTR_API bool xtr_is_zeros_consttime(const xtr_t* xtr);
+
+XTR_API bool xtr_is_not_zeros(const xtr_t* a);
+
+XTR_API bool xtr_is_not_zeros_consttime(const xtr_t* a);
+
+// ------------------- Xtring equality check ------------------------------------
+
+XTR_API int
+xtr_cmp_length(const xtr_t* a, const xtr_t* b);
+
+XTR_API int
+xtr_cmp_content(const xtr_t* a, const xtr_t* b);
+
+XTR_API bool
+xtr_is_equal_length(const xtr_t* a, const xtr_t* b);
+
+XTR_API bool
+xtr_is_equal(const xtr_t* a, const xtr_t* b);
+
+XTR_API bool
+xtr_is_equal_consttime(const xtr_t* a, const xtr_t* b);
+
+// ------------------- Shorten the Xtring's content ------------------------------------
+XTR_API void
+xtr_clear(xtr_t* xtr);
 
 XTR_API xtr_t* xtr_pop(xtr_t* xtr, size_t len);
 
+XTR_API void
+xtr_rtrim(xtr_t* xtr, const char* chars);
+
+XTR_API void // O(n) operation!
+xtr_ltrim(xtr_t* xtr, const char* chars);
+
+// ------------------- Alter the Xtring's allocated memory ------------------------------------
+
+XTR_API xtr_t* xtr_resize(xtr_t* xtr, size_t len);
+
+XTR_API xtr_t* xtr_resize_double(xtr_t* xtr);
+
+XTR_API xtr_t* xtr_resize_free(xtr_t** pxtr, size_t len);
+
+XTR_API xtr_t* xtr_resize_free_double(xtr_t** pxtr);
+
+XTR_API xtr_t* xtr_compress_free(xtr_t** pxtr);
+
+
+// ------ OTHER
 XTR_API xtr_t* xtr_reversed(const xtr_t* xtr);
 
 XTR_API void xtr_reverse(xtr_t* xtr);
@@ -182,29 +260,11 @@ XTR_API xtr_t* xtr_merge(const xtr_t* a, const xtr_t* b);
 XTR_API xtr_t* xtr_repeat(const xtr_t* xtr, size_t repetitions);
 // TODO merge many? Varlena?
 
-// Allocation size
-XTR_API xtr_t* xtr_resize(xtr_t* xtr, size_t len);
 
-XTR_API xtr_t* xtr_resize_double(xtr_t* xtr);
-
-XTR_API xtr_t* xtr_resize_free(xtr_t** pxtr, size_t len);
-
-XTR_API xtr_t* xtr_resize_free_double(xtr_t** pxtr);
-
-XTR_API xtr_t* xtr_compress_free(xtr_t** pxtr);
 
 // Comparing
-XTR_API int xtr_cmp(const xtr_t* a, const xtr_t* b);
-
-XTR_API int xtr_cmp_consttime(const xtr_t* a, const xtr_t* b);
-
-XTR_API int xtr_lencmp(const xtr_t* a, const xtr_t* b);
-
 XTR_API int xtr_cmp_c(const xtr_t* a, const char* b);
-// TODO different comparisons if one string is shorter than the others
-// TODO xtr_cmp should provide also the lexicographical difference between the strings,
-// i.e. the byte1-byte2 difference as signed output
-XTR_API bool xtr_equal(const xtr_t* a, const xtr_t* b);
+
 
 XTR_API bool xtr_equal_until(const xtr_t* a, const xtr_t* b, size_t len);
 
@@ -216,9 +276,6 @@ XTR_API bool xtr_not_equal(const xtr_t* a, const xtr_t* b);
 
 XTR_API bool xtr_not_equal_c(const xtr_t* a, const char* b);
 
-XTR_API bool xtr_zeros(const xtr_t* a);
-
-XTR_API bool xtr_not_zeros(const xtr_t* a);
 
 XTR_API bool xtr_startswith(const xtr_t* a);
 
@@ -306,6 +363,15 @@ XTR_API xtr_t* xtr_hex(const xtr_t* xtr);
 //TODO zerofill
 // TODO insert
 //TODO prepend
+// TODO base64
+// TODO hex
+// TODO tokenise
+// TODO parse as u16, u32, u64, f16, f32, f64, LE and BE - or maybe just iterate?
+// TODO different comparisons if one string is shorter than the others
+//// TODO xtr_cmp_content should provide also the lexicographical difference between the strings,
+//// i.e. the byte1-byte2 difference as signed output
+// TODO file extension
+// TODO filepath operations WIN + UNIX
 
 #ifdef __cplusplus
 }

@@ -32,23 +32,14 @@
 #include "xtr_internal.h"
 
 XTR_API xtr_t*
-xtr_new_clone(const xtr_t* const xtr)
+xtr_clone(const xtr_t* const xtr)
 {
-    if (xtr == NULL) { return NULL; }
-    const size_t allocation_size = struct_size(xtr->max_str_len);
-    xtr_t* const new = malloc(allocation_size);
-    if (new == NULL) { return NULL; }
-    memcpy(new, xtr, allocation_size);
-    return new;
+    return xtr_from_array(xtr->str_buffer, xtr->used_str_len);
 }
 
 XTR_API xtr_t*
-xtr_new_clone_ensure(const xtr_t* const xtr, const size_t max_len)
+xtr_clone_with_capacity(const xtr_t* const xtr, const size_t at_least)
 {
     if (xtr == NULL) { return NULL; }
-    const size_t xlen = xtr_len(xtr);
-    xtr_t* const new = xtr_new_ensure(XTR_MAX(xlen, max_len));
-    if (new == NULL) { return NULL; }
-    memcpy(new, xtr, xlen);
-    return new;
+    return xtr_from_array_with_capacity(xtr->str_buffer, xtr->used_str_len, at_least);
 }

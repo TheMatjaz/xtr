@@ -37,7 +37,7 @@ xtrtest_new_from_c_ensure_valid_null_string_0_bytes_provides(void)
     // Should provide an empty string with 0 available free bytes
     xtr_t* obtained = xtr_new_from_c_ensure(NULL, 0);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 0);
+    atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -51,7 +51,7 @@ xtrtest_new_from_c_ensure_valid_null_string_6_bytes(void)
     // Should provide an empty string with 6 available free bytes
     xtr_t* obtained = xtr_new_from_c_ensure(NULL, 6);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 6);
+    atto_eq(xtr_capacity(obtained), 6);
     atto_eq(xtr_available(obtained), 6);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -65,7 +65,7 @@ xtrtest_new_from_c_ensure_valid_empty_string_0_bytes(void)
     // Should provide an empty string with 0 available free bytes
     xtr_t* obtained = xtr_new_from_c_ensure("", 0);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 0);
+    atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -79,7 +79,7 @@ xtrtest_new_from_c_ensure_valid_empty_string_1_byte(void)
     // Should provide an empty string with 1 available free bytes
     xtr_t* obtained = xtr_new_from_c_ensure("", 1);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 1);
+    atto_eq(xtr_capacity(obtained), 1);
     atto_eq(xtr_available(obtained), 1);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -93,7 +93,7 @@ xtrtest_new_from_c_ensure_valid_empty_string_15_bytes(void)
     // Should provide an empty string with 15 available free bytes
     xtr_t* obtained = xtr_new_from_c_ensure("", 15);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 15);
+    atto_eq(xtr_capacity(obtained), 15);
     atto_eq(xtr_available(obtained), 15);
     atto_eq(xtr_len(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -108,7 +108,7 @@ xtrtest_new_from_c_ensure_valid_1_char_0_bytes(void)
     // because the string is longer than the ensured space
     xtr_t* obtained = xtr_new_from_c_ensure("a", 0);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 1);
+    atto_eq(xtr_capacity(obtained), 1);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 1);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -123,7 +123,7 @@ xtrtest_new_from_c_ensure_valid_1_char_1_bytes(void)
     // because the string is equal than the ensured space
     xtr_t* obtained = xtr_new_from_c_ensure("a", 1);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 1);
+    atto_eq(xtr_capacity(obtained), 1);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 1);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -138,7 +138,7 @@ xtrtest_new_from_c_ensure_valid_6_chars_6_bytes(void)
     // because the string is equal than the ensured space
     xtr_t* obtained = xtr_new_from_c_ensure("Abcdef", 6);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 6);
+    atto_eq(xtr_capacity(obtained), 6);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 6);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -153,7 +153,7 @@ xtrtest_new_from_c_ensure_valid_6_chars_4_bytes(void)
     // because the string is longer than the ensured space
     xtr_t* obtained = xtr_new_from_c_ensure("Abcdef", 4);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 6);
+    atto_eq(xtr_capacity(obtained), 6);
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_len(obtained), 6);
     atto_neq(xtr_cstring(obtained), NULL);
@@ -167,7 +167,7 @@ xtrtest_new_from_c_ensure_valid_6_chars_10_bytes(void)
     // Should provide a 6-char string with 4 available free bytes
     xtr_t* obtained = xtr_new_from_c_ensure("Abcdef", 10);
     atto_neq(obtained, NULL);
-    atto_eq(xtr_maxlen(obtained), 10);
+    atto_eq(xtr_capacity(obtained), 10);
     atto_eq(xtr_available(obtained), 4);
     atto_eq(xtr_len(obtained), 6);
     atto_neq(xtr_cstring(obtained), NULL);

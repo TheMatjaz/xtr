@@ -63,9 +63,10 @@ endif ()
 set(LIB_HEADER inc/xtr.h)
 set(LIB_SRC ${LIB_HEADER}
         src/xtr_clone.c
-        src/xtr_compare.c
+        src/xtr_cmp.c
         src/xtr_decrease.c
         src/xtr_get.c
+        src/xtr_hex.c
         src/xtr_increase.c
         src/xtr_internal.h
         src/xtr_new.c
@@ -75,7 +76,7 @@ set(LIB_SRC ${LIB_HEADER}
         src/xtr_split.c
         src/xtr_unicode.c
         src/xtr_utils.c
-        )
+        src/xtr_from.c src/xtr_unarycmp.c)
 set(TEST_SRC
         # Test frameworks
         tst/framework/atto/atto.c
@@ -108,7 +109,7 @@ set_target_properties(xtr_static PROPERTIES
 # Shared library (.so / .dylib / .dll)
 # Does not reuse the static library object files, as they are
 # recompiled in order to have position-independent code
-add_library(xtr SHARED ${LIB_SRC} src/xtr_utils.c src/xtr_clone.c src/xtr_get.c src/xtr_compare.c src/xtr_resize.c src/xtr_search.c src/xtr_unicode.c src/xtr_increase.c src/xtr_split.c src/xtr_decrease.c src/xtr_reverse.c)
+add_library(xtr SHARED ${LIB_SRC} src/xtr_utils.c src/xtr_clone.c src/xtr_get.c src/xtr_cmp.c src/xtr_resize.c src/xtr_search.c src/xtr_unicode.c src/xtr_increase.c src/xtr_split.c src/xtr_decrease.c src/xtr_reverse.c src/xtr_hex.c)
 target_include_directories(xtr PUBLIC inc/ PRIVATE src/)
 set_target_properties(xtr PROPERTIES
         POSITION_INDEPENDENT_CODE ON

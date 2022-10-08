@@ -39,7 +39,7 @@ xtr_len(const xtr_t* const xtr)
 }
 
 XTR_API XTR_INLINE size_t
-xtr_maxlen(const xtr_t* const xtr)
+xtr_capacity(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return 0U; }
     return xtr->max_str_len;
@@ -59,9 +59,9 @@ xtr_cstring(const xtr_t* const xtr)
     else { return xtr->str_buffer; }
 }
 
-XTR_API char
+XTR_API const char*
 xtr_last(const xtr_t* const xtr)
 {
-    if (xtr_is_empty(xtr)) { return TERMINATOR; }
-    else { return xtr->str_buffer[xtr->used_str_len - 1U]; }
+    if (xtr_is_empty(xtr)) { return NULL; }
+    else { return &xtr->str_buffer[xtr->used_str_len - 1U]; }
 }
