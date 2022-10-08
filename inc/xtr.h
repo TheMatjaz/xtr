@@ -79,58 +79,181 @@ extern "C"
 /** Opaque xtring structure. */
 typedef struct xtr xtr_t;
 
+/**
+ * If true, enables zeroing-out of the heap memory on allocation and before
+ * freeing it.
+ *
+ * Recommended for higher memory safety assurance, at the cost of additional
+ * O(n) operation on construction and destruction.
+ */
 #define XTR_CLEAR_HEAP 1
 
 // =================== NEW XTRINGS ============================================
 // ------------------- New empty xtrings ------------------------------------------
 /**
- * Constructs a new empty xtring with no pre-allocated free space.
- * Equivalent to xtr_new_with_capacity(0).
- * @return the new xtring or NULL in case of malloc failure or integer overflows.
+ * Allocates an empty xtring with no additional pre-allocated free space.
+ *
+ * Equivalent to `xtr_new_with_capacity(0)`.
+ * @return the new xtring or NULL in case of malloc failure.
  */
-XTR_API xtr_t* xtr_new(void);
+XTR_API xtr_t*
+xtr_new(void);
 
 /**
- * Constructs a new empty xtring with `max_len` bytes pre-allocated free space.
+ * Allocates empty xtring with `capacity` bytes of pre-allocated free space.
+ *
+ * The pre-allocated capacity allows to expand the string in-place without
+ * the need to reallocated until the `capacity` length is exceeded.
+ *
  * @param [in] max_len length the xtring could be expanded to without reallocating.
- * @return the new xtring or NULL in case of malloc failure or integer overflows.
+ * @return the new xtring or NULL in case of malloc failure.
  */
-XTR_API xtr_t* xtr_new_with_capacity(size_t max_len);
+XTR_API xtr_t*
+xtr_new_with_capacity(size_t capacity);
 
-
-XTR_API void xtr_free(xtr_t** pxtr);
+/**
+ * Frees the allocated memory of xtring after usage and sets the xtring pointer
+ * to NULL to avoid use-after-free.
+ *
+ * Example:
+ *         xtr_t* xtring = xtr_new();
+ *         // ... usage of the xtring
+ *         xtr_free(&xtring);
+ *         assert(xtring == NULL);
+ *
+ * @param pxtr **address** of the xtring-pointer.
+ */
+XTR_API void
+xtr_free(xtr_t** pxtr);
 
 // ------------------- New initialised xtrings from other data ------------------------------------
-XTR_API xtr_t* xtr_zeros(size_t len);
+/**
+ * New xtring filled with zero-values bytes, similar to `calloc`.
+ *
+ * @param len length in bytes = amount of zeros. `0` for empty xtring.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
+XTR_API xtr_t*
+xtr_zeros(size_t len);
 
+/**
+ * New xtring initialised with the C-string content.
+ *
+ * Does not reserve any additional capacity for expansions.
+ * @param str null-terminated array of characters, usually ASCII.
+ *        NULL or `""` for an empty xtring.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
 xtr_from_str(const char* str);
 
+// TODO from str/u8-array UNTIL a limit (like strncpy with len < strlen())
+
+/**
+ * New xtring initialised with the C-string content and overall `at_least` allocated
+ * space.
+ *
+ * Ensures the `at_least - strlen(str)` available allocated free space at the
+ * xtring's end, to have some space ready for expansions without reallocation.
+ * @param str null-terminated array of characters, usually ASCII.
+ *        NULL or `""` for an empty xtring.
+ * @param at_least minimum amount of bytes to allocate, but
+ *        `strlen(str)` is anyhow allocated not to truncate any data.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
 xtr_from_str_with_capacity(const char* str, size_t at_least);
 
+/**
+ * New xtring initialised with the C-string content repeated `repetitions` times.
+ *
+ * Does not reserve any additional capacity for expansions.
+ * @param str null-terminated array of characters, usually ASCII.
+ *        NULL or `""` for an empty xtring.
+ * @param repetitions amount of times to repeat `str`. `0` for an empty xtring.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
-xtr_from_str_repeated(const char* str, size_t amount);
+xtr_from_str_repeated(const char* str, size_t repetitions);
 
+/**
+ * New xtring initialised with the C-string content repeated `repetitions` times
+ * and overall `at_least` allocated space.
+ *
+ * Ensures the `at_least - strlen(str)` available allocated free space at the
+ * xtring's end, to have some space ready for expansions without reallocation.
+ * @param str null-terminated array of characters, usually ASCII.
+ *        NULL or `""` for an empty xtring.
+ * @param repetitions amount of times to repeat `str`. `0` for an empty xtring.
+ * @param at_least minimum amount of bytes to allocate, but
+ *        `strlen(str) * repetitions` is anyhow allocated not to truncate any data.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
 xtr_from_str_repeated_with_capacity(const char* str,
-                                    size_t amount,
+                                    size_t repetitions,
                                     size_t at_least);
 
+/**
+ * New xtring initialised with the array content.
+ *
+ * Does not reserve any additional capacity for expansions.
+ * @param array binary array. Zero-bytes are copied as they are, not interpreted
+ *        as null-terminators.
+ * @param array_len amount of bytes to copy from the array.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
 xtr_from_array(const uint8_t* array,
                size_t array_len);
 
+/**
+ * New xtring initialised with the array content and overall `at_least` allocated
+ * space.
+ *
+ * Ensures the `at_least - array_len` available allocated free space at the
+ * xtring's end, to have some space ready for expansions without reallocation.
+ * @param array binary array. Zero-bytes are copied as they are, not interpreted
+ *        as null-terminators.
+ * @param array_len amount of bytes to copy from the array.
+ * @param at_least minimum amount of bytes to allocate, but
+ *        `array_len` is anyhow allocated not to truncate any data.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
 xtr_from_array_with_capacity(const uint8_t* array,
                              size_t array_len,
                              size_t at_least);
 
+/**
+ * New xtring initialised with the array content repeated `repetitions` times.
+ *
+ * Does not reserve any additional capacity for expansions.
+ * @param array binary array. Zero-bytes are copied as they are, not interpreted
+ *        as null-terminators.
+ * @param array_len amount of bytes to copy from the array.
+ * @param repetitions amount of times to repeat `array`.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
 xtr_from_array_repeated(const uint8_t* array,
                         size_t array_len,
                         size_t repetitions);
 
+/**
+ * New xtring initialised with the C-string content repeated `repetitions` times
+ * and overall `at_least` allocated space.
+ *
+ * Ensures the `at_least - array_len` available allocated free space at the
+ * xtring's end, to have some space ready for expansions without reallocation.
+ * @param array binary array. Zero-bytes are copied as they are, not interpreted
+ *        as null-terminators.
+ * @param array_len amount of bytes to copy from the array.
+ * @param repetitions amount of times to repeat `array`.
+ * @param at_least minimum amount of bytes to allocate, but
+ *        `array_len * repetitions` is anyhow allocated not to truncate any data.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
 xtr_from_array_repeated_with_capacity(const uint8_t* array,
                                       size_t array_len,

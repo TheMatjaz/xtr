@@ -1,5 +1,4 @@
-# Check out files with Unix line endings
-* text=auto eol=lf
+* text=auto
 
 # Force these files to be text
 *.gitattributes text

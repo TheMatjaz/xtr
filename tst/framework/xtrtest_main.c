@@ -48,6 +48,7 @@ int main(void)
     xtrtest_zeros();
     xtrtest_from_str();
     xtrtest_from_str_with_capacity();
+    xtrtest_from_str_repeated();
     xtrtest_clone();
     xtrtest_clone_with_capacity();
     atto_report();

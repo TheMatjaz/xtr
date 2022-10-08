@@ -31,39 +31,42 @@
 
 #include "xtr_internal.h"
 
+#define NO_REPETITIONS 1U
+#define NO_EXTRA_CAPACITY 0U
+
 XTR_API xtr_t*
 xtr_from_str(const char* const str)
 {
-    return xtr_from_str_repeated_with_capacity(str, 1U, 0U);
+    return xtr_from_str_repeated_with_capacity(str, NO_REPETITIONS, NO_EXTRA_CAPACITY);
 }
 
 XTR_API xtr_t*
 xtr_from_str_with_capacity(const char* const str, const size_t at_least)
 {
-    return xtr_from_str_repeated_with_capacity(str, 1U, at_least);
+    return xtr_from_str_repeated_with_capacity(str, NO_REPETITIONS, at_least);
 }
 
 XTR_API xtr_t*
-xtr_from_str_repeated(const char* const str, const size_t amount)
+xtr_from_str_repeated(const char* const str, const size_t repetitions)
 {
-    return xtr_from_str_repeated_with_capacity(str, amount, 0U);
+    return xtr_from_str_repeated_with_capacity(str, repetitions, NO_EXTRA_CAPACITY);
 }
 
 XTR_API xtr_t*
 xtr_from_str_repeated_with_capacity(const char* const str,
-                                    const size_t amount,
+                                    const size_t repetitions,
                                     const size_t at_least)
 {
     size_t len = 0U;
     if (str != NULL) { len = strlen(str); }
-    return xtr_from_array_repeated_with_capacity((const uint8_t*) str, len, amount, at_least);
+    return xtr_from_array_repeated_with_capacity((const uint8_t*) str, len, repetitions, at_least);
 }
 
 XTR_API xtr_t*
 xtr_from_array(const uint8_t* const array,
                const size_t array_len)
 {
-    return xtr_from_array_repeated(array, array_len, 1U);
+    return xtr_from_array_repeated(array, array_len, NO_REPETITIONS);
 }
 
 XTR_API xtr_t*
@@ -71,7 +74,7 @@ xtr_from_array_with_capacity(const uint8_t* const array,
                              const size_t array_len,
                              const size_t at_least)
 {
-    return xtr_from_array_repeated_with_capacity(array, array_len, 1U, at_least);
+    return xtr_from_array_repeated_with_capacity(array, array_len, NO_REPETITIONS, at_least);
 }
 
 XTR_API xtr_t*
@@ -79,7 +82,7 @@ xtr_from_array_repeated(const uint8_t* const array,
                         const size_t array_len,
                         const size_t repetitions)
 {
-    return xtr_from_array_repeated_with_capacity(array, array_len, repetitions, 0U);
+    return xtr_from_array_repeated_with_capacity(array, array_len, repetitions, NO_EXTRA_CAPACITY);
 }
 
 XTR_API xtr_t*
@@ -89,6 +92,7 @@ xtr_from_array_repeated_with_capacity(const uint8_t* const array,
                                       const size_t at_least)
 {
     if (array == NULL && array_len != 0U) { return NULL; }
+    if (repetitions == 0U) { return xtr_new_with_capacity(at_least); }
     size_t total_len = repetitions * array_len; // TODO overflow chance
     xtr_t* const new = xtr_new_with_capacity(XTR_MAX(total_len, at_least));
     if (new == NULL) { return NULL; }
@@ -105,22 +109,23 @@ xtr_from_array_repeated_with_capacity(const uint8_t* const array,
 XTR_API xtr_t*
 xtr_from_byte(const uint8_t byte)
 {
-    return xtr_from_byte_repeated_with_capacity(byte, 1U, 0U);
+    return xtr_from_byte_repeated_with_capacity(byte, NO_REPETITIONS, NO_EXTRA_CAPACITY);
 }
 
 XTR_API xtr_t*
-xtr_from_byte_repeated(const uint8_t byte, const size_t len)
+xtr_from_byte_repeated(const uint8_t byte, const size_t repetitions)
 {
-    return xtr_from_byte_repeated_with_capacity(byte, len, 0U);
+    return xtr_from_byte_repeated_with_capacity(byte, repetitions, NO_EXTRA_CAPACITY);
 }
 
 XTR_API xtr_t*
-xtr_from_byte_repeated_with_capacity(const uint8_t byte, const size_t len, const size_t at_least)
+xtr_from_byte_repeated_with_capacity(const uint8_t byte, const size_t repetitions,
+                                     const size_t at_least)
 {
-    xtr_t* const new = xtr_new_with_capacity(XTR_MAX(len, at_least));
+    xtr_t* const new = xtr_new_with_capacity(XTR_MAX(repetitions, at_least));
     if (new == NULL) { return NULL; }
-    memset(new->str_buffer, byte, len);
-    set_used_str_len_and_terminator(new, len);
+    memset(new->str_buffer, byte, repetitions);
+    set_used_str_len_and_terminator(new, repetitions);
     return new;
 }
 

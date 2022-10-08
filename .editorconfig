@@ -5,6 +5,8 @@ root = true
 charset = utf-8
 
 # Newlines
+# NO END-OF-LINE SETTING HERE as it's forced to native in .gitattributs
+# equivalent to the Git core.autocrlf=true configuration.
 insert_final_newline = true
 
 # Indentation
