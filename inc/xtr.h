@@ -661,11 +661,37 @@ xtr_trim_head(xtr_t* xtr, const char* chars); // Pass NULL for whitespaces
 XTR_API void
 xtr_trim(xtr_t* xtr, const char* chars); // Pass NULL for whitespaces
 
+/**
+ * Truncates the provided substring from the end of the xtring, if present.
+ *
+ * If either parameter is NULL or the suffix is not found, then nothing happens.
+ * If the suffix appears multiple times, it's removed only once.
+ *
+ * Example:
+ *         xtr_trim(xtr["Hello world!"], " world!") --> xtr["Hello"]
+ *         xtr_trim(xtr["Hello world!"], "abc!") --> xtr["Hello world!"]
+ *         xtr_trim(xtr["Hello world..."], ".") --> xtr["Hello world.."]
+ * @param xtr xtring to truncate in-place. NULL does nothing.
+ * @param chars substring to remove. NULL does nothing.
+ */
+XTR_API void
+xtr_remove_suffix(xtr_t* xtr, const char* suffix);
 
-XTR_API void xtr_remove_suffix(xtr_t* xtr, const char* suffix);
-
-XTR_API void xtr_remove_prefix(xtr_t* xtr, const char* prefix);
-
+/**
+ * Truncates the provided substring from the start of the xtring, if present.
+ *
+ * If either parameter is NULL or the prefix is not found, then nothing happens.
+ * If the prefix appears multiple times, it's removed only once.
+ *
+ * Example:
+ *         xtr_trim(xtr["Hello world!"], "He") --> xtr["llo world!"]
+ *         xtr_trim(xtr["Hello world!"], "abc!") --> xtr["Hello world!"]
+ *         xtr_trim(xtr["...Hello world!"], ".") --> xtr["..Hello world!"]
+ * @param xtr xtring to truncate in-place. NULL does nothing.
+ * @param chars substring to remove. NULL does nothing.
+ */
+XTR_API void
+xtr_remove_prefix(xtr_t* xtr, const char* prefix);
 
 
 // ------------------- Alter the Xtring's allocated memory ------------------------------------

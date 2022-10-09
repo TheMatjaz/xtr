@@ -31,6 +31,7 @@
 
 #include "xtr_internal.h"
 
+// TODO xtr_ensure: like resize, but does not truncate if too short
 XTR_API xtr_t*
 xtr_resize(xtr_t* const xtr, const size_t len)
 {

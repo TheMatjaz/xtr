@@ -74,7 +74,7 @@ zero_out(void* data, size_t len)
     // Libsodium has good ideas
 }
 
-XTR_INLINE void
+XTR_INLINE void // TODO use this instead of memmove
 memmove_secure(void* const dst, void* const src, const size_t len)
 {
     if (dst == NULL || src == NULL || dst == src || len == 0) { return; }
