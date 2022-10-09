@@ -43,19 +43,65 @@ xtr_clear(xtr_t* const xtr)
     }
 }
 
-XTR_API xtr_t*
-xtr_pop(xtr_t* const xtr, const size_t len)
+XTR_API void
+xtr_truncate_head(xtr_t* const xtr, const size_t amount_to_truncate)
 {
-    if (xtr == NULL) { return NULL; }
-    const size_t to_pop = XTR_MIN(len, xtr->used_str_len);
-    xtr_t* const popped = xtr_from_str_with_capacity(&xtr->str_buffer[xtr->used_str_len - to_pop],
-                                                     to_pop);
-    // FIXME returning the wrong thing
-    return xtr_resize(xtr, xtr->used_str_len - to_pop);
+    if (xtr == NULL) { return; }
+    const size_t to_truncate = XTR_MIN(amount_to_truncate, xtr->used_str_len);
+    const size_t new_len = xtr->used_str_len - to_truncate;
+    memmove(xtr->str_buffer, xtr->str_buffer + to_truncate, new_len);
+#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
+    zero_out(&xtr->str_buffer[new_len], amount_to_truncate);
+#endif
+    set_used_str_len_and_terminator(xtr, new_len);
 }
 
 XTR_API void
-xtr_rtrim(xtr_t* const xtr, const char* const chars)
+xtr_truncate_tail(xtr_t* const xtr, const size_t amount_to_truncate)
+{
+    if (xtr == NULL) { return; }
+    const size_t to_truncate = XTR_MIN(amount_to_truncate, xtr->used_str_len);
+    const size_t new_len = xtr->used_str_len - to_truncate;
+#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
+    zero_out(&xtr->str_buffer[new_len], amount_to_truncate);
+#endif
+    set_used_str_len_and_terminator(xtr, new_len);
+}
+
+
+XTR_API xtr_t*
+xtr_pop_tail(xtr_t* const xtr, const size_t amount_to_pop)
+{
+    if (xtr == NULL) { return NULL; }
+    const size_t poppable = XTR_MIN(amount_to_pop, xtr->used_str_len);
+    const size_t new_len = xtr->used_str_len - poppable;
+    xtr_t* const popped = xtr_from_array(&xtr->str_buffer[new_len], poppable);
+    if (popped == NULL) { return NULL; }
+#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
+    zero_out(&xtr->str_buffer[new_len], poppable);
+#endif
+    set_used_str_len_and_terminator(xtr, new_len);
+    return popped;
+}
+
+XTR_API xtr_t*
+xtr_pop_head(xtr_t* const xtr, const size_t amount_to_pop)
+{
+    if (xtr == NULL) { return NULL; }
+    const size_t poppable = XTR_MIN(amount_to_pop, xtr->used_str_len);
+    const size_t new_len = xtr->used_str_len - poppable;
+    xtr_t* const popped = xtr_from_array(xtr->str_buffer, poppable);
+    if (popped == NULL) { return NULL; }
+    memmove(xtr->str_buffer, xtr->str_buffer + poppable, new_len);
+#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
+    zero_out(&xtr->str_buffer[new_len], amount_to_pop);
+#endif
+    set_used_str_len_and_terminator(xtr, new_len);
+    return popped;
+}
+
+XTR_API void
+xtr_trim_tail(xtr_t* xtr, const char* chars)
 {
     if (xtr_is_empty(xtr)) { return; }
     size_t last = xtr->used_str_len - 1U; // Shifting index of last character, moving towards 0.
@@ -76,8 +122,8 @@ xtr_rtrim(xtr_t* const xtr, const char* const chars)
     set_used_str_len_and_terminator(xtr, last);
 }
 
-XTR_API void // O(n) operation!
-xtr_ltrim(xtr_t* const xtr, const char* const chars)
+XTR_API void
+xtr_trim_head(xtr_t* xtr, const char* chars)
 {
     if (xtr_is_empty(xtr)) { return; }
     size_t first = 0U; // Shifting index of first character, moving towards end.
@@ -98,4 +144,36 @@ xtr_ltrim(xtr_t* const xtr, const char* const chars)
              first); // first == amount of discarded
 #endif
     set_used_str_len_and_terminator(xtr, xtr->used_str_len - first);
+}
+
+XTR_API void
+xtr_trim(xtr_t* xtr, const char* chars)
+{
+    xtr_trim_tail(xtr, chars);
+    xtr_trim_head(xtr, chars);
+}
+
+// TODO binary version? not char* but void*?
+XTR_API void
+xtr_remove_suffix(xtr_t* xtr, const char* suffix)
+{
+    if (xtr_is_empty(xtr) || suffix == NULL) { return; }
+    const size_t suffix_len = strlen(suffix);
+    if (suffix_len > xtr->used_str_len) { return; }
+    if (memcmp(&xtr->str_buffer[xtr->used_str_len - suffix_len], suffix, suffix_len) == 0)
+    {
+        xtr_truncate_tail(xtr, suffix_len);
+    }
+}
+
+XTR_API void
+xtr_remove_prefix(xtr_t* xtr, const char* prefix)
+{
+    if (xtr_is_empty(xtr) || prefix == NULL) { return; }
+    const size_t prefix_len = strlen(prefix);
+    if (prefix_len > xtr->used_str_len) { return; }
+    if (memcmp(xtr->str_buffer, prefix_len, prefix_len) == 0)
+    {
+        xtr_truncate_head(xtr, prefix_len);
+    }
 }

@@ -55,7 +55,7 @@ xtrtest_is_empty_valid_empty_with_capacity(void)
 }
 
 static void
-xtrtestis_empty_valid_non_empty(void)
+xtrtest_is_empty_valid_non_empty(void)
 {
     xtr_t* obtained = xtr_from_str("a");
     atto_false(xtr_is_empty(obtained));
@@ -68,6 +68,6 @@ xtrtest_is_empty(void)
     xtrtest_is_empty_valid_null();
     xtrtest_is_empty_valid_empty();
     xtrtest_is_empty_valid_empty_with_capacity();
-    xtrtestis_empty_valid_non_empty();
+    xtrtest_is_empty_valid_non_empty();
     atto_report();
 }

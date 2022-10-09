@@ -51,7 +51,7 @@ set_used_str_len_and_terminator(xtr_t* const xtr, const size_t used_len)
     xtr->str_buffer[xtr->max_str_len] = TERMINATOR;
 }
 
-XTR_INLINE void
+XTR_INLINE void // TODO rename to capacity
 set_max_str_len_and_terminator(xtr_t* const xtr, const size_t max_len)
 {
     xtr->max_str_len = max_len;

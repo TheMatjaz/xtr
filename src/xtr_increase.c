@@ -82,7 +82,7 @@ xtr_extend_from_many(xtr_t** const pbase, const char* const ext, const size_t re
     xtr_extend_raw(pbase, ext, ext_len, repetitions);
 }
 
-XTR_API void
+XTR_API void // TODO name it push?
 xtr_append(xtr_t** const pbase, const char c) // TODO some error code
 {
     if (pbase == NULL || *pbase == NULL) { return; }

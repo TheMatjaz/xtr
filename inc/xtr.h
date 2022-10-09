@@ -104,6 +104,7 @@ typedef struct xtr xtr_t;
  * Allocates an empty xtring with no additional pre-allocated free space.
  *
  * Equivalent to `xtr_new_with_capacity(0)`.
+ *
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
@@ -113,9 +114,17 @@ xtr_new(void);
  * Allocates empty xtring with `capacity` bytes of pre-allocated free space.
  *
  * The pre-allocated capacity allows to expand the string in-place without
- * the need to reallocated until the `capacity` length is exceeded.
+ * the need to reallocated until the `capacity` limit is exceeded.
  *
- * @param [in] max_len length the xtring could be expanded to without reallocating.
+ *             capacity (buffer size)
+ *             __________________
+ *            /                  \
+ *           [abcde...............] buffer
+ *            \___/\_____________/
+ *           length       available
+ *         (used space)  (free space)
+ *
+ * @param [in] capacity maximum length the xtring could be expanded to without reallocating.
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
@@ -439,35 +448,225 @@ XTR_API bool xtr_is_not_zeros(const xtr_t* xtr);
  */
 XTR_API bool xtr_is_not_zeros_consttime(const xtr_t* a);
 
-// ------------------- Xtring equality check ------------------------------------
+// ------------------- Xtring equality check and comparison ------------------------------------
 
+/**
+ * Compares just the lengths of the xtrings (amount of used bytes).
+ *
+ * Mimics `memcmp()` but just for the xtring lengths, not their content.
+ * For that, use xtr_cmp().
+ * @param a first xtring
+ * @param b second xtring
+ * @return
+ * - `0` when they have equal length: both NULL, or both same length, or both same pointer
+ * - negative when `a` is shorter
+ *   - `-1` when `a` is NULL and `b` is not (`a` has no data, thus shorter than `b`)
+ *   - `-2` when `a` is shorter than `b`
+ * - positive when `a` is longer
+ *   - `+1` when `b` is NULL and `a` is not (`b` has no data, thus shorter than `a`)
+ *   - `+2` when `b` is shorter than `a`
+ */
 XTR_API int
 xtr_cmp_length(const xtr_t* a, const xtr_t* b);
 
-XTR_API int
-xtr_cmp_content(const xtr_t* a, const xtr_t* b);
-
+/**
+ * Wrapper around xtr_cmp_length() checking only for length equality (amount of used bytes).
+ *
+ * @param a first xtring
+ * @param b second xtring
+ * @return true when both are NULL or have equal length
+ */
 XTR_API bool
 xtr_is_equal_length(const xtr_t* a, const xtr_t* b);
 
+/**
+ * Compares the two xtrings in length and content, useful for sorting.
+ *
+ * Mimics `memcmp()`, but compares also the length and NULL pointers.
+ * @param a first xtring
+ * @param b second xtring
+ * @return
+ * - `0` when they are equal: both NULL, or both same length and content, or both same pointer
+ * - negative when `a` is shorter
+ *   - `-1` when `a` is NULL and `b` is not (`a` has no data, thus shorter than `b`)
+ *   - `-2` when `a` entirely matches the initial part of `b` but `b` is longer
+ *   - `-3` when `a` is contains a byte which has a lower value than in `b`
+ * - positive when `a` is longer
+ *   - `+1` when `b` is NULL and `a` is not (`b` has no data, thus shorter than `a`)
+ *   - `+2` when `b` entirely matches the initial part of `a` but `a` is longer
+ *   - `+3` when `b` is contains a byte which has a lower value than in `a`
+ */
+XTR_API int
+xtr_cmp(const xtr_t* a, const xtr_t* b);
+
+/**
+ * Checks if two xtrings have exactly the same length and content.
+ *
+ * @param a first xtring
+ * @param b second xtring
+ * @return true when both NULL, or both are the same pointer, or both have the same length
+ * and same content (used bytes). False otherwise.
+ */
 XTR_API bool
 xtr_is_equal(const xtr_t* a, const xtr_t* b);
 
+/**
+ * Like xtr_is_equal() but with constant runtime for security application.
+ *
+ * Both xtrings are fully scanned, even if a differing byte is found early.
+ * EXCEPTION: if one of them is shorter, the function returns IMMEDIATELY,
+ * because they cannot be the same string.
+ *
+ * @param a first xtring
+ * @param b second xtring
+ * @return true when both NULL, or both are the same pointer, or both have the same length
+ * and same content (used bytes). False otherwise.
+ */
 XTR_API bool
 xtr_is_equal_consttime(const xtr_t* a, const xtr_t* b);
 
 // ------------------- Shorten the Xtring's content ------------------------------------
-XTR_API void
+/**
+ * Empties the string, cutting its length to zero, without reallocation.
+ *
+ * The allocated memory (capability) remains the same. To shorten the buffer
+ * use xtr_compress_free();
+ * @param xtr xtring to erase.
+ */
+XTR_API void // TODO if safe, then O(n) operation
 xtr_clear(xtr_t* xtr);
 
+/**
+ * Removes `len` bytes from the xtring start and returns them as a new xtring.
+ *
+ * Example of popping 3 bytes:
+ *         xtr before: "Hello world!"
+ *         xtr after:  "lo world!"
+ *         returned:   "Hel"
+ *
+ * O(n) operation, as it requires the rest of the altered string to be
+ * shifted with `memmove`.
+ * @param xtr xtring to pop from an alter, modified in-place.
+ * @param len amount of bytes to pop. If more than the length of `xtr`, a copy
+ *        of the entire `xtr` is provided and the modified `xtr` is emptied.
+ * @return new xtring with the popped prefix of `xtr`, with the bytes in the
+ *        same order as they appeared in the original.
+ */
 XTR_API xtr_t*
-xtr_pop(xtr_t* xtr, size_t len);
+xtr_pop_head(xtr_t* xtr, size_t len);
 
+/**
+ * Removes `len` bytes from the xtring end and returns them as a new xtring.
+ *
+ * Example of popping 3 bytes:
+ *         xtr before: "Hello world!"
+ *         xtr after:  "Hello wor"
+ *         returned:   "ld!"
+ *
+ * O(1) operation.
+ * @param xtr xtring to pop from an alter, modified in-place.
+ * @param len amount of bytes to pop. If more than the length of `xtr`, a copy
+ *        of the entire `xtr` is provided and the modified `xtr` is emptied.
+ * @return new xtring with the popped prefix of `xtr`, with the bytes in the
+ *        same order as they appeared in the original.
+ */
+XTR_API xtr_t*
+xtr_pop_tail(xtr_t* xtr, size_t len);
+
+/**
+ * Removes `len` bytes from the xtring start.
+ *
+ * Like xtr_pop_head() without returning the popped value.
+ *
+ * Example of truncating 3 bytes:
+ *         xtr before: "Hello world!"
+ *         xtr after:  "lo world!"
+ *
+ * O(n) operation, as it requires the rest of the altered string to be
+ * shifted with `memmove`.
+ * @param xtr xtring to truncate, modified in-place.
+ * @param len amount of bytes to erase. If more than the length of `xtr`, the
+ *        entire `xtr` is emptied.
+ */
 XTR_API void
-xtr_rtrim(xtr_t* xtr, const char* chars);
+xtr_truncate_head(xtr_t* xtr, size_t len);
 
+// TODO indicate complexities with safe on and off
+
+/**
+ * Removes `len` bytes from the xtring end.
+ *
+ * Like xtr_pop_tail() without returning the popped value.
+ *
+ * Example of truncating 3 bytes:
+ *         xtr before: "Hello world!"
+ *         xtr after:  "Hello wor"
+ *
+ * O(1) operation.
+ * @param xtr xtring to truncate, modified in-place.
+ * @param len amount of bytes to erase. If more than the length of `xtr`, the
+ *        entire `xtr` is emptied.
+ */
+XTR_API void
+xtr_truncate_tail(xtr_t* xtr, size_t len);
+
+/**
+ * Trims (strips) any provided characters from the end of the string.
+ *
+ * Sometimes known as `rstrip` or `rtrim`.
+ *
+ * Example:
+ *
+ *         xtr_trim_tail(xtr["Hello world!"], ".,!d") --> xtr["Hello worl"]
+ *         xtr_trim_tail(xtr["Hello world!\r\n"], NULL) --> xtr["Hello world!"]
+ *         xtr_trim_tail(xtr["Hello world!AAAAAAA"], "ABC") --> xtr["Hello world!"]
+ * @param xtr xtring to trim in-place.
+ * @param chars characters to remove, regardless of their order of appearance.
+ *        NULL for all whitespace characters.
+ */
+XTR_API void
+xtr_trim_tail(xtr_t* xtr, const char* chars);
+
+/**
+ * Trims (strips) any provided characters from the start of the string.
+ *
+ * Sometimes known as `lstrip` or `ltrim`.
+ *
+ * Example:
+ *
+ *         xtr_trim_head(xtr["Hello world!"], "eHl") --> xtr["o world!"]
+ *         xtr_trim_head(xtr["\r\n Hello world!\r\n"], NULL) --> xtr["Hello world!\r\n"]
+ *         xtr_trim_head(xtr["===Hello world!"], "=-+") --> xtr["Hello world!"]
+ * @param xtr xtring to trim in-place.
+ * @param chars characters to remove, regardless of their order of appearance.
+ *        NULL for all whitespace characters.
+ */
 XTR_API void // O(n) operation!
-xtr_ltrim(xtr_t* xtr, const char* chars);
+xtr_trim_head(xtr_t* xtr, const char* chars); // Pass NULL for whitespaces
+
+/**
+ * Trims (strips) any provided characters from the start and end of the string.
+ *
+ * It's a combination xtr_trim_head() and xtr_trim_tail().
+ *
+ * Example:
+ *
+ *         xtr_trim(xtr["Hello world!"], "eHl!") --> xtr["o world"]
+ *         xtr_trim(xtr["\r\n Hello world!\r\n"], NULL) --> xtr["Hello world!"]
+ *         xtr_trim(xtr["===Hello world!==="], "=-+") --> xtr["Hello world!"]
+ * @param xtr xtring to trim in-place.
+ * @param chars characters to remove, regardless of their order of appearance.
+ *        NULL for all whitespace characters.
+ */
+XTR_API void
+xtr_trim(xtr_t* xtr, const char* chars); // Pass NULL for whitespaces
+
+
+XTR_API void xtr_remove_suffix(xtr_t* xtr, const char* suffix);
+
+XTR_API void xtr_remove_prefix(xtr_t* xtr, const char* prefix);
+
+
 
 // ------------------- Alter the Xtring's allocated memory ------------------------------------
 
@@ -565,15 +764,6 @@ XTR_API void xtr_prepend_many(xtr_t** pbase, char character, size_t repetitions)
 // TODO padding to size
 
 // Trimming
-XTR_API void xtr_clear(xtr_t* xtr);
-
-XTR_API void xtr_ltrim(xtr_t* xtr, const char* chars);
-
-XTR_API void xtr_rtrim(xtr_t* xtr, const char* chars);
-
-XTR_API void xtr_remove_suffix(xtr_t* xtr, const char* str);
-
-XTR_API void xtr_remove_prefix(xtr_t* xtr, const char* str);
 
 // Printing
 XTR_API xtr_t* xtr_hex(const xtr_t* xtr);

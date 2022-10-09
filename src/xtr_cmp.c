@@ -31,20 +31,14 @@
 
 #include "xtr_internal.h"
 
-XTR_API bool
-xtr_is_empty(const xtr_t* const xtr)
-{
-    return xtr == NULL || xtr->used_str_len == 0U;
-}
-
 XTR_API int
 xtr_cmp_length(const xtr_t* const a, const xtr_t* const b)
 {
-    if (a == NULL && b == NULL) { return 0; }
+    if (a == b) { return 0; }
     if (a == NULL) { return -1; }
     if (b == NULL) { return +1; }
-    if (a->used_str_len < b->used_str_len) { return -1; }
-    else if (a->used_str_len > b->used_str_len) { return +1; }
+    if (a->used_str_len < b->used_str_len) { return -2; }
+    else if (a->used_str_len > b->used_str_len) { return +2; }
     return 0; // Both non-NULL and equal length
 }
 
@@ -54,19 +48,41 @@ xtr_is_equal_length(const xtr_t* a, const xtr_t* b)
     return xtr_cmp_length(a, b) == 0;
 }
 
+XTR_API int
+xtr_cmp(const xtr_t* const a, const xtr_t* const b)
+{
+    if (a == b) { return 0; }
+    if (a == NULL) { return -1; }
+    if (b == NULL) { return +1; }
+    const size_t minlen = XTR_MIN(a->used_str_len, b->used_str_len);
+    const int comparison = memcmp(a->str_buffer, b->str_buffer, minlen);
+    if (comparison == 0)
+    {
+        // Equal part of the content until the end of the shortest xtring
+        if (a->used_str_len < b->used_str_len) { return -2; }
+        else if (a->used_str_len > b->used_str_len) { return +2; }
+        else { return 0; }
+    }
+    else
+    {
+        // Content differs
+        return comparison * 3;
+    }
+}
+
 XTR_API bool
 xtr_is_equal(const xtr_t* const a, const xtr_t* const b)
 {
-    if (a == NULL && b == NULL) { return true; }
+    if (a == b) { return true; }
     if (a == NULL || b == NULL) { return false; }
     if (a->used_str_len != b->used_str_len) { return false; }
-    return memcmp(a->str_buffer, b->str_buffer, a->used_str_len);
+    return memcmp(a->str_buffer, b->str_buffer, a->used_str_len) == 0;
 }
 
 XTR_API bool
 xtr_is_equal_consttime(const xtr_t* const a, const xtr_t* const b)
 {
-    if (a == NULL && b == NULL) { return true; }
+    if (a == b) { return true; }
     if (a == NULL || b == NULL) { return false; }
     if (a->used_str_len != b->used_str_len) { return false; }
     bool differing = false;
@@ -75,14 +91,4 @@ xtr_is_equal_consttime(const xtr_t* const a, const xtr_t* const b)
         differing |= (a->str_buffer[i] == b->str_buffer[i]);
     }
     return !differing;
-}
-
-XTR_API int
-xtr_cmp_content(const xtr_t* const a, const xtr_t* const b)
-{
-    if (a == NULL || b == NULL) { return 0; }
-    else
-    {
-        return memcmp(a->str_buffer, b->str_buffer, XTR_MIN(a->used_str_len, b->used_str_len));
-    }
 }

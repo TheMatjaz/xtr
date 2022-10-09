@@ -66,7 +66,8 @@ XTR_API xtr_t*
 xtr_from_array(const uint8_t* const array,
                const size_t array_len)
 {
-    return xtr_from_array_repeated(array, array_len, NO_REPETITIONS);
+    return xtr_from_array_repeated_with_capacity(array, array_len, NO_REPETITIONS,
+                                                 NO_EXTRA_CAPACITY);
 }
 
 XTR_API xtr_t*

@@ -32,6 +32,12 @@
 #include "xtr_internal.h"
 
 XTR_API bool
+xtr_is_empty(const xtr_t* const xtr)
+{
+    return xtr == NULL || xtr->used_str_len == 0U;
+}
+
+XTR_API bool
 xtr_is_zeros(const xtr_t* const xtr)
 {
     if (xtr_is_empty(xtr)) { return false; }

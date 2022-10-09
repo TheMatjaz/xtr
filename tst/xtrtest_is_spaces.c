@@ -55,7 +55,7 @@ xtrtest_is_spaces_valid_empty_with_capacity(void)
 }
 
 static void
-xtrtestis_spaces_valid_non_spaces(void)
+xtrtest_is_spaces_valid_non_spaces(void)
 {
     xtr_t* obtained = xtr_from_str("abc");
     atto_false(xtr_is_spaces(obtained));
@@ -63,7 +63,7 @@ xtrtestis_spaces_valid_non_spaces(void)
 }
 
 static void
-xtrtestis_spaces_valid_single_space(void)
+xtrtest_is_spaces_valid_single_space(void)
 {
     xtr_t* obtained = xtr_from_str(" ");
     atto_true(xtr_is_spaces(obtained));
@@ -71,7 +71,7 @@ xtrtestis_spaces_valid_single_space(void)
 }
 
 static void
-xtrtestis_spaces_valid_many_spaces(void)
+xtrtest_is_spaces_valid_many_spaces(void)
 {
     xtr_t* obtained = xtr_from_str("    ");
     atto_true(xtr_is_spaces(obtained));
@@ -79,7 +79,7 @@ xtrtestis_spaces_valid_many_spaces(void)
 }
 
 static void
-xtrtestis_spaces_valid_different_whitespaces(void)
+xtrtest_is_spaces_valid_different_whitespaces(void)
 {
     xtr_t* obtained = xtr_from_str("    \t  \n  \v \r  ");
     atto_true(xtr_is_spaces(obtained));
@@ -87,7 +87,7 @@ xtrtestis_spaces_valid_different_whitespaces(void)
 }
 
 static void
-xtrtestis_spaces_valid_not_only_whitespaces(void)
+xtrtest_is_spaces_valid_not_only_whitespaces(void)
 {
     xtr_t* obtained = xtr_from_str("    \t X \n  \v \r  ");
     atto_false(xtr_is_spaces(obtained));
@@ -100,10 +100,10 @@ xtrtest_is_spaces(void)
     xtrtest_is_spaces_valid_null();
     xtrtest_is_spaces_valid_empty();
     xtrtest_is_spaces_valid_empty_with_capacity();
-    xtrtestis_spaces_valid_non_spaces();
-    xtrtestis_spaces_valid_single_space();
-    xtrtestis_spaces_valid_many_spaces();
-    xtrtestis_spaces_valid_different_whitespaces();
-    xtrtestis_spaces_valid_not_only_whitespaces();
+    xtrtest_is_spaces_valid_non_spaces();
+    xtrtest_is_spaces_valid_single_space();
+    xtrtest_is_spaces_valid_many_spaces();
+    xtrtest_is_spaces_valid_different_whitespaces();
+    xtrtest_is_spaces_valid_not_only_whitespaces();
     atto_report();
 }
