@@ -112,26 +112,59 @@ memmove_secure(void* const dst, void* const src, const size_t len)
     }
 }
 
-
-#ifndef memmem
-
 static void*
-memmem(const void* string, const size_t string_len,
-       const void* const pattern, const size_t pattern_len)
+xtr_memmem(const void* haystack_vp, const size_t haystack_len,
+           const void* const needle_vp, const size_t needle_len)
 {
     // TODO consider boyer-moore search
-    size_t remaining = string_len;
-    const uint8_t* occurrence = string;
-    while (remaining < pattern_len)
+    if (haystack_vp == NULL || needle_vp == NULL
+        || haystack_len == 0U || needle_len == 0U
+        || haystack_len < needle_len)
     {
-        occurrence = memchr(occurrence, *(uint8_t*) pattern, remaining);
-        // TODO optimise to resume search from the point the 2 strings differ
-        // rathern than from the point where they are equal+1.
-        if (memcmp(occurrence, pattern, pattern_len) == 0) { return (void*) occurrence; }
-        occurrence++;
-        remaining--;
+        return NULL;
+    }
+    if (haystack_vp == needle_vp) { return (void*) haystack_vp; }
+    const uint8_t* haystack = (const uint8_t*) haystack_vp;
+    // haystack_end = last possible address where the needle could still be.
+    // If not found until this point, the rest of the haystack is too short to fit a needle.
+    const uint8_t* const haystack_end = haystack + haystack_len - needle_len;
+    const uint8_t* haystack_search = haystack;
+    const uint8_t* const needle = (const uint8_t*) needle_vp;
+    const uint8_t* const needle_end = needle + haystack_len;
+    const uint8_t* needle_search = needle;
+    if (needle_len == 1U)
+    {
+        return memchr(haystack, needle[0], haystack_len);
+    }
+    while (true)
+    {
+        haystack_search = memchr(haystack_search, needle[0],
+                                 (size_t) (haystack_end - haystack_search));
+        if (haystack_search == NULL) { return NULL; }
+        // First byte is matching
+        haystack_search++;
+        needle_search = &needle[1];
+        // Match the rest of the needle body against the haystack
+        while (haystack_search < haystack_end)
+        {
+            if (*haystack_search == *needle_search)
+            {
+                // Another byte matching
+                haystack_search++;
+                needle_search++;
+                if (needle_search == needle_end)
+                {
+                    // Full match found
+                    return (void*) (haystack_search - needle_len);
+                }
+            }
+            else
+            {
+                // Mismatch. Resume haystack seach for first needle byte
+                // starting from where the needle-body matching stopped.
+                break;
+            }
+        }
     }
     return NULL;
 }
-
-#endif

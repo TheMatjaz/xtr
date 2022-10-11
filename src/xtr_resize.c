@@ -92,7 +92,7 @@ XTR_API xtr_t*
 xtr_compress_free(xtr_t** const pxtr)
 {
     if (pxtr == NULL || xtr_available(*pxtr) > 0U) { return NULL; }
-    xtr_t* const compressed = xtr_new_clone(*pxtr);
+    xtr_t* const compressed = xtr_clone(*pxtr);
     if (compressed == NULL) { return NULL; }
     xtr_free(pxtr);
     return compressed;
