@@ -42,8 +42,8 @@ xtr_new_with_capacity(const size_t max_len)
     xtr_t* const new = XTR_MALLOC(to_allocate);
 #endif
     if (new == NULL) { return NULL; }
-    set_max_str_len_and_terminator(new, max_len);
-    set_used_str_len_and_terminator(new, 0U);
+    set_capacity_and_terminator(new, max_len);
+    set_used_and_terminator(new, 0U);
     return new;
 }
 
@@ -59,7 +59,7 @@ xtr_free(xtr_t** const pxtr)
     if (pxtr != NULL && *pxtr != NULL)
     {
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-        zero_out((*pxtr)->str_buffer, (*pxtr)->max_str_len);
+        zero_out((*pxtr)->buffer, (*pxtr)->capacity);
 #endif
         free((*pxtr));
         *pxtr = NULL;  // Clear outside reference to avoid use-after-free
@@ -74,7 +74,7 @@ xtr_new_from_c_with_space(const char* const str, const size_t extra)
     const size_t ensure_len = str_len + extra;
     xtr_t* const new = xtr_new_with_capacity(ensure_len);
     if (new == NULL) { return NULL; }
-    memcpy(new->str_buffer, str, str_len);
-    set_used_str_len_and_terminator(new, str_len);
+    memcpy(new->buffer, str, str_len);
+    set_used_and_terminator(new, str_len);
     return new;
 }

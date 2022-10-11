@@ -36,17 +36,17 @@ static void
 xtr_extend_raw(xtr_t** const pbase, const uint8_t* const part,
                const size_t part_len, const size_t repetitions)
 {
-    const size_t total_len = ((*pbase)->used_str_len + part_len) * repetitions;
+    const size_t total_len = ((*pbase)->used + part_len) * repetitions;
     // Check for size_t overflow
-    if (total_len < (*pbase)->used_str_len || total_len < part_len) { return; }
+    if (total_len < (*pbase)->used || total_len < part_len) { return; }
     // TODO not all overflow  cases are checkde
     xtr_t* const resized = xtr_resize_free(pbase, total_len);
     if (resized == NULL) { return; }
     for (size_t i = 0U; i < repetitions; i++)
     {
-        memcpy(&resized->str_buffer[i * part_len], part, part_len);
+        memcpy(&resized->buffer[i * part_len], part, part_len);
     }
-    set_used_str_len_and_terminator(resized, total_len);
+    set_used_and_terminator(resized, total_len);
 }
 
 XTR_API void
@@ -54,7 +54,7 @@ xtr_extend(xtr_t** const pbase, const xtr_t* ext)
 // TODO some error code
 {
     if (pbase == NULL || *pbase == NULL || ext == NULL) { return; }
-    xtr_extend_raw(pbase, ext->str_buffer, ext->used_str_len, 1);
+    xtr_extend_raw(pbase, ext->buffer, ext->used, 1);
 }
 
 XTR_API void
@@ -62,7 +62,7 @@ xtr_extend_many(xtr_t** const pbase, const xtr_t* ext, const size_t repetitions)
 // TODO some error code
 {
     if (pbase == NULL || *pbase == NULL || ext == NULL) { return; }
-    xtr_extend_raw(pbase, ext->str_buffer, ext->used_str_len, repetitions);
+    xtr_extend_raw(pbase, ext->buffer, ext->used, repetitions);
 }
 
 XTR_API void
@@ -107,9 +107,9 @@ xtr_repeat_raw(const uint8_t* const part, const size_t repetitions, const size_t
     if (new == NULL) { return NULL; }
     for (size_t i = 0; i < repetitions; i++)
     {
-        memcpy(&new->str_buffer[i * part_len], part, part_len);
+        memcpy(&new->buffer[i * part_len], part, part_len);
     }
-    set_used_str_len_and_terminator(new, total_len);
+    set_used_and_terminator(new, total_len);
     return new;
 }
 
@@ -125,20 +125,20 @@ XTR_API xtr_t*
 xtr_repeat(const xtr_t* const xtr, const size_t repetitions)
 {
     if (xtr == NULL) { return NULL; }
-    return xtr_repeat_raw(xtr->str_buffer, repetitions, xtr->used_str_len);
+    return xtr_repeat_raw(xtr->buffer, repetitions, xtr->used);
 }
 
 XTR_API xtr_t*
 xtr_merge(const xtr_t* const a, const xtr_t* const b)
 {
     if (a == NULL || b == NULL) { return NULL; }
-    const size_t merged_len = a->used_str_len + b->used_str_len;
+    const size_t merged_len = a->used + b->used;
     // Check for size_t overflowq
-    if (merged_len < a->used_str_len || merged_len < b->used_str_len) { return NULL; }
+    if (merged_len < a->used || merged_len < b->used) { return NULL; }
     xtr_t* const merged = xtr_new_with_capacity(merged_len);
     if (merged == NULL) { return NULL; }
-    memcpy(merged->str_buffer, a->str_buffer, a->used_str_len);
-    memcpy(merged->str_buffer + a->used_str_len, b->str_buffer, b->used_str_len);
-    set_used_str_len_and_terminator(merged, merged_len);
+    memcpy(merged->buffer, a->buffer, a->used);
+    memcpy(merged->buffer + a->used, b->buffer, b->used);
+    set_used_and_terminator(merged, merged_len);
     return merged;
 }

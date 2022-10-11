@@ -36,13 +36,13 @@ XTR_API xtr_t*
 xtr_resize(xtr_t* const xtr, const size_t len)
 {
     if (xtr == NULL) { return NULL; }
-    if (xtr->used_str_len > len)
+    if (xtr->used > len)
     {
-        // Clear bytes at the end, do keep same allocation str_buffer
+        // Clear bytes at the end, do keep same allocation buffer
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-        zero_out(xtr->str_buffer + len, xtr->used_str_len - len);
+        zero_out(xtr->buffer + len, xtr->used - len);
 #endif
-        set_used_str_len_and_terminator(xtr, len);
+        set_used_and_terminator(xtr, len);
         return xtr;
     }
     else
@@ -52,7 +52,7 @@ xtr_resize(xtr_t* const xtr, const size_t len)
         if (to_allocate == SIZE_OVERFLOW) { return NULL; }
         xtr_t* const new = realloc(xtr, to_allocate);
         if (new == NULL) { return NULL; }
-        set_max_str_len_and_terminator(new, len);
+        set_capacity_and_terminator(new, len);
         return new;
     }
 }
@@ -62,13 +62,13 @@ xtr_resize_free(xtr_t** const pxtr, const size_t len)
 {
     // TODO copy *pxtr into a local pointer, if the outer changes in the meantime
     if (pxtr == NULL || *pxtr == NULL) { return NULL; }
-    if ((*pxtr)->used_str_len > len)
+    if ((*pxtr)->used > len)
     {
-        // Clear bytes at the end, do keep same allocation str_buffer
+        // Clear bytes at the end, do keep same allocation buffer
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-        zero_out((*pxtr)->str_buffer + len, (*pxtr)->used_str_len - len);
+        zero_out((*pxtr)->buffer + len, (*pxtr)->used - len);
 #endif
-        set_used_str_len_and_terminator((*pxtr), len);
+        set_used_and_terminator((*pxtr), len);
         return (*pxtr);
     }
     else
@@ -83,7 +83,7 @@ xtr_resize_free(xtr_t** const pxtr, const size_t len)
             xtr_free(pxtr);
             *pxtr = new;
         }
-        set_max_str_len_and_terminator(new, len);
+        set_capacity_and_terminator(new, len);
         return new;
     }
 }

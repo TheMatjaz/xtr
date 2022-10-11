@@ -36,13 +36,13 @@ XTR_API xtr_t*
 xtr_reversed(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return NULL; }
-    xtr_t* const reversed = xtr_new_with_capacity(xtr->used_str_len);
+    xtr_t* const reversed = xtr_new_with_capacity(xtr->used);
     if (reversed == NULL) { return NULL; }
-    for (size_t s = 0U, e = xtr->used_str_len - 1U; s < xtr->used_str_len; s++, e--)
+    for (size_t s = 0U, e = xtr->used - 1U; s < xtr->used; s++, e--)
     {
-        reversed->str_buffer[s] = xtr->str_buffer[e];
+        reversed->buffer[s] = xtr->buffer[e];
     }
-    set_used_str_len_and_terminator(reversed, xtr->used_str_len);
+    set_used_and_terminator(reversed, xtr->used);
     return reversed;
 }
 
@@ -51,10 +51,10 @@ xtr_reverse(xtr_t* const xtr)
 {
     if (xtr == NULL) { return; } // TODO errcodes
     uint8_t temp;
-    for (size_t s = 0U, e = xtr->used_str_len - 1U; s < xtr->used_str_len; s++, e--)
+    for (size_t s = 0U, e = xtr->used - 1U; s < xtr->used; s++, e--)
     {
-        temp = xtr->str_buffer[s];
-        xtr->str_buffer[s] = xtr->str_buffer[e];
-        xtr->str_buffer[e] = temp;
+        temp = xtr->buffer[s];
+        xtr->buffer[s] = xtr->buffer[e];
+        xtr->buffer[e] = temp;
     }
 }

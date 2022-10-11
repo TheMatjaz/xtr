@@ -35,40 +35,40 @@ XTR_API XTR_INLINE size_t
 xtr_len(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return 0U; }
-    return xtr->used_str_len;
+    return xtr->used;
 }
 
 XTR_API XTR_INLINE size_t
 xtr_capacity(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return 0U; }
-    return xtr->max_str_len;
+    return xtr->capacity;
 }
 
 XTR_API XTR_INLINE size_t
 xtr_available(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return 0U; }
-    return xtr->max_str_len - xtr->used_str_len;
+    return xtr->capacity - xtr->used;
 }
 
 XTR_API const char*
 xtr_cstring(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return NULL; }
-    else { return (const char*) xtr->str_buffer; }
+    else { return (const char*) xtr->buffer; }
 }
 
 XTR_API const uint8_t*
 xtr_array(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return NULL; }
-    else { return (uint8_t*) xtr->str_buffer; }
+    else { return (uint8_t*) xtr->buffer; }
 }
 
 XTR_API const uint8_t*
 xtr_last(const xtr_t* const xtr)
 {
     if (xtr_is_empty(xtr)) { return NULL; }
-    else { return &xtr->str_buffer[xtr->used_str_len - 1U]; }
+    else { return &xtr->buffer[xtr->used - 1U]; }
 }

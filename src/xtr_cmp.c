@@ -37,8 +37,8 @@ xtr_cmp_length(const xtr_t* const a, const xtr_t* const b)
     if (a == b) { return 0; }
     if (a == NULL) { return -1; }
     if (b == NULL) { return +1; }
-    if (a->used_str_len < b->used_str_len) { return -2; }
-    else if (a->used_str_len > b->used_str_len) { return +2; }
+    if (a->used < b->used) { return -2; }
+    else if (a->used > b->used) { return +2; }
     return 0; // Both non-NULL and equal length
 }
 
@@ -54,13 +54,13 @@ xtr_cmp(const xtr_t* const a, const xtr_t* const b)
     if (a == b) { return 0; }
     if (a == NULL) { return -1; }
     if (b == NULL) { return +1; }
-    const size_t minlen = XTR_MIN(a->used_str_len, b->used_str_len);
-    const int comparison = memcmp(a->str_buffer, b->str_buffer, minlen);
+    const size_t minlen = XTR_MIN(a->used, b->used);
+    const int comparison = memcmp(a->buffer, b->buffer, minlen);
     if (comparison == 0)
     {
         // Equal part of the content until the end of the shortest xtring
-        if (a->used_str_len < b->used_str_len) { return -2; }
-        else if (a->used_str_len > b->used_str_len) { return +2; }
+        if (a->used < b->used) { return -2; }
+        else if (a->used > b->used) { return +2; }
         else { return 0; }
     }
     else
@@ -75,8 +75,8 @@ xtr_is_equal(const xtr_t* const a, const xtr_t* const b)
 {
     if (a == b) { return true; }
     if (a == NULL || b == NULL) { return false; }
-    if (a->used_str_len != b->used_str_len) { return false; }
-    return memcmp(a->str_buffer, b->str_buffer, a->used_str_len) == 0;
+    if (a->used != b->used) { return false; }
+    return memcmp(a->buffer, b->buffer, a->used) == 0;
 }
 
 XTR_API bool
@@ -84,11 +84,11 @@ xtr_is_equal_consttime(const xtr_t* const a, const xtr_t* const b)
 {
     if (a == b) { return true; }
     if (a == NULL || b == NULL) { return false; }
-    if (a->used_str_len != b->used_str_len) { return false; }
+    if (a->used != b->used) { return false; }
     bool differing = false;
-    for (size_t i = 0U; i < a->used_str_len; i++)
+    for (size_t i = 0U; i < a->used; i++)
     {
-        differing |= (a->str_buffer[i] == b->str_buffer[i]);
+        differing |= (a->buffer[i] == b->buffer[i]);
     }
     return !differing;
 }

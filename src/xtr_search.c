@@ -35,13 +35,13 @@
 XTR_API const char*
 xtr_find(const xtr_t* const xtr, const xtr_t* const pattern)
 {
-    return xtr_find_in(xtr, pattern, 0U, xtr->used_str_len);
+    return xtr_find_in(xtr, pattern, 0U, xtr->used);
 }
 
 XTR_API const char*
 xtr_find_from(const xtr_t* const xtr, const xtr_t* const pattern, const size_t start)
 {
-    return xtr_find_in(xtr, pattern, start, xtr->used_str_len);
+    return xtr_find_in(xtr, pattern, start, xtr->used);
 }
 
 XTR_API const char*
@@ -50,16 +50,16 @@ xtr_find_in(const xtr_t* const xtr, const xtr_t* const pattern,
 {
     // Consider returning const char*
     if (xtr_is_empty(xtr) || xtr_is_empty(pattern)
-        || start >= xtr->used_str_len || end >= xtr->used_str_len) { return NULL; }
-    const char* const location = memmem(xtr->str_buffer + start,
-                                        end - start, pattern->str_buffer, pattern->used_str_len);
+        || start >= xtr->used || end >= xtr->used) { return NULL; }
+    const char* const location = memmem(xtr->buffer + start,
+                                        end - start, pattern->buffer, pattern->used);
     return location;
 }
 
 XTR_API bool
 xtr_contains(const xtr_t* const xtr, const xtr_t* const pattern)
 {
-    return xtr_find_in(xtr, pattern, 0U, xtr->used_str_len) != NULL;
+    return xtr_find_in(xtr, pattern, 0U, xtr->used) != NULL;
 }
 
 XTR_API size_t
@@ -67,19 +67,19 @@ xtr_occurrences(const xtr_t* const xtr, const xtr_t* const pattern)
 {
     if (xtr_is_empty(xtr) || xtr_is_empty(pattern)) { return 0U; }
     size_t count = 0U;
-    const uint8_t* prev_occurrence = xtr->str_buffer;
+    const uint8_t* prev_occurrence = xtr->buffer;
     const uint8_t* this_occurrence = NULL;
-    size_t remaining_len = xtr->used_str_len;
+    size_t remaining_len = xtr->used;
     do
     {
         this_occurrence = memmem(prev_occurrence, remaining_len,
-                                 pattern->str_buffer, pattern->used_str_len);
+                                 pattern->buffer, pattern->used);
         if (this_occurrence != NULL)
         {
             count++;
             // TODO use ptrdiff
-            remaining_len -= (this_occurrence - prev_occurrence - pattern->used_str_len);
-            prev_occurrence = this_occurrence + pattern->used_str_len;
+            remaining_len -= (this_occurrence - prev_occurrence - pattern->used);
+            prev_occurrence = this_occurrence + pattern->used;
         }
         else { break; }
     }

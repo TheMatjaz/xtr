@@ -44,18 +44,18 @@ xtr_api_version(uint64_t* const version)
 }
 
 XTR_INLINE void
-set_used_str_len_and_terminator(xtr_t* const xtr, const size_t used_len)
+set_used_and_terminator(xtr_t* xtr, size_t used_len)
 {
-    xtr->used_str_len = used_len;
-    xtr->str_buffer[xtr->used_str_len] = TERMINATOR;
-    xtr->str_buffer[xtr->max_str_len] = TERMINATOR;
+    xtr->used = used_len;
+    xtr->buffer[xtr->used] = TERMINATOR;
+    xtr->buffer[xtr->capacity] = TERMINATOR;
 }
 
 XTR_INLINE void // TODO rename to capacity
-set_max_str_len_and_terminator(xtr_t* const xtr, const size_t max_len)
+set_capacity_and_terminator(xtr_t* xtr, size_t max_len)
 {
-    xtr->max_str_len = max_len;
-    xtr->str_buffer[xtr->max_str_len] = TERMINATOR;
+    xtr->capacity = max_len;
+    xtr->buffer[xtr->capacity] = TERMINATOR;
 }
 
 XTR_INLINE size_t

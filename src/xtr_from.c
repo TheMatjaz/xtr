@@ -101,9 +101,9 @@ xtr_from_array_repeated_with_capacity(const uint8_t* const array,
     if (array == NULL) { return new; } // Don't risk passing NULL to memcpy
     for (size_t i = 0U; i < repetitions; i++)
     {
-        memcpy(&new->str_buffer[i * array_len], array, array_len);
+        memcpy(&new->buffer[i * array_len], array, array_len);
     }
-    set_used_str_len_and_terminator(new, total_len);
+    set_used_and_terminator(new, total_len);
     return new;
 }
 
@@ -125,8 +125,8 @@ xtr_from_byte_repeated_with_capacity(const uint8_t byte, const size_t repetition
 {
     xtr_t* const new = xtr_new_with_capacity(XTR_MAX(repetitions, at_least));
     if (new == NULL) { return NULL; }
-    memset(new->str_buffer, byte, repetitions);
-    set_used_str_len_and_terminator(new, repetitions);
+    memset(new->buffer, byte, repetitions);
+    set_used_and_terminator(new, repetitions);
     return new;
 }
 
@@ -138,8 +138,8 @@ xtr_zeros(const size_t len)
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
     // Uses calloc already, no need to clear
 #else
-    memset(new->str_buffer, 0, len);
+    memset(new->buffer, 0, len);
 #endif
-    set_used_str_len_and_terminator(new, len);
+    set_used_and_terminator(new, len);
     return new;
 }

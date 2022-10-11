@@ -34,16 +34,16 @@
 XTR_API bool
 xtr_is_empty(const xtr_t* const xtr)
 {
-    return xtr == NULL || xtr->used_str_len == 0U;
+    return xtr == NULL || xtr->used == 0U;
 }
 
 XTR_API bool
 xtr_is_zeros(const xtr_t* const xtr)
 {
     if (xtr_is_empty(xtr)) { return false; }
-    for (size_t i = 0U; i < xtr->used_str_len; i++)
+    for (size_t i = 0U; i < xtr->used; i++)
     {
-        if (xtr->str_buffer[i]) { return false; }
+        if (xtr->buffer[i]) { return false; }
     }
     return true;
 }
@@ -53,9 +53,9 @@ xtr_is_zeros_consttime(const xtr_t* const xtr) // branchless
 {
     if (xtr_is_empty(xtr)) { return false; }
     int combined = 0U;
-    for (size_t i = 0U; i < xtr->used_str_len; i++)
+    for (size_t i = 0U; i < xtr->used; i++)
     {
-        combined |= xtr->str_buffer[i];
+        combined |= xtr->buffer[i];
     }
     return combined == 0;
 }
@@ -64,9 +64,9 @@ XTR_API bool
 xtr_is_not_zeros(const xtr_t* const xtr)
 {
     if (xtr_is_empty(xtr)) { return false; }
-    for (size_t i = 0U; i < xtr->used_str_len; i++)
+    for (size_t i = 0U; i < xtr->used; i++)
     {
-        if (xtr->str_buffer[i]) { return true; }
+        if (xtr->buffer[i]) { return true; }
     }
     return false;
 }
@@ -76,9 +76,9 @@ xtr_is_not_zeros_consttime(const xtr_t* const xtr) // branchless
 {
     if (xtr_is_empty(xtr)) { return false; }
     int combined = 0U;
-    for (size_t i = 0U; i < xtr->used_str_len; i++)
+    for (size_t i = 0U; i < xtr->used; i++)
     {
-        combined |= xtr->str_buffer[i];
+        combined |= xtr->buffer[i];
     }
     return combined != 0;
 }
@@ -87,9 +87,9 @@ XTR_API bool
 xtr_is_spaces(const xtr_t* xtr)
 {
     if (xtr_is_empty(xtr)) { return false; }
-    for (size_t i = 0; i < xtr->used_str_len; i++)
+    for (size_t i = 0; i < xtr->used; i++)
     {
-        if (!isspace(xtr->str_buffer[i])) { return false; }
+        if (!isspace(xtr->buffer[i])) { return false; }
     }
     return true;
 }

@@ -35,12 +35,12 @@ XTR_API xtr_t*
 xtr_clone(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return NULL; }
-    return xtr_from_array(xtr->str_buffer, xtr->used_str_len);
+    return xtr_from_array(xtr->buffer, xtr->used);
 }
 
 XTR_API xtr_t*
 xtr_clone_with_capacity(const xtr_t* const xtr, const size_t at_least)
 {
     if (xtr == NULL) { return NULL; }
-    return xtr_from_array_with_capacity(xtr->str_buffer, xtr->used_str_len, at_least);
+    return xtr_from_array_with_capacity(xtr->buffer, xtr->used, at_least);
 }

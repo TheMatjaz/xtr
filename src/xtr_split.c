@@ -39,21 +39,21 @@ xtr_split_at(const xtr_t* const xtr, const xtr_t* const pattern) // TODO return 
     const size_t parts_amount = occurrences_amount + 1U;
     if (parts_amount <= occurrences_amount) { return NULL; }
     xtr_t** const parts = calloc(parts_amount, sizeof(xtr_t*));
-    const uint8_t* prev_occurrence = xtr->str_buffer;
+    const uint8_t* prev_occurrence = xtr->buffer;
     const uint8_t* this_occurrence = NULL;
     xtr_t* part = NULL;
     size_t part_len = 0U;
-    size_t remaining_len = xtr->used_str_len;
+    size_t remaining_len = xtr->used;
     size_t i = 0;
     do
     {
         // TODO find a way to combine the iterator function into one
         // from this function and occurences() and find()
         this_occurrence = memmem(prev_occurrence, remaining_len,
-                                 pattern->str_buffer, pattern->used_str_len);
+                                 pattern->buffer, pattern->used);
         if (this_occurrence != NULL)
         {
-            part_len = this_occurrence - prev_occurrence - pattern->used_str_len;
+            part_len = this_occurrence - prev_occurrence - pattern->used;
             part = xtr_new_with_capacity(part_len);
             if (part != NULL)
             {
@@ -70,7 +70,7 @@ xtr_split_at(const xtr_t* const xtr, const xtr_t* const pattern) // TODO return 
                 return NULL;
             }
             remaining_len -= this_occurrence - prev_occurrence;
-            prev_occurrence = this_occurrence + pattern->used_str_len;
+            prev_occurrence = this_occurrence + pattern->used;
         }
         else { break; }
     }

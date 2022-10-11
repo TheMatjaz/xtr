@@ -55,14 +55,14 @@ extern "C"
 /** @internal Xtring private structure */
 struct xtr
 {
-    /** Available bytes for content in str_buffer, before terminator. */
-    size_t max_str_len; // TODO rename to capacity
-    /** Occupied bytes with content in str_buffer, before terminator. */
-    size_t used_str_len;
+    /** Total bytes for content in buffer (used + free), before terminator. */
+    size_t capacity;
+    /** Occupied bytes with content in buffer out of the capacity. */
+    size_t used;
     /** Buffer with content long `max_str_len+1`, always NULL-terminated at
-     * `str_buffer[used_str_len]` and at `str_buffer[max_str_len]`. */
-     // TODO add explanation that it's longer than 1 B
-    uint8_t str_buffer[1U];
+     * `buffer[used_str_len]` and at `buffer[max_str_len]`.
+     * C99 flexible array member <https://en.wikipedia.org/wiki/Flexible_array_member> */
+    uint8_t buffer[1U];
 };
 
 /**
@@ -74,7 +74,7 @@ struct xtr
  * @param [in] used_len new length of the string, before terminator
  */
 void
-set_used_str_len_and_terminator(xtr_t* xtr, size_t used_len);
+set_used_and_terminator(xtr_t* xtr, size_t used_len);
 
 /**
  * @internal
@@ -85,12 +85,12 @@ set_used_str_len_and_terminator(xtr_t* xtr, size_t used_len);
  * @param [in] max_len new length of the buffer, before terminator
  */
 void
-set_max_str_len_and_terminator(xtr_t* xtr, size_t max_len);
+set_capacity_and_terminator(xtr_t* xtr, size_t max_len);
 
 /**
  * @internal
  * `sizeof(struct xtr)`, given the wanted max string length the struct should
- * hold.
+ * hold, used for memory allocations.
  *
  * @param [in] max_str_len
  * @return size of the xtr struct or #SIZE_OVERFLOW if an integer overflow of

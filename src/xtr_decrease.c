@@ -37,9 +37,9 @@ xtr_clear(xtr_t* const xtr)
     if (xtr != NULL)
     {
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-        zero_out(xtr->str_buffer, xtr->max_str_len);
+        zero_out(xtr->buffer, xtr->capacity);
 #endif
-        set_used_str_len_and_terminator(xtr, 0U);
+        set_used_and_terminator(xtr, 0U);
     }
 }
 
@@ -47,25 +47,25 @@ XTR_API void
 xtr_truncate_head(xtr_t* const xtr, const size_t amount_to_truncate)
 {
     if (xtr == NULL) { return; }
-    const size_t to_truncate = XTR_MIN(amount_to_truncate, xtr->used_str_len);
-    const size_t new_len = xtr->used_str_len - to_truncate;
-    memmove(xtr->str_buffer, xtr->str_buffer + to_truncate, new_len);
+    const size_t to_truncate = XTR_MIN(amount_to_truncate, xtr->used);
+    const size_t new_len = xtr->used - to_truncate;
+    memmove(xtr->buffer, xtr->buffer + to_truncate, new_len);
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-    zero_out(&xtr->str_buffer[new_len], amount_to_truncate);
+    zero_out(&xtr->buffer[new_len], amount_to_truncate);
 #endif
-    set_used_str_len_and_terminator(xtr, new_len);
+    set_used_and_terminator(xtr, new_len);
 }
 
 XTR_API void
 xtr_truncate_tail(xtr_t* const xtr, const size_t amount_to_truncate)
 {
     if (xtr == NULL) { return; }
-    const size_t to_truncate = XTR_MIN(amount_to_truncate, xtr->used_str_len);
-    const size_t new_len = xtr->used_str_len - to_truncate;
+    const size_t to_truncate = XTR_MIN(amount_to_truncate, xtr->used);
+    const size_t new_len = xtr->used - to_truncate;
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-    zero_out(&xtr->str_buffer[new_len], amount_to_truncate);
+    zero_out(&xtr->buffer[new_len], amount_to_truncate);
 #endif
-    set_used_str_len_and_terminator(xtr, new_len);
+    set_used_and_terminator(xtr, new_len);
 }
 
 
@@ -73,14 +73,14 @@ XTR_API xtr_t*
 xtr_pop_tail(xtr_t* const xtr, const size_t amount_to_pop)
 {
     if (xtr == NULL) { return NULL; }
-    const size_t poppable = XTR_MIN(amount_to_pop, xtr->used_str_len);
-    const size_t new_len = xtr->used_str_len - poppable;
-    xtr_t* const popped = xtr_from_array(&xtr->str_buffer[new_len], poppable);
+    const size_t poppable = XTR_MIN(amount_to_pop, xtr->used);
+    const size_t new_len = xtr->used - poppable;
+    xtr_t* const popped = xtr_from_array(&xtr->buffer[new_len], poppable);
     if (popped == NULL) { return NULL; }
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-    zero_out(&xtr->str_buffer[new_len], poppable);
+    zero_out(&xtr->buffer[new_len], poppable);
 #endif
-    set_used_str_len_and_terminator(xtr, new_len);
+    set_used_and_terminator(xtr, new_len);
     return popped;
 }
 
@@ -88,15 +88,15 @@ XTR_API xtr_t*
 xtr_pop_head(xtr_t* const xtr, const size_t amount_to_pop)
 {
     if (xtr == NULL) { return NULL; }
-    const size_t poppable = XTR_MIN(amount_to_pop, xtr->used_str_len);
-    const size_t new_len = xtr->used_str_len - poppable;
-    xtr_t* const popped = xtr_from_array(xtr->str_buffer, poppable);
+    const size_t poppable = XTR_MIN(amount_to_pop, xtr->used);
+    const size_t new_len = xtr->used - poppable;
+    xtr_t* const popped = xtr_from_array(xtr->buffer, poppable);
     if (popped == NULL) { return NULL; }
-    memmove(xtr->str_buffer, xtr->str_buffer + poppable, new_len);
+    memmove(xtr->buffer, xtr->buffer + poppable, new_len);
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-    zero_out(&xtr->str_buffer[new_len], amount_to_pop);
+    zero_out(&xtr->buffer[new_len], amount_to_pop);
 #endif
-    set_used_str_len_and_terminator(xtr, new_len);
+    set_used_and_terminator(xtr, new_len);
     return popped;
 }
 
@@ -104,22 +104,22 @@ XTR_API void
 xtr_trim_tail(xtr_t* xtr, const char* chars)
 {
     if (xtr_is_empty(xtr)) { return; }
-    size_t last = xtr->used_str_len - 1U; // Shifting index of last character, moving towards 0.
+    size_t last = xtr->used - 1U; // Shifting index of last character, moving towards 0.
     // Stop when non-space found or when `last` loops around (`0--`)
-    // thus the entire str_buffer was already explored.
+    // thus the entire buffer was already explored.
     if (chars == NULL || *chars == TERMINATOR)
     {
         // No characters to trim given: trimming whitespace.
-        while (last < xtr->used_str_len && isspace(xtr->str_buffer[last])) { last--; }
+        while (last < xtr->used && isspace(xtr->buffer[last])) { last--; }
     }
     else
     {
-        while (last < xtr->used_str_len && strchr(chars, xtr->str_buffer[last])) { last--; }
+        while (last < xtr->used && strchr(chars, xtr->buffer[last])) { last--; }
     }
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-    zero_out(&xtr->str_buffer[last], (xtr->used_str_len - 1U) - last);
+    zero_out(&xtr->buffer[last], (xtr->used - 1U) - last);
 #endif
-    set_used_str_len_and_terminator(xtr, last);
+    set_used_and_terminator(xtr, last);
 }
 
 XTR_API void
@@ -128,22 +128,22 @@ xtr_trim_head(xtr_t* xtr, const char* chars)
     if (xtr_is_empty(xtr)) { return; }
     size_t first = 0U; // Shifting index of first character, moving towards end.
     // Stop when non-space found or when `first` hits string end,
-    // thus the entire str_buffer was already explored.
+    // thus the entire buffer was already explored.
     if (chars == NULL || *chars == TERMINATOR)
     {
         // No characters to trim given: trimming whitespace.
-        while (first < xtr->used_str_len && isspace(xtr->str_buffer[first])) { first++; }
+        while (first < xtr->used && isspace(xtr->buffer[first])) { first++; }
     }
     else
     {
-        while (first < xtr->used_str_len && strchr(chars, xtr->str_buffer[first])) { first++; }
+        while (first < xtr->used && strchr(chars, xtr->buffer[first])) { first++; }
     }
-    memmove(xtr->str_buffer, &xtr->str_buffer[first], xtr->used_str_len - first);
+    memmove(xtr->buffer, &xtr->buffer[first], xtr->used - first);
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-    zero_out(&xtr->str_buffer[xtr->used_str_len - first],
+    zero_out(&xtr->buffer[xtr->used - first],
              first); // first == amount of discarded
 #endif
-    set_used_str_len_and_terminator(xtr, xtr->used_str_len - first);
+    set_used_and_terminator(xtr, xtr->used - first);
 }
 
 XTR_API void
@@ -159,8 +159,8 @@ xtr_remove_suffix(xtr_t* xtr, const char* suffix)
 {
     if (xtr_is_empty(xtr) || suffix == NULL) { return; }
     const size_t suffix_len = strlen(suffix);
-    if (suffix_len > xtr->used_str_len) { return; }
-    if (memcmp(&xtr->str_buffer[xtr->used_str_len - suffix_len], suffix, suffix_len) == 0)
+    if (suffix_len > xtr->used) { return; }
+    if (memcmp(&xtr->buffer[xtr->used - suffix_len], suffix, suffix_len) == 0)
     {
         xtr_truncate_tail(xtr, suffix_len);
     }
@@ -171,8 +171,8 @@ xtr_remove_prefix(xtr_t* xtr, const char* prefix)
 {
     if (xtr_is_empty(xtr) || prefix == NULL) { return; }
     const size_t prefix_len = strlen(prefix);
-    if (prefix_len > xtr->used_str_len) { return; }
-    if (memcmp(xtr->str_buffer, prefix, prefix_len) == 0)
+    if (prefix_len > xtr->used) { return; }
+    if (memcmp(xtr->buffer, prefix, prefix_len) == 0)
     {
         xtr_truncate_head(xtr, prefix_len);
     }
