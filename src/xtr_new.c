@@ -34,7 +34,7 @@
 XTR_API xtr_t*
 xtr_new_with_capacity(const size_t max_len)
 {
-    const size_t to_allocate = struct_size(max_len);
+    const size_t to_allocate = sizeof_struct_xtr(max_len);
     if (to_allocate == SIZE_OVERFLOW) { return NULL; }
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
     xtr_t* const new = XTR_CALLOC(to_allocate);

@@ -76,6 +76,11 @@ extern "C"
 #include <stdlib.h>
 // TODO make stdlib optional for embedded
 
+// Assuming enough memory
+#define XTR_MAX_CAPACITY (SIZE_MAX - sizeof(size_t) * 2U - 1U)
+
+#define XTR_UNKNOWN_STRLEN SIZE_MAX
+
 /** Opaque xtring structure.
  * Internally it may preallocate more space than it requires.
  *
@@ -165,6 +170,10 @@ xtr_zeros(size_t len);
  */
 XTR_API xtr_t*
 xtr_from_str(const char* str);
+// TODO consider providing an OPTIONAL string length field so the function
+// does not compute strlen() again, if avaialable. Use SIZE_MAX as default,
+// which is anyway unsupported, as the xtring would not fit a SIZE_MAX string
+// given the struct overhead.
 
 // TODO from str/u8-array UNTIL a limit (like strncpy with len < strlen())
 

@@ -52,10 +52,29 @@ extern "C"
 // Consider making it a smart-pointer-like struct: add a counter of references
 // a the free function actually reduces the counter. On zero: it frees.
 // A self-garbage-collected thing?
-/** @internal Xtring private structure */
+/**
+ * @internal Xtring private structure.
+ * Single-allocation flexible array with buffer length and used amount of
+ * said buffer. Does not require a second level of pointer indirection
+ * because all the data is contiguous.
+ *
+ * The useful data portion is null-terminated for backwards compatibility with
+ * C-strings. The end of the buffer (a byte *after* the last useful buffer
+ * byte) contains an extra null-terminator just as an extra precaution for
+ * memory safety.
+ *
+ *             capacity (buffer size)
+ *             __________________
+ *            /                  \
+ *           [abcde\0............. \0] buffer
+ *            \___/\_____________/
+ *           length       available
+ *         (used space)  (free space)
+ */
 struct xtr
 {
     /** Total bytes for content in buffer (used + free), before terminator. */
+    // TODO implement version with uint8_t/uint16_t instead of size_t
     size_t capacity;
     /** Occupied bytes with content in buffer out of the capacity. */
     size_t used;
@@ -82,10 +101,10 @@ set_used_and_terminator(xtr_t* xtr, size_t used_len);
  * buffer overruns.
  *
  * @param [in, out] xtr to shrink/expand
- * @param [in] max_len new length of the buffer, before terminator
+ * @param [in] capacity new length of the buffer, before terminator
  */
 void
-set_capacity_and_terminator(xtr_t* xtr, size_t max_len);
+set_capacity_and_terminator(xtr_t* xtr, size_t capacity);
 
 /**
  * @internal
@@ -97,7 +116,7 @@ set_capacity_and_terminator(xtr_t* xtr, size_t max_len);
  * #size_t occurred.
  */
 size_t
-struct_size(size_t max_str_len);
+sizeof_struct_xtr(size_t max_str_len);
 
 /**
  * @internal

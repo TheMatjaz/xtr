@@ -32,47 +32,88 @@
 #include "xtr_internal.h"
 
 // Skips whitespace, commas, # (used in colours), underscores, 0x, 0X
-// Replaces beginning of string with binary values, parsed from rest of the
-// string. Returns 0 if nothing changed or parsing failed. Returns amount of
-// bytes written otherwise. null-terminates the new binary string.
-size_t
-from_hex(char* const hex)
+XTR_API xtr_t*
+xtr_from_hex(const char* hex, size_t len)
 {
-    if (hex == NULL) { return 0U; }
-    size_t i = 0U;
-    size_t written = 0U;
+    if (hex == NULL && len != 0U) { return NULL; }
+    if (len == XTR_UNKNOWN_STRLEN) { len = strlen(hex); }
+    xtr_t* bin = xtr_new_with_capacity(len / 2U);
+    size_t converted = 0U;
     int byte = 0;
-    while (hex[i] != TERMINATOR)
+    while (*hex != TERMINATOR)
     {
-        if (isspace(hex[i]) || hex[i] == ',' || hex[i] == '#' || hex[i] == '_')
+        // Skip formatting/beautifying non-hex characters
+        if (isspace(*hex) || *hex == ',' || *hex == '#' || *hex == '_')
         {
-            i++;
+            hex++;
             continue;
         }
-        else if (hex[i] == '0' && (hex[i + 1] == 'x' || hex[i + 1] == 'X'))
+            // Skip 0x or 0X
+        else if (*hex == '0' && (*(hex + 1) == 'x' || *(hex + 1) == 'X'))
         {
-            i += 2U;
+            hex += 2U;
             continue;
         }
-        else if (hex[i] >= '0' && hex[i] <= '9') { byte |= hex[i] - '0'; }
-        else if (hex[i] >= 'a' && hex[i] <= 'f') { byte |= hex[i] - 'a' + 10; }
-        else if (hex[i] >= 'A' && hex[i] <= 'F') { byte |= hex[i] - 'A' + 10; }
-        else { return 0U; }
+            // Process actual hex characters
+        else if (*hex >= '0' && *hex <= '9') { byte |= *hex - '0'; }
+        else if (*hex >= 'a' && *hex <= 'f') { byte |= *hex - 'a' + 10; }
+        else if (*hex >= 'A' && *hex <= 'F') { byte |= *hex - 'A' + 10; }
+        else
+        {
+            // Non-hex character found.
+            xtr_free(&bin);
+            return NULL;
+        }
         if (byte & 0xF0)
         {
-            // Temp byte already had both hex chars written into it.
-            // Overwrite start of string with this binary value.
-            hex[written++] = (char) byte;
-            byte = 0;
+            // Temp byte already has both hex chars (bin nibbles) written into it.
+            bin->buffer[converted++] = (uint8_t) byte;
+            byte = 0U;
         }
         else
         {
             // First half of a byte completed. Shift and continue to next half.
             byte <<= 4U;
         }
-        i++;
+        hex++;
     }
-    if (byte != 0) { return 0U; }
-    hex[written] = TERMINATOR;
-    return written;
+    if (byte != 0)
+    {
+        // Hex string is over but one unpaired hex character (bin nibble) was
+        // found. No way to tell where it should belong.
+        xtr_free(&bin);
+        return NULL;
+    }
+    set_used_and_terminator(bin, converted);
+    return bin;
+}
+
+static const uint8_t HEXCHARS_UPPER[] = "0123456789ABCDEF";
+static const uint8_t HEXCHARS_LOWER[] = "0123456789abcdef";
+
+XTR_API xtr_t*
+xtr_to_hex(const xtr_t* const bin, const bool upper, const char* const separator)
+{
+    if (bin == NULL) { return NULL; }
+    size_t sep_len = 0U;
+    if (separator != NULL) { sep_len = strlen(separator); }
+    xtr_t* hex = xtr_new_with_capacity(bin->used * (2U + sep_len));
+    if (hex == NULL) { return NULL; }
+    const uint8_t* hexchars;
+    if (upper) { hexchars = HEXCHARS_UPPER; }
+    else { hexchars = HEXCHARS_LOWER; }
+    size_t hex_index = 0U;
+    for (size_t bin_index = 0U; bin_index < bin->used; bin_index++)
+    {
+        // Encode a byte to two hex characters
+        hex->buffer[hex_index++] = hexchars[bin->buffer[bin_index] >> 4U];
+        hex->buffer[hex_index++] = hexchars[bin->buffer[bin_index] & 0x0FU];
+        if (separator != NULL)
+        {
+            memcpy(&hex->buffer[hex_index], separator, sep_len);
+            hex_index += sep_len;
+        }
+    }
+    set_used_and_terminator(hex, bin->used * (2U + sep_len));
+    return hex;
 }

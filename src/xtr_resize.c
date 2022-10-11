@@ -48,7 +48,7 @@ xtr_resize(xtr_t* const xtr, const size_t len)
     else
     {
         // Buffer needs to be expanded, reallocate
-        const size_t to_allocate = struct_size(len);
+        const size_t to_allocate = sizeof_struct_xtr(len);
         if (to_allocate == SIZE_OVERFLOW) { return NULL; }
         xtr_t* const new = realloc(xtr, to_allocate);
         if (new == NULL) { return NULL; }
@@ -74,7 +74,7 @@ xtr_resize_free(xtr_t** const pxtr, const size_t len)
     else
     {
         // Buffer needs to be expanded, reallocate
-        const size_t to_allocate = struct_size(len);
+        const size_t to_allocate = sizeof_struct_xtr(len);
         if (to_allocate == SIZE_OVERFLOW) { return NULL; }
         xtr_t* const new = realloc((*pxtr), to_allocate);
         if (new == NULL) { return NULL; }
