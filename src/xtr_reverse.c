@@ -50,7 +50,7 @@ XTR_API void
 xtr_reverse(xtr_t* const xtr)
 {
     if (xtr == NULL) { return; } // TODO errcodes
-    char temp;
+    uint8_t temp;
     for (size_t s = 0U, e = xtr->used_str_len - 1U; s < xtr->used_str_len; s++, e--)
     {
         temp = xtr->str_buffer[s];

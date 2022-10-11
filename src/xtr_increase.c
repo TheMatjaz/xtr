@@ -33,7 +33,7 @@
 
 
 static void
-xtr_extend_raw(xtr_t** const pbase, const char* const part,
+xtr_extend_raw(xtr_t** const pbase, const uint8_t* const part,
                const size_t part_len, const size_t repetitions)
 {
     const size_t total_len = ((*pbase)->used_str_len + part_len) * repetitions;
@@ -70,7 +70,7 @@ xtr_extend_from(xtr_t** const pbase, const char* const ext) // TODO some error c
 {
     if (pbase == NULL || *pbase == NULL || ext == NULL) { return; }
     const size_t ext_len = strlen(ext);
-    xtr_extend_raw(pbase, ext, ext_len, 1);
+    xtr_extend_raw(pbase, (const uint8_t*) ext, ext_len, 1);
 }
 
 XTR_API void
@@ -79,14 +79,14 @@ xtr_extend_from_many(xtr_t** const pbase, const char* const ext, const size_t re
 {
     if (pbase == NULL || *pbase == NULL || ext == NULL) { return; }
     const size_t ext_len = strlen(ext);
-    xtr_extend_raw(pbase, ext, ext_len, repetitions);
+    xtr_extend_raw(pbase, (const uint8_t*)ext, ext_len, repetitions);
 }
 
 XTR_API void // TODO name it push?
 xtr_append(xtr_t** const pbase, const char c) // TODO some error code
 {
     if (pbase == NULL || *pbase == NULL) { return; }
-    xtr_extend_raw(pbase, &c, 1, 1);
+    xtr_extend_raw(pbase, (const uint8_t*) &c, 1, 1);
 }
 
 XTR_API void
@@ -94,12 +94,12 @@ xtr_append_many(xtr_t** const pbase, const char c, const size_t repetitions)
 // TODO some error code
 {
     if (pbase == NULL || *pbase == NULL) { return; }
-    xtr_extend_raw(pbase, &c, 1, repetitions);
+    xtr_extend_raw(pbase, (const uint8_t*) &c, 1, repetitions);
 }
 
 
 static xtr_t*
-xtr_repeat_raw(const char* const part, const size_t repetitions, const size_t part_len)
+xtr_repeat_raw(const uint8_t* const part, const size_t repetitions, const size_t part_len)
 {
     const size_t total_len = part_len * repetitions;
     if (total_len < part_len) { return NULL; }// TODO are all overflows cases handled correctly?
@@ -118,7 +118,7 @@ xtr_new_repeat(const char* const str, const size_t repetitions)
 {
     if (str == NULL) { return NULL; }
     const size_t part_len = strlen(str);
-    return xtr_repeat_raw(str, repetitions, part_len);
+    return xtr_repeat_raw((const uint8_t*) str, repetitions, part_len);
 }
 
 XTR_API xtr_t*

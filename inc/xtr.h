@@ -393,7 +393,7 @@ XTR_API const uint8_t* xtr_array(const xtr_t* xtr);
  * @param xtr xtring to inspect.
  * @return pointer or NULL if `xtr` is NULL or empty.
  */
-XTR_API const char* xtr_last(const xtr_t* xtr);
+XTR_API const uint8_t* xtr_last(const xtr_t* xtr);
 
 // ------------------- Single-Xtrings content analysis ------------------------------------
 

@@ -39,8 +39,8 @@ xtr_split_at(const xtr_t* const xtr, const xtr_t* const pattern) // TODO return 
     const size_t parts_amount = occurrences_amount + 1U;
     if (parts_amount <= occurrences_amount) { return NULL; }
     xtr_t** const parts = calloc(parts_amount, sizeof(xtr_t*));
-    const char* prev_occurrence = xtr->str_buffer;
-    const char* this_occurrence = NULL;
+    const uint8_t* prev_occurrence = xtr->str_buffer;
+    const uint8_t* this_occurrence = NULL;
     xtr_t* part = NULL;
     size_t part_len = 0U;
     size_t remaining_len = xtr->used_str_len;

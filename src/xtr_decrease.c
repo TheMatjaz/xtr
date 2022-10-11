@@ -172,7 +172,7 @@ xtr_remove_prefix(xtr_t* xtr, const char* prefix)
     if (xtr_is_empty(xtr) || prefix == NULL) { return; }
     const size_t prefix_len = strlen(prefix);
     if (prefix_len > xtr->used_str_len) { return; }
-    if (memcmp(xtr->str_buffer, prefix_len, prefix_len) == 0)
+    if (memcmp(xtr->str_buffer, prefix, prefix_len) == 0)
     {
         xtr_truncate_head(xtr, prefix_len);
     }

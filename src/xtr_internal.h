@@ -61,7 +61,8 @@ struct xtr
     size_t used_str_len;
     /** Buffer with content long `max_str_len+1`, always NULL-terminated at
      * `str_buffer[used_str_len]` and at `str_buffer[max_str_len]`. */
-    char str_buffer[1U];
+     // TODO add explanation that it's longer than 1 B
+    uint8_t str_buffer[1U];
 };
 
 /**

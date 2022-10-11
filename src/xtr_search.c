@@ -67,8 +67,8 @@ xtr_occurrences(const xtr_t* const xtr, const xtr_t* const pattern)
 {
     if (xtr_is_empty(xtr) || xtr_is_empty(pattern)) { return 0U; }
     size_t count = 0U;
-    const char* prev_occurrence = xtr->str_buffer;
-    const char* this_occurrence = NULL;
+    const uint8_t* prev_occurrence = xtr->str_buffer;
+    const uint8_t* this_occurrence = NULL;
     size_t remaining_len = xtr->used_str_len;
     do
     {
