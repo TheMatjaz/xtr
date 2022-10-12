@@ -49,10 +49,7 @@ xtr_truncate_head(xtr_t* const xtr, const size_t amount_to_truncate)
     if (xtr == NULL) { return; }
     const size_t to_truncate = XTR_MIN(amount_to_truncate, xtr->used);
     const size_t new_len = xtr->used - to_truncate;
-    memmove(xtr->buffer, xtr->buffer + to_truncate, new_len);
-#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-    zero_out(&xtr->buffer[new_len], amount_to_truncate);
-#endif
+    memmove_zero_out(xtr->buffer, xtr->buffer + to_truncate, new_len);
     set_used_and_terminator(xtr, new_len);
 }
 
@@ -92,10 +89,7 @@ xtr_pop_head(xtr_t* const xtr, const size_t amount_to_pop)
     const size_t new_len = xtr->used - poppable;
     xtr_t* const popped = xtr_from_array(xtr->buffer, poppable);
     if (popped == NULL) { return NULL; }
-    memmove(xtr->buffer, xtr->buffer + poppable, new_len);
-#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-    zero_out(&xtr->buffer[new_len], amount_to_pop);
-#endif
+    memmove_zero_out(xtr->buffer, xtr->buffer + poppable, new_len);
     set_used_and_terminator(xtr, new_len);
     return popped;
 }
@@ -138,11 +132,7 @@ xtr_trim_head(xtr_t* xtr, const char* chars)
     {
         while (first < xtr->used && strchr(chars, xtr->buffer[first])) { first++; }
     }
-    memmove(xtr->buffer, &xtr->buffer[first], xtr->used - first);
-#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-    zero_out(&xtr->buffer[xtr->used - first],
-             first); // first == amount of discarded
-#endif
+    memmove_zero_out(xtr->buffer, &xtr->buffer[first], xtr->used - first);
     set_used_and_terminator(xtr, xtr->used - first);
 }
 

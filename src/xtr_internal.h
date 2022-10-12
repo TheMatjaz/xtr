@@ -127,6 +127,19 @@ sizeof_struct_xtr(size_t max_str_len);
 void
 zero_out(void* data, size_t len);
 
+/**
+ * @internal
+ * Performs a memmove() and then zeros-out the non-overlapping source region.
+ *
+ * Source and destination regions may overlap. Does nothing if either is NULL
+ * or if they are the same pointer or if they are empty (zero length).
+ * @param dst start of the destination region.
+ * @param src start of the source region.
+ * @param len amount of bytes to move.
+ */
+void
+memmove_zero_out(void* dst, void* src, size_t len);
+
 
 #ifdef __cplusplus
 }

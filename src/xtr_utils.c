@@ -74,10 +74,10 @@ zero_out(void* data, size_t len)
     // Libsodium has good ideas
 }
 
-XTR_INLINE void // TODO use this instead of memmove
-memmove_secure(void* const dst, void* const src, const size_t len)
+XTR_INLINE void
+memmove_zero_out(void* const dst, void* const src, const size_t len)
 {
-    if (dst == NULL || src == NULL || dst == src || len == 0) { return; }
+    if (dst == NULL || src == NULL || dst == src || len == 0U) { return; }
     uint8_t* const d = dst; // Required for ptr arithmetic
     uint8_t* const s = src; // Required for ptr arithmetic
     if (s < d && d < s + len)
