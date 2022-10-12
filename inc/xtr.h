@@ -145,7 +145,7 @@ xtr_new_with_capacity(size_t capacity);
  *         xtr_free(&xtring);
  *         assert(xtring == NULL);
  *
- * @param pxtr **address** of the xtring-pointer.
+ * @param [in, out] pxtr **address** of the xtring-pointer.
  */
 XTR_API void
 xtr_free(xtr_t** pxtr);
@@ -154,7 +154,7 @@ xtr_free(xtr_t** pxtr);
 /**
  * New xtring filled with zero-values bytes, similar to `calloc`.
  *
- * @param len length in bytes = amount of zeros. `0` for empty xtring.
+ * @param  [in]len length in bytes = amount of zeros. `0` for empty xtring.
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
@@ -164,7 +164,7 @@ xtr_zeros(size_t len);
  * New xtring initialised with the C-string content.
  *
  * Does not reserve any additional capacity for expansions.
- * @param str null-terminated array of characters, usually ASCII.
+ * @param [in] str null-terminated array of characters, usually ASCII.
  *        NULL or `""` for an empty xtring.
  * @return the new xtring or NULL in case of malloc failure.
  */
@@ -183,9 +183,9 @@ xtr_from_str(const char* str);
  *
  * Ensures the `at_least - strlen(str)` available allocated free space at the
  * xtring's end, to have some space ready for expansions without reallocation.
- * @param str null-terminated array of characters, usually ASCII.
+ * @param [in] str null-terminated array of characters, usually ASCII.
  *        NULL or `""` for an empty xtring.
- * @param at_least minimum amount of bytes to allocate, but
+ * @param [in] at_least minimum amount of bytes to allocate, but
  *        `strlen(str)` is anyhow allocated not to truncate any data.
  * @return the new xtring or NULL in case of malloc failure.
  */
@@ -196,9 +196,9 @@ xtr_from_str_with_capacity(const char* str, size_t at_least);
  * New xtring initialised with the C-string content repeated `repetitions` times.
  *
  * Does not reserve any additional capacity for expansions.
- * @param str null-terminated array of characters, usually ASCII.
+ * @param [in] str null-terminated array of characters, usually ASCII.
  *        NULL or `""` for an empty xtring.
- * @param repetitions amount of times to repeat `str`. `0` for an empty xtring.
+ * @param [in] repetitions amount of times to repeat `str`. `0` for an empty xtring.
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
@@ -210,10 +210,10 @@ xtr_from_str_repeated(const char* str, size_t repetitions);
  *
  * Ensures the `at_least - strlen(str)` available allocated free space at the
  * xtring's end, to have some space ready for expansions without reallocation.
- * @param str null-terminated array of characters, usually ASCII.
+ * @param [in] str null-terminated array of characters, usually ASCII.
  *        NULL or `""` for an empty xtring.
- * @param repetitions amount of times to repeat `str`. `0` for an empty xtring.
- * @param at_least minimum amount of bytes to allocate, but
+ * @param [in] repetitions amount of times to repeat `str`. `0` for an empty xtring.
+ * @param [in] at_least minimum amount of bytes to allocate, but
  *        `strlen(str) * repetitions` is anyhow allocated not to truncate any data.
  * @return the new xtring or NULL in case of malloc failure.
  */
@@ -226,9 +226,9 @@ xtr_from_str_repeated_with_capacity(const char* str,
  * New xtring initialised with the array content.
  *
  * Does not reserve any additional capacity for expansions.
- * @param array binary array. Zero-bytes are copied as they are, not interpreted
+ * @param [in] array binary array. Zero-bytes are copied as they are, not interpreted
  *        as null-terminators.
- * @param array_len amount of bytes to copy from the array.
+ * @param [in] array_len amount of bytes to copy from the array.
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
@@ -241,10 +241,10 @@ xtr_from_array(const uint8_t* array,
  *
  * Ensures the `at_least - array_len` available allocated free space at the
  * xtring's end, to have some space ready for expansions without reallocation.
- * @param array binary array. Zero-bytes are copied as they are, not interpreted
+ * @param [in] array binary array. Zero-bytes are copied as they are, not interpreted
  *        as null-terminators.
- * @param array_len amount of bytes to copy from the array.
- * @param at_least minimum amount of bytes to allocate, but
+ * @param [in] array_len amount of bytes to copy from the array.
+ * @param [in] at_least minimum amount of bytes to allocate, but
  *        `array_len` is anyhow allocated not to truncate any data.
  * @return the new xtring or NULL in case of malloc failure.
  */
@@ -257,10 +257,10 @@ xtr_from_array_with_capacity(const uint8_t* array,
  * New xtring initialised with the array content repeated `repetitions` times.
  *
  * Does not reserve any additional capacity for expansions.
- * @param array binary array. Zero-bytes are copied as they are, not interpreted
+ * @param [in] array binary array. Zero-bytes are copied as they are, not interpreted
  *        as null-terminators.
- * @param array_len amount of bytes to copy from the array.
- * @param repetitions amount of times to repeat `array`.
+ * @param [in] array_len amount of bytes to copy from the array.
+ * @param [in] repetitions amount of times to repeat `array`.
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
@@ -274,11 +274,11 @@ xtr_from_array_repeated(const uint8_t* array,
  *
  * Ensures the `at_least - array_len` available allocated free space at the
  * xtring's end, to have some space ready for expansions without reallocation.
- * @param array binary array. Zero-bytes are copied as they are, not interpreted
+ * @param [in] array binary array. Zero-bytes are copied as they are, not interpreted
  *        as null-terminators.
- * @param array_len amount of bytes to copy from the array.
- * @param repetitions amount of times to repeat `array`.
- * @param at_least minimum amount of bytes to allocate, but
+ * @param [in] array_len amount of bytes to copy from the array.
+ * @param [in] repetitions amount of times to repeat `array`.
+ * @param [in] at_least minimum amount of bytes to allocate, but
  *        `array_len * repetitions` is anyhow allocated not to truncate any data.
  * @return the new xtring or NULL in case of malloc failure.
  */
@@ -292,7 +292,7 @@ xtr_from_array_repeated_with_capacity(const uint8_t* array,
  * New xtring of length 1 initialised with a single byte.
  *
  * Does not reserve any additional capacity for expansions.
- * @param byte 8-bit value to place in the xtring.
+ * @param [in] byte 8-bit value to place in the xtring.
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
@@ -302,8 +302,8 @@ xtr_from_byte(uint8_t byte);
  * New xtring initialised with the `byte` repeated `repetitions` times.
  *
  * Does not reserve any additional capacity for expansions.
- * @param byte 8-bit value to place in the xtring.
- * @param repetitions amount of times to repeat `byte`.
+ * @param [in] byte 8-bit value to place in the xtring.
+ * @param [in] repetitions amount of times to repeat `byte`.
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
@@ -317,9 +317,9 @@ xtr_from_byte_repeated(uint8_t byte, size_t repetitions);
  * xtring's end, to have some space ready for expansions without reallocation.
  *
  * Does not reserve any additional capacity for expansions.
- * @param byte 8-bit value to place in the xtring.
- * @param repetitions amount of times to repeat `byte`.
- * @param at_least minimum amount of bytes to allocate, but
+ * @param [in] byte 8-bit value to place in the xtring.
+ * @param [in] repetitions amount of times to repeat `byte`.
+ * @param [in] at_least minimum amount of bytes to allocate, but
  *        `repetitions` is anyhow allocated not to truncate any data.
  * @return the new xtring or NULL in case of malloc failure.
  */
@@ -333,7 +333,7 @@ xtr_from_byte_repeated_with_capacity(uint8_t byte, size_t len, size_t at_least);
  * Unix-like systems it uses `/dev/urandom`.
  *
  * Does not reserve any additional capacity for expansions.
- * @param len amount of random bytes.
+ * @param [in] len amount of random bytes.
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
@@ -343,7 +343,7 @@ xtr_random(size_t len);
 /**
  * New xtring with same content as another one (copy by value).
  *
- * @param xtr to copy.
+ * @param [in] xtr to copy.
  * @return the new xtring or NULL in case of malloc failure or when `xtr` is NULL.
  */
 XTR_API xtr_t*
@@ -355,8 +355,8 @@ xtr_clone(const xtr_t* xtr);
  *
  * Ensures the `at_least - xtr_len(xtr)` available allocated free space at the
  * clone's end, to have some space ready for expansions without reallocation.
- * @param xtr to copy. Returns NULL if `xtr` is NULL.
- * @param at_least minimum amount of bytes to allocate, but
+ * @param [in] xtr to copy. Returns NULL if `xtr` is NULL.
+ * @param [in] at_least minimum amount of bytes to allocate, but
  *        `xtr_len(xtr)` is anyhow allocated not to truncate any data.
  * @return the new xtring or NULL in case of malloc failure or when `xtr` is NULL.
  */
@@ -376,7 +376,7 @@ xtr_clone_with_capacity(const xtr_t* xtr, size_t max_len);
  *           length       available
  *         (used space)  (free space)
  *
- * @param xtr xtring to inspect.
+ * @param [in] xtr xtring to inspect.
  * @return the length or 0 if `xtr` is NULL.
  */
 XTR_API size_t
@@ -394,7 +394,7 @@ xtr_len(const xtr_t* xtr);
  *           length       available
  *         (used space)  (free space)
  *
- * @param xtr xtring to inspect.
+ * @param [in] xtr xtring to inspect.
  * @return the capacity or 0 if `xtr` is NULL.
  */
 XTR_API size_t
@@ -412,7 +412,7 @@ xtr_capacity(const xtr_t* xtr);
  *           length       available
  *         (used space)  (free space)
  *
- * @param xtr xtring to inspect.
+ * @param [in] xtr xtring to inspect.
  * @return the capacity or 0 if `xtr` is NULL.
  */
 XTR_API size_t
@@ -423,7 +423,7 @@ xtr_available(const xtr_t* xtr);
  *
  * DO NOT USE IT TO WRITE DATA. It will corrupt the internal structure.
  *
- * @param xtr xtring to inspect.
+ * @param [in] xtr xtring to inspect.
  * @return null-terminated char array or NULL if `xtr` is NULL.
  */
 XTR_API const char*
@@ -436,7 +436,7 @@ xtr_cstring(const xtr_t* xtr);
  *
  * Although the null-termination is not required for binary arrays, it's
  * included due to the internal construction.
- * @param xtr xtring to inspect.
+ * @param [in] xtr xtring to inspect.
  * @return null-terminated `uint8_t` array or NULL if `xtr` is NULL.
  */
 XTR_API const uint8_t*
@@ -445,7 +445,7 @@ xtr_array(const xtr_t* xtr);
 /**
  * Read-only pointer to the last byte of the string.
  *
- * @param xtr xtring to inspect.
+ * @param [in] xtr xtring to inspect.
  * @return pointer or NULL if `xtr` is NULL or empty.
  */
 XTR_API const uint8_t*
@@ -455,7 +455,7 @@ xtr_last(const xtr_t* xtr);
 
 /**
  * Checks whether the xtring contains any bytes.
- * @param xtr xtring to inspect.
+ * @param [in] xtr xtring to inspect.
  * @return true if `xtr` is empty (length == 0) or NULL, false otherwise.
  */
 XTR_API bool
@@ -463,7 +463,7 @@ xtr_is_empty(const xtr_t* xtr);
 
 /**
  * Checks whether the xtring contains only whitespace characters.
- * @param xtr xtring to inspect.
+ * @param [in] xtr xtring to inspect.
  * @return true if `xtr` contains only `isspace()` characters, false otherwise.
  *         Note: an empty or NULL xtring returns false.
  */
@@ -472,7 +472,7 @@ xtr_is_spaces(const xtr_t* xtr);
 
 /**
  * Checks whether the xtring contains only zero-valued bytes.
- * @param xtr xtring to inspect.
+ * @param [in] xtr xtring to inspect.
  * @return true if `xtr` contains only zeros, false otherwise.
  *         Note: an empty or NULL xtring returns false.
  */
@@ -483,7 +483,7 @@ xtr_is_zeros(const xtr_t* xtr);
  * Like xtr_is_zeros() but with constant runtime for security application.
  *
  * The entire string is always scanned, even if a non-zero byte is found early.
- * @param xtr xtring to inspect.
+ * @param [in] xtr xtring to inspect.
  * @return true if `xtr` contains only zeros, false otherwise.
  *         Note: an empty or NULL xtring returns false.
  */
@@ -492,7 +492,7 @@ xtr_is_zeros_consttime(const xtr_t* xtr);
 
 /**
  * Checks whether the xtring is not full of just zero-valued bytes.
- * @param xtr xtring to inspect.
+ * @param [in] xtr xtring to inspect.
  * @return true if `xtr` contains any non-zero byte, false otherwise.
  *         Note: an empty or NULL xtring returns false.
  */
@@ -503,7 +503,7 @@ xtr_is_not_zeros(const xtr_t* xtr);
  * Like xtr_is_not_zeros() but with constant runtime for security application.
  *
  * The entire string is always scanned, even if a non-zero byte is found early.
- * @param xtr xtring to inspect.
+ * @param [in] xtr xtring to inspect.
  * @return true if `xtr` contains any non-zero byte, false otherwise.
  *         Note: an empty or NULL xtring returns false.
  */
@@ -517,8 +517,8 @@ xtr_is_not_zeros_consttime(const xtr_t* a);
  *
  * Mimics `memcmp()` but just for the xtring lengths, not their content.
  * For that, use xtr_cmp().
- * @param a first xtring
- * @param b second xtring
+ * @param [in] a first xtring
+ * @param [in] b second xtring
  * @return
  * - `0` when they have equal length: both NULL, or both same length, or both same pointer
  * - negative when `a` is shorter
@@ -534,8 +534,8 @@ xtr_cmp_length(const xtr_t* a, const xtr_t* b);
 /**
  * Wrapper around xtr_cmp_length() checking only for length equality (amount of used bytes).
  *
- * @param a first xtring
- * @param b second xtring
+ * @param [in] a first xtring
+ * @param [in] b second xtring
  * @return true when both are NULL or have equal length
  */
 XTR_API bool
@@ -545,8 +545,8 @@ xtr_is_equal_length(const xtr_t* a, const xtr_t* b);
  * Compares the two xtrings in length and content, useful for sorting.
  *
  * Mimics `memcmp()`, but compares also the length and NULL pointers.
- * @param a first xtring
- * @param b second xtring
+ * @param [in] a first xtring
+ * @param [in] b second xtring
  * @return
  * - `0` when they are equal: both NULL, or both same length and content, or both same pointer
  * - negative when `a` is shorter
@@ -564,8 +564,8 @@ xtr_cmp(const xtr_t* a, const xtr_t* b);
 /**
  * Checks if two xtrings have exactly the same length and content.
  *
- * @param a first xtring
- * @param b second xtring
+ * @param [in] a first xtring
+ * @param [in] b second xtring
  * @return true when both NULL, or both are the same pointer, or both have the same length
  * and same content (used bytes). False otherwise.
  */
@@ -579,8 +579,8 @@ xtr_is_equal(const xtr_t* a, const xtr_t* b);
  * EXCEPTION: if one of them is shorter, the function returns IMMEDIATELY,
  * because they cannot be the same string.
  *
- * @param a first xtring
- * @param b second xtring
+ * @param [in] a first xtring
+ * @param [in] b second xtring
  * @return true when both NULL, or both are the same pointer, or both have the same length
  * and same content (used bytes). False otherwise.
  */
@@ -593,7 +593,7 @@ xtr_is_equal_consttime(const xtr_t* a, const xtr_t* b);
  *
  * The allocated memory (capability) remains the same. To shorten the buffer
  * use xtr_compress_free();
- * @param xtr xtring to erase.
+ * @param [in, out] xtr xtring to erase.
  */
 XTR_API void // TODO if safe, then O(n) operation
 xtr_clear(xtr_t* xtr);
@@ -608,8 +608,8 @@ xtr_clear(xtr_t* xtr);
  *
  * O(n) operation, as it requires the rest of the altered string to be
  * shifted with `memmove`.
- * @param xtr xtring to pop from an alter, modified in-place.
- * @param len amount of bytes to pop. If more than the length of `xtr`, a copy
+ * @param [in, out] xtr xtring to pop from an alter, modified in-place.
+ * @param [in] len amount of bytes to pop. If more than the length of `xtr`, a copy
  *        of the entire `xtr` is provided and the modified `xtr` is emptied.
  * @return new xtring with the popped prefix of `xtr`, with the bytes in the
  *        same order as they appeared in the original.
@@ -626,8 +626,8 @@ xtr_pop_head(xtr_t* xtr, size_t len);
  *         returned:   "ld!"
  *
  * O(1) operation.
- * @param xtr xtring to pop from an alter, modified in-place.
- * @param len amount of bytes to pop. If more than the length of `xtr`, a copy
+ * @param [in, out] xtr xtring to pop from an alter, modified in-place.
+ * @param [in] len amount of bytes to pop. If more than the length of `xtr`, a copy
  *        of the entire `xtr` is provided and the modified `xtr` is emptied.
  * @return new xtring with the popped prefix of `xtr`, with the bytes in the
  *        same order as they appeared in the original.
@@ -646,8 +646,8 @@ xtr_pop_tail(xtr_t* xtr, size_t len);
  *
  * O(n) operation, as it requires the rest of the altered string to be
  * shifted with `memmove`.
- * @param xtr xtring to truncate, modified in-place.
- * @param len amount of bytes to erase. If more than the length of `xtr`, the
+ * @param [in, out] xtr xtring to truncate, modified in-place.
+ * @param [in] len amount of bytes to erase. If more than the length of `xtr`, the
  *        entire `xtr` is emptied.
  */
 XTR_API void
@@ -665,8 +665,8 @@ xtr_truncate_head(xtr_t* xtr, size_t len);
  *         xtr after:  "Hello wor"
  *
  * O(1) operation.
- * @param xtr xtring to truncate, modified in-place.
- * @param len amount of bytes to erase. If more than the length of `xtr`, the
+ * @param [in, out] xtr xtring to truncate, modified in-place.
+ * @param [in] len amount of bytes to erase. If more than the length of `xtr`, the
  *        entire `xtr` is emptied.
  */
 XTR_API void
@@ -682,8 +682,8 @@ xtr_truncate_tail(xtr_t* xtr, size_t len);
  *         xtr_trim_tail(xtr["Hello world!"], ".,!d") --> xtr["Hello worl"]
  *         xtr_trim_tail(xtr["Hello world!\r\n"], NULL) --> xtr["Hello world!"]
  *         xtr_trim_tail(xtr["Hello world!AAAAAAA"], "ABC") --> xtr["Hello world!"]
- * @param xtr xtring to trim in-place.
- * @param chars characters to remove, regardless of their order of appearance.
+ * @param [in, out] xtr xtring to trim in-place.
+ * @param [in] chars characters to remove, regardless of their order of appearance.
  *        NULL for all whitespace characters.
  */
 XTR_API void
@@ -699,12 +699,12 @@ xtr_trim_tail(xtr_t* xtr, const char* chars);
  *         xtr_trim_head(xtr["Hello world!"], "eHl") --> xtr["o world!"]
  *         xtr_trim_head(xtr["\r\n Hello world!\r\n"], NULL) --> xtr["Hello world!\r\n"]
  *         xtr_trim_head(xtr["===Hello world!"], "=-+") --> xtr["Hello world!"]
- * @param xtr xtring to trim in-place.
- * @param chars characters to remove, regardless of their order of appearance.
+ * @param [in, out] xtr xtring to trim in-place.
+ * @param [in] chars characters to remove, regardless of their order of appearance.
  *        NULL for all whitespace characters.
  */
 XTR_API void // O(n) operation!
-xtr_trim_head(xtr_t* xtr, const char* chars); // Pass NULL for whitespaces
+xtr_trim_head(xtr_t* xtr, const char* chars);
 
 /**
  * Trims (strips) any provided characters from the start and end of the string.
@@ -716,12 +716,12 @@ xtr_trim_head(xtr_t* xtr, const char* chars); // Pass NULL for whitespaces
  *         xtr_trim(xtr["Hello world!"], "eHl!") --> xtr["o world"]
  *         xtr_trim(xtr["\r\n Hello world!\r\n"], NULL) --> xtr["Hello world!"]
  *         xtr_trim(xtr["===Hello world!==="], "=-+") --> xtr["Hello world!"]
- * @param xtr xtring to trim in-place.
- * @param chars characters to remove, regardless of their order of appearance.
+ * @param [in, out] xtr xtring to trim in-place.
+ * @param [in] chars characters to remove, regardless of their order of appearance.
  *        NULL for all whitespace characters.
  */
 XTR_API void
-xtr_trim(xtr_t* xtr, const char* chars); // Pass NULL for whitespaces
+xtr_trim(xtr_t* xtr, const char* chars);
 
 /**
  * Truncates the provided substring from the end of the xtring, if present.
@@ -733,8 +733,8 @@ xtr_trim(xtr_t* xtr, const char* chars); // Pass NULL for whitespaces
  *         xtr_trim(xtr["Hello world!"], " world!") --> xtr["Hello"]
  *         xtr_trim(xtr["Hello world!"], "abc!") --> xtr["Hello world!"]
  *         xtr_trim(xtr["Hello world..."], ".") --> xtr["Hello world.."]
- * @param xtr xtring to truncate in-place. NULL does nothing.
- * @param chars substring to remove. NULL does nothing.
+ * @param [in, out] xtr xtring to truncate in-place. NULL does nothing.
+ * @param [in] chars substring to remove. NULL does nothing.
  */
 XTR_API void
 xtr_remove_suffix(xtr_t* xtr, const char* suffix);
@@ -749,8 +749,8 @@ xtr_remove_suffix(xtr_t* xtr, const char* suffix);
  *         xtr_trim(xtr["Hello world!"], "He") --> xtr["llo world!"]
  *         xtr_trim(xtr["Hello world!"], "abc!") --> xtr["Hello world!"]
  *         xtr_trim(xtr["...Hello world!"], ".") --> xtr["..Hello world!"]
- * @param xtr xtring to truncate in-place. NULL does nothing.
- * @param chars substring to remove. NULL does nothing.
+ * @param [in, out] xtr xtring to truncate in-place. NULL does nothing.
+ * @param [in] chars substring to remove. NULL does nothing.
  */
 XTR_API void
 xtr_remove_prefix(xtr_t* xtr, const char* prefix);
@@ -862,12 +862,41 @@ XTR_API void xtr_prepend_many(xtr_t** pbase, char character, size_t repetitions)
 // Trimming
 
 // ------------------- Encoding ------------------------------------
+/**
+ * Converts a binary xtring to a hex string in ASCII encoding.
+ *
+ * Example: xtr[13, 1, 130] --> "0D0182"
+ *
+ * @param [in] bin xtring to convert to hex
+ * @param [in] upper true to use uppercase hex characters ABCDEF rather than abcdef
+ * @param [in] separator optional string to place between each byte. NULL or empty
+ *        string for no separator
+ * @return a new xtring with the hex characters in ASCII encoding or NULL in
+ *         case of malloc failure.
+ */
 XTR_API xtr_t*
 xtr_to_hex(const xtr_t* bin, bool upper, const char* separator);
 
+/**
+ * Converts a hexadeciaml text string in ASCII encoding to a binary xtring.
+ *
+ * Example: "0x0D 01 82" --> xtr[13, 1, 130]s
+ *
+ * Properties:
+ * - Ignores any whitespaces, comma, and underscores - typically used as byte
+ *   separators.
+ * - Ignores any `#` sign - typically used when expressing RGB colors as hex.
+ * - Ignores any `0x` or `0X` prefixes, even if they appear multiple times.
+ * - Case insensitive (A-F or a-f are both OK).
+ *
+ * @param [in] hex hexadecimal string (ASCII characters 0-9A-F)
+ * @param [in] len optional length of the hex string, if already known.
+ *             Pass #XTR_UNKNOWN_STRLEN otherwise: this function will run strlen() internally.
+ * @return a new xtring with the binary values or NULL in case of conversion failure (e.g.,
+ * non-hex character found) or malloc failure
+ */
 XTR_API xtr_t*
 xtr_from_hex(const char* hex, size_t len);
-// Skips whitespace, commas, # (used in colours), underscores, 0x, 0X
 
 
 // Utils
@@ -902,7 +931,6 @@ xtr_from_hex(const char* hex, size_t len);
 // TODO insert
 //TODO prepend
 // TODO base64
-// TODO hex
 // TODO tokenise
 // TODO parse as u16, u32, u64, f16, f32, f64, LE and BE - or maybe just iterate?
 // TODO different comparisons if one string is shorter than the others

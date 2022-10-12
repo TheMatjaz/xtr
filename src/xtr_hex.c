@@ -31,7 +31,6 @@
 
 #include "xtr_internal.h"
 
-// Skips whitespace, commas, # (used in colours), underscores, 0x, 0X
 XTR_API xtr_t*
 xtr_from_hex(const char* hex, size_t len)
 {
