@@ -76,7 +76,10 @@ set(LIB_SRC ${LIB_HEADER}
         src/xtr_split.c
         src/xtr_unicode.c
         src/xtr_utils.c
-        src/xtr_from.c src/xtr_unarycmp.c src/xtr_random.c)
+        src/xtr_from.c
+        src/xtr_unarycmp.c
+        src/xtr_random.c
+        src/xtr_base64.c)
 set(TEST_SRC
         # Test frameworks
         tst/framework/atto/atto.c
