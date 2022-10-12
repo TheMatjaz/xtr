@@ -288,17 +288,56 @@ xtr_from_array_repeated_with_capacity(const uint8_t* array,
                                       size_t repetitions,
                                       size_t at_least);
 
+/**
+ * New xtring of length 1 initialised with a single byte.
+ *
+ * Does not reserve any additional capacity for expansions.
+ * @param byte 8-bit value to place in the xtring.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
 xtr_from_byte(uint8_t byte);
 
+/**
+ * New xtring initialised with the `byte` repeated `repetitions` times.
+ *
+ * Does not reserve any additional capacity for expansions.
+ * @param byte 8-bit value to place in the xtring.
+ * @param repetitions amount of times to repeat `byte`.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
-xtr_from_byte_repeated(uint8_t byte, size_t len);
+xtr_from_byte_repeated(uint8_t byte, size_t repetitions);
 
+/**
+ * New xtring initialised with the `byte` repeated `repetitions` times
+ * and overall `at_least` allocated space.
+ *
+ * Ensures the `at_least - repetitions` available allocated free space at the
+ * xtring's end, to have some space ready for expansions without reallocation.
+ *
+ * Does not reserve any additional capacity for expansions.
+ * @param byte 8-bit value to place in the xtring.
+ * @param repetitions amount of times to repeat `byte`.
+ * @param at_least minimum amount of bytes to allocate, but
+ *        `repetitions` is anyhow allocated not to truncate any data.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
 xtr_from_byte_repeated_with_capacity(uint8_t byte, size_t len, size_t at_least);
 
+/**
+ * New xtring initialised with the `len` cryptographically-secure random bytes.
+ *
+ * On Windows it obtains the random bytes using `BCryptGenRandom`, on
+ * Unix-like systems it uses `/dev/urandom`.
+ *
+ * Does not reserve any additional capacity for expansions.
+ * @param len amount of random bytes.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
-xtr_random(size_t len); // TODO
+xtr_random(size_t len);
 
 // ------------------- New cloned xtrings ------------------------------------
 /**
@@ -307,7 +346,8 @@ xtr_random(size_t len); // TODO
  * @param xtr to copy.
  * @return the new xtring or NULL in case of malloc failure or when `xtr` is NULL.
  */
-XTR_API xtr_t* xtr_clone(const xtr_t* xtr);
+XTR_API xtr_t*
+xtr_clone(const xtr_t* xtr);
 
 /**
  * New xtring with same content as another one (copy by value)
@@ -320,7 +360,8 @@ XTR_API xtr_t* xtr_clone(const xtr_t* xtr);
  *        `xtr_len(xtr)` is anyhow allocated not to truncate any data.
  * @return the new xtring or NULL in case of malloc failure or when `xtr` is NULL.
  */
-XTR_API xtr_t* xtr_clone_with_capacity(const xtr_t* xtr, size_t max_len);
+XTR_API xtr_t*
+xtr_clone_with_capacity(const xtr_t* xtr, size_t max_len);
 
 
 // ------------------- Xtring properties (getters) ------------------------------------
@@ -338,7 +379,8 @@ XTR_API xtr_t* xtr_clone_with_capacity(const xtr_t* xtr, size_t max_len);
  * @param xtr xtring to inspect.
  * @return the length or 0 if `xtr` is NULL.
  */
-XTR_API size_t xtr_len(const xtr_t* xtr);
+XTR_API size_t
+xtr_len(const xtr_t* xtr);
 
 /**
  * Buffer size of the xtring = **maximum** possible length the xtring can reach without
@@ -355,7 +397,8 @@ XTR_API size_t xtr_len(const xtr_t* xtr);
  * @param xtr xtring to inspect.
  * @return the capacity or 0 if `xtr` is NULL.
  */
-XTR_API size_t xtr_capacity(const xtr_t* xtr);
+XTR_API size_t
+xtr_capacity(const xtr_t* xtr);
 
 /**
  * Available xtring space =  amount of **free** bytes that can be appended to the xtring
@@ -372,7 +415,8 @@ XTR_API size_t xtr_capacity(const xtr_t* xtr);
  * @param xtr xtring to inspect.
  * @return the capacity or 0 if `xtr` is NULL.
  */
-XTR_API size_t xtr_available(const xtr_t* xtr);
+XTR_API size_t
+xtr_available(const xtr_t* xtr);
 
 /**
  * Read-only access to the internal buffer as C-string, null-terminated.
@@ -382,7 +426,8 @@ XTR_API size_t xtr_available(const xtr_t* xtr);
  * @param xtr xtring to inspect.
  * @return null-terminated char array or NULL if `xtr` is NULL.
  */
-XTR_API const char* xtr_cstring(const xtr_t* xtr);
+XTR_API const char*
+xtr_cstring(const xtr_t* xtr);
 
 /**
  * Read-only access to the internal buffer as `uint8_t[]`, null-terminated.
@@ -394,7 +439,8 @@ XTR_API const char* xtr_cstring(const xtr_t* xtr);
  * @param xtr xtring to inspect.
  * @return null-terminated `uint8_t` array or NULL if `xtr` is NULL.
  */
-XTR_API const uint8_t* xtr_array(const xtr_t* xtr);
+XTR_API const uint8_t*
+xtr_array(const xtr_t* xtr);
 
 /**
  * Read-only pointer to the last byte of the string.
@@ -402,7 +448,8 @@ XTR_API const uint8_t* xtr_array(const xtr_t* xtr);
  * @param xtr xtring to inspect.
  * @return pointer or NULL if `xtr` is NULL or empty.
  */
-XTR_API const uint8_t* xtr_last(const xtr_t* xtr);
+XTR_API const uint8_t*
+xtr_last(const xtr_t* xtr);
 
 // ------------------- Single-Xtrings content analysis ------------------------------------
 
@@ -411,7 +458,8 @@ XTR_API const uint8_t* xtr_last(const xtr_t* xtr);
  * @param xtr xtring to inspect.
  * @return true if `xtr` is empty (length == 0) or NULL, false otherwise.
  */
-XTR_API bool xtr_is_empty(const xtr_t* xtr);
+XTR_API bool
+xtr_is_empty(const xtr_t* xtr);
 
 /**
  * Checks whether the xtring contains only whitespace characters.
@@ -419,7 +467,8 @@ XTR_API bool xtr_is_empty(const xtr_t* xtr);
  * @return true if `xtr` contains only `isspace()` characters, false otherwise.
  *         Note: an empty or NULL xtring returns false.
  */
-XTR_API bool xtr_is_spaces(const xtr_t* xtr);
+XTR_API bool
+xtr_is_spaces(const xtr_t* xtr);
 
 /**
  * Checks whether the xtring contains only zero-valued bytes.
@@ -427,7 +476,8 @@ XTR_API bool xtr_is_spaces(const xtr_t* xtr);
  * @return true if `xtr` contains only zeros, false otherwise.
  *         Note: an empty or NULL xtring returns false.
  */
-XTR_API bool xtr_is_zeros(const xtr_t* xtr);
+XTR_API bool
+xtr_is_zeros(const xtr_t* xtr);
 
 /**
  * Like xtr_is_zeros() but with constant runtime for security application.
@@ -437,7 +487,8 @@ XTR_API bool xtr_is_zeros(const xtr_t* xtr);
  * @return true if `xtr` contains only zeros, false otherwise.
  *         Note: an empty or NULL xtring returns false.
  */
-XTR_API bool xtr_is_zeros_consttime(const xtr_t* xtr);
+XTR_API bool
+xtr_is_zeros_consttime(const xtr_t* xtr);
 
 /**
  * Checks whether the xtring is not full of just zero-valued bytes.
@@ -445,7 +496,8 @@ XTR_API bool xtr_is_zeros_consttime(const xtr_t* xtr);
  * @return true if `xtr` contains any non-zero byte, false otherwise.
  *         Note: an empty or NULL xtring returns false.
  */
-XTR_API bool xtr_is_not_zeros(const xtr_t* xtr);
+XTR_API bool
+xtr_is_not_zeros(const xtr_t* xtr);
 
 /**
  * Like xtr_is_not_zeros() but with constant runtime for security application.
@@ -455,7 +507,8 @@ XTR_API bool xtr_is_not_zeros(const xtr_t* xtr);
  * @return true if `xtr` contains any non-zero byte, false otherwise.
  *         Note: an empty or NULL xtring returns false.
  */
-XTR_API bool xtr_is_not_zeros_consttime(const xtr_t* a);
+XTR_API bool
+xtr_is_not_zeros_consttime(const xtr_t* a);
 
 // ------------------- Xtring equality check and comparison ------------------------------------
 
