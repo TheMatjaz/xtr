@@ -140,6 +140,29 @@ zero_out(void* data, size_t len);
 void
 memmove_zero_out(void* dst, void* src, size_t len);
 
+/**
+ * @internal
+ * Searches a multi-byte pattern in a larger binary array.
+ *
+ * This is a custom implementation of the memmem() function, which is part of the
+ * GNU libc, but not of the standard libc. This is a naive implementation of the
+ * substring search algorithm but still tries to add a few optimisations, like
+ * avoiding scanning any haystack byte twice. It should be performant-enough
+ * for small to medium-sized arrays.
+ *
+ * @param haystack larger array to search in
+ * @param haystack_len amount of bytes of the haystack array
+ * @param needle smaller array to search for (a.k.a. pattern, substring)
+ * @param needle_len amount of bytes of the needle array
+ * @return pointer to the start of the first needle occurrence in haystack.
+ *         NULL if not found, if either array is NULL or has zero length,
+ *         or if the needle is too large to fit in the haystack.
+ *         Note: if the needle and the haystack are the same pointer, it returns
+ *         that pointer ("the needle is equal to itself" scenario)
+ */
+void*
+xtr_memmem(const void* haystack, size_t haystack_len,
+           const void* needle, size_t needle_len);
 
 #ifdef __cplusplus
 }

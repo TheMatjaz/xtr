@@ -112,7 +112,7 @@ memmove_zero_out(void* const dst, void* const src, const size_t len)
     }
 }
 
-static void*
+void*
 xtr_memmem(const void* haystack_vp, const size_t haystack_len,
            const void* const needle_vp, const size_t needle_len)
 {

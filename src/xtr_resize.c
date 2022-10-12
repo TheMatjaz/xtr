@@ -31,6 +31,19 @@
 
 #include "xtr_internal.h"
 
+XTR_API xtr_t*
+xtr_ensure(xtr_t* const xtr, const size_t len)
+{
+    if (xtr == NULL) { return NULL; }
+    return xtr_resize(xtr, XTR_MIN(xtr->used, len));
+}
+XTR_API xtr_t*
+xtr_ensure_free(xtr_t** const pxtr, const size_t len)
+{
+    if (pxtr == NULL || *pxtr == NULL) { return NULL; }
+    return xtr_resize_free(pxtr, XTR_MIN((*pxtr)->used, len));
+}
+
 // TODO xtr_ensure: like resize, but does not truncate if too short
 XTR_API xtr_t*
 xtr_resize(xtr_t* const xtr, const size_t len)

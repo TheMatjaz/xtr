@@ -51,7 +51,7 @@ xtr_find_in(const xtr_t* const xtr, const xtr_t* const pattern,
     // Consider returning const char*
     if (xtr_is_empty(xtr) || xtr_is_empty(pattern)
         || start >= xtr->used || end >= xtr->used) { return NULL; }
-    const char* const location = memmem(xtr->buffer + start,
+    const char* const location = xtr_memmem(xtr->buffer + start,
                                         end - start, pattern->buffer, pattern->used);
     return location;
 }
@@ -72,7 +72,7 @@ xtr_occurrences(const xtr_t* const xtr, const xtr_t* const pattern)
     size_t remaining_len = xtr->used;
     do
     {
-        this_occurrence = memmem(prev_occurrence, remaining_len,
+        this_occurrence = xtr_memmem(prev_occurrence, remaining_len,
                                  pattern->buffer, pattern->used);
         if (this_occurrence != NULL)
         {

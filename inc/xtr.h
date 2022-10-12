@@ -758,23 +758,31 @@ xtr_remove_prefix(xtr_t* xtr, const char* prefix);
 
 // ------------------- Alter the Xtring's allocated memory ------------------------------------
 
-XTR_API xtr_t* xtr_resize(xtr_t* xtr, size_t len);
+XTR_API xtr_t*
+xtr_resize(xtr_t* xtr, size_t len);
 
-XTR_API xtr_t* xtr_resize_double(xtr_t* xtr);
+XTR_API xtr_t*
+xtr_resize_double(xtr_t* xtr);
 
-XTR_API xtr_t* xtr_resize_free(xtr_t** pxtr, size_t len);
+XTR_API xtr_t*
+xtr_resize_free(xtr_t** pxtr, size_t len);
 
-XTR_API xtr_t* xtr_resize_free_double(xtr_t** pxtr);
+XTR_API xtr_t*
+xtr_resize_free_double(xtr_t** pxtr);
 
-XTR_API xtr_t* xtr_compress_free(xtr_t** pxtr);
+XTR_API xtr_t*
+xtr_compress_free(xtr_t** pxtr);
 
 
 // ------ OTHER
-XTR_API xtr_t* xtr_reversed(const xtr_t* xtr);
+XTR_API xtr_t*
+xtr_reversed(const xtr_t* xtr);
 
-XTR_API void xtr_reverse(xtr_t* xtr);
+XTR_API void
+xtr_reverse(xtr_t* xtr);
 
-XTR_API size_t xtr_occurrences(const xtr_t* xtr, const xtr_t* pattern);
+XTR_API size_t
+xtr_occurrences(const xtr_t* xtr, const xtr_t* pattern);
 
 XTR_API xtr_t**
 xtr_split_at(const xtr_t* xtr, const xtr_t* pattern);
@@ -853,8 +861,14 @@ XTR_API void xtr_prepend_many(xtr_t** pbase, char character, size_t repetitions)
 
 // Trimming
 
-// Printing
-XTR_API xtr_t* xtr_hex(const xtr_t* xtr);
+// ------------------- Encoding ------------------------------------
+XTR_API xtr_t*
+xtr_to_hex(const xtr_t* bin, bool upper, const char* separator);
+
+XTR_API xtr_t*
+xtr_from_hex(const char* hex, size_t len);
+// Skips whitespace, commas, # (used in colours), underscores, 0x, 0X
+
 
 // Utils
 //TODO count occurences
