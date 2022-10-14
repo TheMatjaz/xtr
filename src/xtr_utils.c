@@ -59,10 +59,10 @@ set_capacity_and_terminator(xtr_t* xtr, size_t capacity)
 }
 
 XTR_INLINE size_t
-sizeof_struct_xtr(size_t max_str_len)
+sizeof_struct_xtr(size_t capacity)
 {
-    const size_t size = sizeof(size_t) * 2U + max_str_len + TERMINATOR_LEN;
-    if (size <= max_str_len) { return SIZE_OVERFLOW; } else { return size; }
+    const size_t size = sizeof(size_t) * 2U + capacity + TERMINATOR_LEN;
+    if (size <= capacity) { return SIZE_OVERFLOW; } else { return size; }
 }
 
 

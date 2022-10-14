@@ -81,16 +81,24 @@ extern "C"
 
 #define XTR_UNKNOWN_STRLEN SIZE_MAX
 
-/** Opaque xtring structure.
- * Internally it may preallocate more space than it requires.
+/**
+ * Opaque xtring structure.
  *
- *             capacity (buffer size)
- *             __________________
- *            /                  \
- *           [abcde...............] buffer
- *            \___/\_____________/
- *           length       available
- *         (used space)  (free space)
+ * Keeps track of the data length, of the allocated buffer length (which
+ * may be longer than the data), keeps everything null-terminated for
+ * compatibility with the C-strings. All in a single-allocation.
+ *
+ *                                +-- content always null-terminated
+ *                                |
+ *                                |          +-- buffer always null-terminated
+ *                                |          |
+ *                                v          v
+ *
+ *         [capacity][used][abcde\0.........\0]
+ *
+ *                          \___/            used (5, excl. null terminator)
+ *                               \_________/ available free space (11)
+ *                          \______________/ capacity (16, excl. null term.)
  */
 typedef struct xtr xtr_t;
 
@@ -616,6 +624,10 @@ xtr_clear(xtr_t* xtr);
  */
 XTR_API xtr_t*
 xtr_pop_head(xtr_t* xtr, size_t len);
+// TODO void* xtr_pop_head_ptr(xtr_t* xtr);
+// TODO void* xtr_pop_tail_ptr(xtr_t* xtr);
+// TODO errcode xtr_push_head_ptr(xtr_t* xtr, void* ptr);
+// TODO errcode xtr_push_tail_ptr(xtr_t* xtr, void* ptr);
 
 /**
  * Removes `len` bytes from the xtring end and returns them as a new xtring.
@@ -801,7 +813,7 @@ XTR_API xtr_t* xtr_merge(const xtr_t* a, const xtr_t* b);
 XTR_API xtr_t* xtr_repeat(const xtr_t* xtr, size_t repetitions);
 // TODO merge many? Varlena?
 
-
+// TODO join many with optional separators
 
 // Comparing
 XTR_API int xtr_cmp_c(const xtr_t* a, const char* b);

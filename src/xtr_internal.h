@@ -63,23 +63,34 @@ extern "C"
  * byte) contains an extra null-terminator just as an extra precaution for
  * memory safety.
  *
- *             capacity (buffer size)
- *             __________________
- *            /                  \
- *           [abcde\0............. \0] buffer
- *            \___/\_____________/
- *           length       available
- *         (used space)  (free space)
+ * In short: the user does not have to worry about null-terminators,
+ * memory management (other than freeing the xtrings after use), or
+ * keeping track of the data length and buffer sizes.
+ *
+ *                                +-- content always null-terminated
+ *                                |
+ *                                |          +-- buffer always null-terminated
+ *                                |          |
+ *                                v          v
+ *
+ *         [capacity][used][abcde\0.........\0]
+ *
+ *                          \___/            used (5, excl. null terminator)
+ *                               \_________/ available free space (11)
+ *                          \______________/ capacity (16, excl. null term.)
+ *
  */
 struct xtr
 {
     /** Total bytes for content in buffer (used + free), before terminator. */
-    // TODO implement version with uint8_t/uint16_t instead of size_t
+    // TODO implement version with uint8_t/uint16_t/uint32_t instead of size_t
     size_t capacity;
     /** Occupied bytes with content in buffer out of the capacity. */
     size_t used;
-    /** Buffer with content long `max_str_len+1`, always NULL-terminated at
-     * `buffer[used_str_len]` and at `buffer[max_str_len]`.
+    /** Buffer with the actual data. Buffer size = `capacity+1`, where the +1
+     * is for a null-terminator at the buffer's end to protect against string
+     * reads out of bounds. The content is also always null-terminated,
+     * thus the nulls are at `buffer[used]` and at `buffer[capacity]`.
      * C99 flexible array member <https://en.wikipedia.org/wiki/Flexible_array_member> */
     uint8_t buffer[1U];
 };
@@ -109,14 +120,14 @@ set_capacity_and_terminator(xtr_t* xtr, size_t capacity);
 /**
  * @internal
  * `sizeof(struct xtr)`, given the wanted max string length the struct should
- * hold, used for memory allocations.
+ * hold, including meatadata and null-terminations. Used for memory allocations.
  *
- * @param [in] max_str_len
+ * @param [in] capacity
  * @return size of the xtr struct or #SIZE_OVERFLOW if an integer overflow of
  * #size_t occurred.
  */
 size_t
-sizeof_struct_xtr(size_t max_str_len);
+sizeof_struct_xtr(size_t capacity); // todo reneame to xtr_sizeof
 
 /**
  * @internal
@@ -125,7 +136,7 @@ sizeof_struct_xtr(size_t max_str_len);
  * @param [in] len length of \p data in bytes
  */
 void
-zero_out(void* data, size_t len);
+zero_out(void* data, size_t len); // todo rename to xtr_zero_out
 
 /**
  * @internal
