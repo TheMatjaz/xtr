@@ -129,12 +129,11 @@ xtr_repeat(const xtr_t* const xtr, const size_t repetitions)
 }
 
 XTR_API xtr_t*
-xtr_merge(const xtr_t* const a, const xtr_t* const b)
+xtr_concat(const xtr_t* a, const xtr_t* b)
 {
     if (a == NULL || b == NULL) { return NULL; }
     const size_t merged_len = a->used + b->used;
-    // Check for size_t overflowq
-    if (merged_len < a->used || merged_len < b->used) { return NULL; }
+    if (merged_len < a->used || merged_len < b->used) { return NULL; } // Size overflow
     xtr_t* const merged = xtr_new_with_capacity(merged_len);
     if (merged == NULL) { return NULL; }
     memcpy(merged->buffer, a->buffer, a->used);

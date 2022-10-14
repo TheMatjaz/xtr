@@ -52,7 +52,7 @@ xtr_find_in(const xtr_t* const xtr, const xtr_t* const pattern,
     if (xtr_is_empty(xtr) || xtr_is_empty(pattern)
         || start >= xtr->used || end >= xtr->used) { return NULL; }
     const char* const location = xtr_memmem(xtr->buffer + start,
-                                        end - start, pattern->buffer, pattern->used);
+                                            end - start, pattern->buffer, pattern->used);
     return location;
 }
 
@@ -63,26 +63,22 @@ xtr_contains(const xtr_t* const xtr, const xtr_t* const pattern)
 }
 
 XTR_API size_t
-xtr_occurrences(const xtr_t* const xtr, const xtr_t* const pattern)
+xtr_occurrences(const xtr_t* const haystack, const xtr_t* const needle)
 {
-    if (xtr_is_empty(xtr) || xtr_is_empty(pattern)) { return 0U; }
+    if (xtr_is_empty(haystack) || xtr_is_empty(needle)) { return SIZE_MAX; }
     size_t count = 0U;
-    const uint8_t* prev_occurrence = xtr->buffer;
+    const uint8_t* prev_occurrence = haystack->buffer;
     const uint8_t* this_occurrence = NULL;
-    size_t remaining_len = xtr->used;
-    do
+    size_t remaining_len = haystack->used;
+    while (true)
     {
         this_occurrence = xtr_memmem(prev_occurrence, remaining_len,
-                                 pattern->buffer, pattern->used);
-        if (this_occurrence != NULL)
-        {
-            count++;
-            // TODO use ptrdiff
-            remaining_len -= (this_occurrence - prev_occurrence - pattern->used);
-            prev_occurrence = this_occurrence + pattern->used;
-        }
-        else { break; }
+                                     needle->buffer, needle->used);
+        if (this_occurrence == NULL) { break; }
+        count++;
+        // TODO use ptrdiff
+        remaining_len -= (this_occurrence - prev_occurrence - needle->used);
+        prev_occurrence = this_occurrence + needle->used;
     }
-    while (true);
     return count;
 }

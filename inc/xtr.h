@@ -371,6 +371,24 @@ xtr_clone(const xtr_t* xtr);
 XTR_API xtr_t*
 xtr_clone_with_capacity(const xtr_t* xtr, size_t max_len);
 
+/**
+ * Like xtr_clone_with_capacity(), but also frees the original xtring after
+ * cloning it into a larger buffer.
+ *
+ * Ensures the `at_least - xtr_len(xtr)` available allocated free space at the
+ * clone's end, to have some space ready for expansions without reallocation.
+ * @param [in, out] pxtr point to the original xtring to copy. Pointed xtr_t*
+ *        will be replaced by a larger copy, if a reallocation happens.
+ *        Unchanged on failure.
+ * @param [in] at_least minimum amount of bytes to allocate, but
+ *        `xtr_len(*pxtr)` is anyhow allocated not to truncate any data.
+ * @return the new xtring or NULL in case of malloc failure or when `pxtr` or `*pxtr` is NULL.
+ *         Note: on success the returned value matches `*pxtr`. On failure the
+ *         returned value is NULL and *pxtr is unchanged.
+ */
+XTR_API xtr_t*
+xtr_clone_with_capacity_free(xtr_t** pxtr, size_t at_least);
+
 
 // ------------------- Xtring properties (getters) ------------------------------------
 /**
@@ -771,13 +789,13 @@ xtr_remove_prefix(xtr_t* xtr, const char* prefix);
 // ------------------- Alter the Xtring's allocated memory ------------------------------------
 
 XTR_API xtr_t*
-xtr_resize(xtr_t* xtr, size_t len);
+xtr_resize(xtr_t* xtr, size_t new_capacity);
 
 XTR_API xtr_t*
 xtr_resize_double(xtr_t* xtr);
 
 XTR_API xtr_t*
-xtr_resize_free(xtr_t** pxtr, size_t len);
+xtr_resize_free(xtr_t** pxtr, size_t new_length);
 
 XTR_API xtr_t*
 xtr_resize_free_double(xtr_t** pxtr);
@@ -787,14 +805,32 @@ xtr_compress_free(xtr_t** pxtr);
 
 
 // ------ OTHER
+/**
+ * Creates a reversed (end-to-start) copy of the xtring.
+ *
+ * @param [in] xtr to reverse.
+ * @return the new xtring or NULL in case of malloc failure or when `xtr` is NULL.
+ */
 XTR_API xtr_t*
 xtr_reversed(const xtr_t* xtr);
 
+/**
+ * Reverses (end-to-start) the xtring in-place.
+ *
+ * @param [in, out] xtr to reverse. Does nothing on NULL input.
+ */
 XTR_API void
 xtr_reverse(xtr_t* xtr);
 
+/**
+ * Counts how many times the needle (needle, substring) appears in the haystack xtring.
+ *
+ * @param [in] haystack xtring to search in.
+ * @param [in] needle sub-xtring to search for (pattern).
+ * @return amount or #SIZE_MAX in case of NULL pointers.
+ */
 XTR_API size_t
-xtr_occurrences(const xtr_t* xtr, const xtr_t* pattern);
+xtr_occurrences(const xtr_t* haystack, const xtr_t* needle);
 
 XTR_API xtr_t**
 xtr_split_at(const xtr_t* xtr, const xtr_t* pattern);
@@ -808,9 +844,20 @@ xtr_split_into(const xtr_t* xtr, size_t parts_amount);
 
 
 // Concatenation
-XTR_API xtr_t* xtr_merge(const xtr_t* a, const xtr_t* b);
+/**
+ * Concatenates two xtrings into a third one.
+ *
+ * Can be also used to concatenate `a` with itself.
+ * @param [in] a first half.
+ * @param [in] b second half.
+ * @return the new xtring containing `a+b` or NULL in case of malloc failure,
+ *         NULL inputs or size overflow.
+ */
+XTR_API xtr_t*
+xtr_concat(const xtr_t* a, const xtr_t* b);
 
-XTR_API xtr_t* xtr_repeat(const xtr_t* xtr, size_t repetitions);
+XTR_API xtr_t*
+xtr_repeat(const xtr_t* xtr, size_t repetitions);
 // TODO merge many? Varlena?
 
 // TODO join many with optional separators
@@ -950,6 +997,10 @@ xtr_from_hex(const char* hex, size_t len);
 //// i.e. the byte1-byte2 difference as signed output
 // TODO file extension
 // TODO filepath operations WIN + UNIX
+// TODO function to split string into many lines of length N
+// TODO function to indent lines
+// TODO function to iterate lines
+// TODO function to split into lines
 
 #ifdef __cplusplus
 }

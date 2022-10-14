@@ -38,9 +38,9 @@ xtr_reversed(const xtr_t* const xtr)
     if (xtr == NULL) { return NULL; }
     xtr_t* const reversed = xtr_new_with_capacity(xtr->used);
     if (reversed == NULL) { return NULL; }
-    for (size_t s = 0U, e = xtr->used - 1U; s < xtr->used; s++, e--)
+    for (size_t head = 0U, tail = xtr->used - 1U; head < tail; head++, tail--)
     {
-        reversed->buffer[s] = xtr->buffer[e];
+        reversed->buffer[head] = xtr->buffer[tail];
     }
     set_used_and_terminator(reversed, xtr->used);
     return reversed;
@@ -51,10 +51,10 @@ xtr_reverse(xtr_t* const xtr)
 {
     if (xtr == NULL) { return; } // TODO errcodes
     uint8_t temp;
-    for (size_t s = 0U, e = xtr->used - 1U; s < xtr->used; s++, e--)
+    for (size_t head = 0U, tail = xtr->used - 1U; head < tail; head++, tail--)
     {
-        temp = xtr->buffer[s];
-        xtr->buffer[s] = xtr->buffer[e];
-        xtr->buffer[e] = temp;
+        temp = xtr->buffer[head];
+        xtr->buffer[head] = xtr->buffer[tail];
+        xtr->buffer[tail] = temp;
     }
 }

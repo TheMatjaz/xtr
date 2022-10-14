@@ -37,6 +37,7 @@ xtr_ensure(xtr_t* const xtr, const size_t len)
     if (xtr == NULL) { return NULL; }
     return xtr_resize(xtr, XTR_MIN(xtr->used, len));
 }
+
 XTR_API xtr_t*
 xtr_ensure_free(xtr_t** const pxtr, const size_t len)
 {
@@ -44,65 +45,37 @@ xtr_ensure_free(xtr_t** const pxtr, const size_t len)
     return xtr_resize_free(pxtr, XTR_MIN((*pxtr)->used, len));
 }
 
-// TODO xtr_ensure: like resize, but does not truncate if too short
 XTR_API xtr_t*
-xtr_resize(xtr_t* const xtr, const size_t len)
+xtr_resize(xtr_t* const xtr, const size_t new_capacity)
 {
     if (xtr == NULL) { return NULL; }
-    if (xtr->used > len)
+    if (new_capacity < xtr->used)
     {
-        // Clear bytes at the end, do keep same allocation buffer
+        // Clear bytes at the end, but keep same allocation buffer
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-        zero_out(xtr->buffer + len, xtr->used - len);
+        zero_out(xtr->buffer + new_capacity, xtr->used - new_capacity);
 #endif
-        set_used_and_terminator(xtr, len);
+        set_used_and_terminator(xtr, new_capacity);
         return xtr;
     }
     else
     {
         // Buffer needs to be expanded, reallocate
-        const size_t to_allocate = sizeof_struct_xtr(len);
-        if (to_allocate == SIZE_OVERFLOW) { return NULL; }
-        xtr_t* const new = realloc(xtr, to_allocate);
-        if (new == NULL) { return NULL; }
-        set_capacity_and_terminator(new, len);
-        return new;
+        return xtr_clone_with_capacity(xtr, new_capacity);
     }
 }
 
 XTR_API xtr_t*
-xtr_resize_free(xtr_t** const pxtr, const size_t len)
+xtr_resize_free(xtr_t** const pxtr, const size_t new_length)
 {
-    // TODO copy *pxtr into a local pointer, if the outer changes in the meantime
-    if (pxtr == NULL || *pxtr == NULL) { return NULL; }
-    if ((*pxtr)->used > len)
-    {
-        // Clear bytes at the end, do keep same allocation buffer
-#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-        zero_out((*pxtr)->buffer + len, (*pxtr)->used - len);
-#endif
-        set_used_and_terminator((*pxtr), len);
-        return (*pxtr);
-    }
-    else
-    {
-        // Buffer needs to be expanded, reallocate
-        const size_t to_allocate = sizeof_struct_xtr(len);
-        if (to_allocate == SIZE_OVERFLOW) { return NULL; }
-        xtr_t* const new = realloc((*pxtr), to_allocate);
-        if (new == NULL) { return NULL; }
-        if (new != (*pxtr))
-        {
-            xtr_free(pxtr);
-            *pxtr = new;
-        }
-        set_capacity_and_terminator(new, len);
-        return new;
-    }
+    if (pxtr == NULL) { return NULL; }
+    xtr_t* const resized = xtr_resize(*pxtr, new_length);
+    if (resized != *pxtr) { xtr_free(pxtr); }
+    return resized;
 }
 
 XTR_API xtr_t*
-xtr_compress_free(xtr_t** const pxtr)
+xtr_compress_free(xtr_t** const pxtr) // TODO rename to compact?
 {
     if (pxtr == NULL || xtr_available(*pxtr) > 0U) { return NULL; }
     xtr_t* const compressed = xtr_clone(*pxtr);
