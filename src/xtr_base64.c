@@ -31,29 +31,9 @@
 
 #include "xtr_internal.h"
 
-
 static const uint8_t BASE64_SYMBOLS[] =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const uint8_t BASE64_PADDING = '=';
-
-
-uint32_t b64_int(const uint32_t ch)
-{
-    // ASCII to base64_int
-    // 65-90  Upper Case  >>  0-25
-    // 97-122 Lower Case  >>  26-51
-    // 48-57  Numbers     >>  52-61
-    // 43     Plus (+)    >>  62
-    // 47     Slash (/)   >>  63
-    // 61     Equal (=)   >>  64~
-    if (ch == 43) { return 62; }
-    if (ch == 47) { return 63; }
-    if (ch == 61) { return 64; }
-    if ((ch > 47) && (ch < 58)) { return ch + 4; }
-    if ((ch > 64) && (ch < 91)) { return ch - 'A'; }
-    if ((ch > 96) && (ch < 123)) { return (ch - 'a') + 26; }
-    return 0;
-}
 
 /**
  * @internal
@@ -61,91 +41,139 @@ uint32_t b64_int(const uint32_t ch)
  *
  *         | AA AA AA aa | BB BB cc cc | CC dd dd dd | = binary/decoded
  *                     \\               //
- *         | AA AA AA | aa BB BB|cc cc CC | dd dd dd | = base64/encoded
+ *         | AA AA AA | aa BB BB|cc cc CC | dd dd dd | = base64/text
  */
 inline static void
-base64_encode_buffer(uint8_t* const encoded, const uint8_t binary[3])
+base64_encode_buffer(uint8_t* const text, const uint8_t binary[3])
 {
-    encoded[0] = BASE64_SYMBOLS[binary[0] >> 2U];
-    encoded[1] = BASE64_SYMBOLS[((binary[0] & 0x03U) << 4U) + (binary[1] >> 4U)];
-    encoded[2] = BASE64_SYMBOLS[((binary[1] & 0x0FU) << 2U) + (binary[2] >> 6U)];
-    encoded[3] = BASE64_SYMBOLS[binary[2] & 0x3FU];
+    text[0] = BASE64_SYMBOLS[binary[0] >> 2U];
+    text[1] = BASE64_SYMBOLS[((binary[0] & 0x03U) << 4U) + (binary[1] >> 4U)];
+    text[2] = BASE64_SYMBOLS[((binary[1] & 0x0FU) << 2U) + (binary[2] >> 6U)];
+    text[3] = BASE64_SYMBOLS[binary[2] & 0x3FU];
 }
 
 /**
  * @internal
  * Decodes a ASCII 4-byte string into a binary 3-byte buffer.
  *
- *         | AA AA AA aa | BB BB cc cc | CC dd dd dd | = binary/decoded
- *                     \\               //
- *         | AA AA AA | aa BB BB|cc cc CC | dd dd dd | = base64/encoded
+ *         | AA AA AA aa | BB BB cc cc | CC dd dd dd | = binary/binary
+ *            :  :  : \\    :  :  :  :  //   :  :  :
+ *         | AA AA AA | aa BB BB|cc cc CC | dd dd dd | = base64/text
  */
 inline static void
-base64_decode_buffer(uint8_t* const decoded, const uint8_t encoded[3])
+base64_decode_buffer(uint8_t* const binary, const uint8_t text[4])
 {
-    decoded[0] = (uint8_t) ((encoded[0] << 2U) | ((encoded[1] >> 4U) & 0x03U));
-    decoded[1] = (uint8_t) ((encoded[1] << 4U) | ((encoded[2] >> 2U) & 0x0FU));
-    decoded[3] = (uint8_t) ((encoded[1] << 6U) | (encoded[2] & 0x3FU));
+    binary[0] = (uint8_t) ((text[0] << 2U) | ((text[1] >> 4U) & 0x03U));
+    binary[1] = (uint8_t) ((text[1] << 4U) | ((text[2] >> 2U) & 0x0FU));
+    binary[3] = (uint8_t) ((text[1] << 6U) | (text[2] & 0x3FU));
 }
 
 XTR_API xtr_t*
-xtr_base64_encode(const xtr_t* const bin)
+xtr_base64_encode(const xtr_t* const binary)
 {
-    const size_t encoded_len = ((bin->used + 2U) * 4U) / 3U;
-    if (encoded_len < (bin->used + 2U)) { return NULL; } // Integer overflow
-    xtr_t* encoded = xtr_new_with_capacity(encoded_len);
-    if (encoded == NULL) { return NULL; }
-    const size_t remainder = bin->used % 3U;
-    const size_t trail_start_idx = bin->used - remainder;
+    const size_t b64_text_len = ((binary->used + 2U) * 4U) / 3U;
+    if (b64_text_len < (binary->used + 2U)) { return NULL; } // Integer overflow
+    xtr_t* const b64_text = xtr_new_with_capacity(b64_text_len);
+    if (b64_text == NULL) { return NULL; }
+    const size_t remainder = binary->used % 3U;
+    const size_t trail_start_idx = binary->used - remainder;
     size_t bin_idx = 0U;
-    size_t enc_idx = 0U;
+    size_t text_idx = 0U;
     while (bin_idx < trail_start_idx)
     {
-        base64_encode_buffer(&encoded->buffer[enc_idx], &bin->buffer[bin_idx]);
+        base64_encode_buffer(&b64_text->buffer[text_idx], &binary->buffer[bin_idx]);
         bin_idx += 3U;
-        enc_idx += 4U;
+        text_idx += 4U;
     }
     uint8_t trail[3U] = {0, 0, 0};
     if (remainder == 2U)
     {
-        trail[0] = bin->buffer[trail_start_idx];
-        trail[1] = bin->buffer[trail_start_idx + 1U];
-        base64_encode_buffer(&encoded->buffer[enc_idx], trail);
-        encoded->buffer[enc_idx + 3U] = BASE64_PADDING;
+        trail[0] = binary->buffer[trail_start_idx];
+        trail[1] = binary->buffer[trail_start_idx + 1U];
+        base64_encode_buffer(&b64_text->buffer[text_idx], trail);
+        b64_text->buffer[text_idx + 3U] = BASE64_PADDING;
     }
     else if (remainder == 1U)
     {
-        trail[0] = bin->buffer[trail_start_idx];
-        base64_encode_buffer(&encoded->buffer[enc_idx], trail);
-        encoded->buffer[enc_idx + 2U] = BASE64_PADDING;
-        encoded->buffer[enc_idx + 3U] = BASE64_PADDING;
+        trail[0] = binary->buffer[trail_start_idx];
+        base64_encode_buffer(&b64_text->buffer[text_idx], trail);
+        b64_text->buffer[text_idx + 2U] = BASE64_PADDING;
+        b64_text->buffer[text_idx + 3U] = BASE64_PADDING;
     }
     else
     {
         // No remainder, no padding required.
     }
-    set_used_and_terminator(encoded, encoded_len);
-    return encoded;
+    set_used_and_terminator(b64_text, b64_text_len);
+    return b64_text;
+    // TODO make padding optional in the encoding
 }
 
+// TODO assumes the string does not change while being decoded
 XTR_API xtr_t*
-xtr_base64_decode(const xtr_t* const enc)
+xtr_base64_decode(const xtr_t* const b64_text)
 {
-    if (enc == NULL) { return NULL; }
-    if (enc->used % 4U != 0U) { return NULL; } // TODO shall we support it and truncate it?
-    const size_t decoded_len = (enc->used / 4U) * 3U;  // Cannot overflow
-    xtr_t* decoded = xtr_new_with_capacity(decoded_len);
-    if (decoded == NULL) { return NULL; }
+    if (b64_text == NULL) { return NULL; }
+    // TODO shall we support it and truncate it?
+    // TODO check all chars are valid
+    // TODo support non-padded strings
+    // TODO skip whitespace
+    // TODO support base64url standard (- instead of +, _ instead of /)
+    // TODO support imap mailbox names encoding (, instead of +)
+    // TODO make padding optional in the decoding
+    // tODO make paddings forbidden parametrically in the encoding
+    const size_t binary_len = (b64_text->used / 4U) * 3U;  // Cannot overflow
+    xtr_t* binary = xtr_new_with_capacity(binary_len);
+    if (binary == NULL) { return NULL; }
     size_t bin_idx = 0U;
-    size_t enc_idx = 0U;
-    while (enc_idx < enc->used)
+    size_t text_idx = 0U;
+    size_t buffer_idx = 0U;
+    uint8_t buffer[4] = {0};
+    while (text_idx < b64_text->used)
     {
-        base64_decode_buffer(&decoded->buffer[bin_idx], &enc->buffer[enc_idx]);
-        bin_idx += 3U;
-        enc_idx += 4U;
+        register uint8_t chr = b64_text->buffer[text_idx];
+        // Slower, but robust version against invalid chars, whitespace, and
+        // different standards of base64 encoding.
+        if (chr == '=' && text_idx < -b64_text->used - 2U)
+        {
+            // TODO string error: declared length is much more than the
+            // found length, as a padding character is found too early
+            xtr_free(&binary);
+            return NULL;
+        }
+        // TODO make ignoring of whitespace optional
+        if (isspace(chr))
+        {
+            text_idx++;
+            continue;
+        }
+        // TODO make encoding in different formats parameteric
+        // base64url encoding
+        if (chr == '-') { chr = '+'; }
+        else if (chr == '_') { chr = '/'; }
+        else if (chr == ',') { chr = '+'; } // IMAP encoding
+        if (isalnum(chr) || chr == '+' || chr == '/')
+        {
+            text_idx++;
+            buffer[buffer_idx++] = chr;
+            if (buffer_idx == sizeof(buffer))
+            {
+                base64_decode_buffer(&binary->buffer[bin_idx], buffer);
+                bin_idx += 3U;
+                buffer_idx = 0U;
+            }
+        }
+        else
+        {
+            // Invalid base64 character, including null terminator
+            xtr_free(&binary);
+            return NULL;
+        }
     }
-    if (enc->buffer[enc_idx - 1U] == BASE64_PADDING) { decoded->buffer[bin_idx--] = 0U; }
-    if (enc->buffer[enc_idx - 2U] == BASE64_PADDING) { decoded->buffer[bin_idx--] = 0U; }
-    set_used_and_terminator(decoded, bin_idx);
-    return decoded;
+    // TODO Remainder section, if there is any trailing data without padding
+    // TODO make ignoring of non-padded parametric
+    if (b64_text->buffer[text_idx - 1U] == BASE64_PADDING) { binary->buffer[bin_idx--] = 0U; }
+    if (b64_text->buffer[text_idx - 2U] == BASE64_PADDING) { binary->buffer[bin_idx--] = 0U; }
+    set_used_and_terminator(binary, bin_idx);
+    return binary;
 }
