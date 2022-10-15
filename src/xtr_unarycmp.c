@@ -93,3 +93,80 @@ xtr_is_spaces(const xtr_t* xtr)
     }
     return true;
 }
+
+XTR_API bool
+xtr_is_letters(const xtr_t* xtr)
+{
+    if (xtr_is_empty(xtr)) { return false; }
+    for (size_t i = 0; i < xtr->used; i++)
+    {
+        if (!isalpha(xtr->buffer[i])) { return false; }
+    }
+    return true;
+}
+
+XTR_API bool
+xtr_is_alphanumerics(const xtr_t* xtr)
+{
+    if (xtr_is_empty(xtr)) { return false; }
+    for (size_t i = 0; i < xtr->used; i++)
+    {
+        if (!isalnum(xtr->buffer[i])) { return false; }
+    }
+    return true;
+}
+
+XTR_API bool
+xtr_is_digits(const xtr_t* xtr)
+{
+    if (xtr_is_empty(xtr)) { return false; }
+    for (size_t i = 0; i < xtr->used; i++)
+    {
+        if (!isdigit(xtr->buffer[i])) { return false; }
+    }
+    return true;
+}
+
+XTR_API bool
+xtr_is_uppercase(const xtr_t* xtr)
+{
+    if (xtr_is_empty(xtr)) { return false; }
+    for (size_t i = 0; i < xtr->used; i++)
+    {
+        if (!isupper(xtr->buffer[i])) { return false; }
+    }
+    return true;
+}
+
+XTR_API bool
+xtr_is_lowercase(const xtr_t* xtr)
+{
+    if (xtr_is_empty(xtr)) { return false; }
+    for (size_t i = 0; i < xtr->used; i++)
+    {
+        if (!islower(xtr->buffer[i])) { return false; }
+    }
+    return true;
+}
+
+XTR_API bool
+xtr_is_printable(const xtr_t* xtr)
+{
+    if (xtr_is_empty(xtr)) { return false; }
+    for (size_t i = 0; i < xtr->used; i++)
+    {
+        if (!isprint(xtr->buffer[i])) { return false; }
+    }
+    return true;
+}
+
+XTR_API bool
+xtr_is_ascii(const xtr_t* xtr)
+{
+    if (xtr_is_empty(xtr)) { return false; }
+    for (size_t i = 0; i < xtr->used; i++)
+    {
+        if (!isascii(xtr->buffer[i])) { return false; }
+    }
+    return true;
+}
