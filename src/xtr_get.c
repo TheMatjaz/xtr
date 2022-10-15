@@ -72,3 +72,50 @@ xtr_last(const xtr_t* const xtr)
     if (xtr_is_empty(xtr)) { return NULL; }
     else { return &xtr->buffer[xtr->used - 1U]; }
 }
+
+XTR_API size_t
+xtr_index(const xtr_t* const xtr, const void* const substring)
+{
+    const uint8_t* const sub = substring;
+    if (xtr == NULL || sub < xtr->buffer || sub > xtr->buffer + xtr->used) { return SIZE_MAX; }
+    return (size_t) (sub - xtr->buffer);
+}
+
+XTR_API const uint8_t*
+xtr_at(const xtr_t* const xtr, const size_t index)
+{
+    if (xtr == NULL || index >= xtr->used) { return NULL; }
+    return &xtr->buffer[index];
+}
+
+typedef struct xtr_slice
+{
+    const uint8_t* content;
+    size_t length;
+} xtr_slice_t;
+
+XTR_API const xtr_slice_t*
+xtr_slice(const xtr_t* const xtr, const size_t start, size_t end)
+{
+    if (xtr == NULL) { return NULL; }
+    xtr_slice_t* const slice = malloc(sizeof(xtr_slice_t));
+    if (slice == NULL) { return NULL; }
+    if (end > xtr->used) { end = xtr->used; }
+    if (start >= end || start >= xtr->used)
+    {
+        slice->content = NULL;
+        slice->length = 0U;
+    }
+    else
+    {
+        slice->content = &xtr->buffer[start];
+        slice->length = end - start;
+    }
+    return slice;
+}
+
+XTR_API void
+xtr_write(const xtr_t* const xtr, const xtr_t* const substring, const size_t start)
+{
+    //TODO
+}
