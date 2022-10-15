@@ -613,6 +613,12 @@ xtr_is_equal(const xtr_t* a, const xtr_t* b);
 XTR_API bool
 xtr_is_equal_consttime(const xtr_t* a, const xtr_t* b);
 
+XTR_API bool
+xtr_startswith(const xtr_t* xtr, const xtr_t* prefix);
+
+XTR_API bool
+xtr_endswith(const xtr_t* xtr, const xtr_t* suffix);
+
 // ------------------- Shorten the Xtring's content ------------------------------------
 /**
  * Empties the string, cutting its length to zero, without reallocation.
@@ -792,9 +798,6 @@ XTR_API xtr_t*
 xtr_resize(xtr_t* xtr, size_t new_capacity);
 
 XTR_API xtr_t*
-xtr_resize_double(xtr_t* xtr);
-
-XTR_API xtr_t*
 xtr_resize_free(xtr_t** pxtr, size_t new_length);
 
 XTR_API xtr_t*
@@ -841,8 +844,6 @@ xtr_split_every(const xtr_t* xtr, size_t part_len);
 XTR_API xtr_t**
 xtr_split_into(const xtr_t* xtr, size_t parts_amount);
 
-
-
 // Concatenation
 /**
  * Concatenates two xtrings into a third one.
@@ -866,30 +867,23 @@ xtr_repeat(const xtr_t* xtr, size_t repetitions);
 XTR_API int xtr_cmp_c(const xtr_t* a, const char* b);
 
 
-XTR_API bool xtr_equal_until(const xtr_t* a, const xtr_t* b, size_t len);
-
-XTR_API bool xtr_equal_shortest(const xtr_t* a, const xtr_t* b);
-
 XTR_API bool xtr_equal_c(const xtr_t* a, const char* b);
-
-XTR_API bool xtr_not_equal(const xtr_t* a, const xtr_t* b);
 
 XTR_API bool xtr_not_equal_c(const xtr_t* a, const char* b);
 
 
-XTR_API bool xtr_startswith(const xtr_t* a);
+XTR_API bool xtr_contains(const xtr_t* haystack, const xtr_t* pattern);
 
-XTR_API bool xtr_endswith(const xtr_t* a);
+XTR_API const uint8_t*
+xtr_find(const xtr_t* haystack, const xtr_t* needle);
 
-XTR_API bool xtr_contains(const xtr_t* xtr, const xtr_t* pattern);
+XTR_API const uint8_t*
+xtr_find_from(const xtr_t* haystack, const xtr_t* needle, size_t start);
 
-XTR_API const char* xtr_find(const xtr_t* xtr, const xtr_t* pattern);
+XTR_API const uint8_t*
+xtr_find_in(const xtr_t* haystack, const xtr_t* needle, size_t start, size_t end);
 
-XTR_API const char* xtr_find_from(const xtr_t* xtr, const xtr_t* pattern,
-                                  size_t start);
 
-XTR_API const char* xtr_find_in(const xtr_t* xtr, const xtr_t* pattern,
-                                size_t start, size_t end);
 // TODO substring search, like strstr
 // TODO case compare
 // TODO constant time compare
@@ -967,6 +961,8 @@ xtr_from_hex(const char* hex, size_t len);
 //TODO fmt
 //TODO printf
 //TODO sprintf
+// TODO sscanf
+// TODO string-based STDIO functions
 //TODO isascii
 //TODO isalnum
 //TODO isalpha
