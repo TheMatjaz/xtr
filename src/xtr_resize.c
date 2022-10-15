@@ -75,9 +75,18 @@ xtr_resize_free(xtr_t** const pxtr, const size_t new_length)
 }
 
 XTR_API xtr_t*
+xtr_resize_free_double(xtr_t** const pxtr) // TODO clarify difference with clone_with_capacity
+{
+    if (pxtr == NULL || *pxtr == NULL) { return NULL; }
+    const size_t doublesize = (*pxtr)->used * 2U;
+    if (doublesize < (*pxtr)->used) { return NULL; } // Size overflow
+    return xtr_clone_with_capacity_free(pxtr, doublesize);
+}
+
+XTR_API xtr_t*
 xtr_compress_free(xtr_t** const pxtr) // TODO rename to compact?
 {
-    if (pxtr == NULL || xtr_available(*pxtr) > 0U) { return NULL; }
+    if (pxtr == NULL || xtr_available(*pxtr) == 0U) { return NULL; }
     xtr_t* const compressed = xtr_clone(*pxtr);
     if (compressed == NULL) { return NULL; }
     xtr_free(pxtr);
