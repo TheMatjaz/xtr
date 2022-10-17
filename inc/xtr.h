@@ -84,6 +84,12 @@ extern "C"
 /** Search failure value, larger than any possible index. */
 #define XTR_NOT_FOUND SIZE_MAX
 
+/** Alias for freeing previous xtring after reallocation. */
+#define XTR_FREE_OLD true
+
+/** Alias for not freeing previous xtring after reallocation. */
+#define XTR_KEEP_OLD false
+
 /**
  * Opaque xtring structure.
  *
@@ -375,7 +381,7 @@ XTR_API xtr_t*
 xtr_expanded(const xtr_t* xtr, size_t at_least); // TODO better to call it capacity?
 
 /**
- * Reallocates the xtring into a larger buffer, freeing the previous one.
+ * Reallocates the xtring into a larger buffer, optionally freeing the previous one.
  *
  * Ensures the `at_least - xtr_length(xtr)` available allocated free space at the
  * clone's end, to have some space ready for expansions without reallocation.
@@ -390,6 +396,7 @@ xtr_expanded(const xtr_t* xtr, size_t at_least); // TODO better to call it capac
  */
 XTR_API xtr_t*
 xtr_expand(xtr_t** pxtr, size_t at_least);
+// TODO consider xtr_expandf or xtr_expand_free vs. having a parameter bool free.
 
 /**
  * New xtring with same content as another one (copy by value)
@@ -976,15 +983,11 @@ xtr_find_within(const xtr_t* haystack, const xtr_t* needle, size_t start, size_t
 
 // ------------------- Splitting ------------------------------------
 
+XTR_API xtr_t**
+xtr_split_at(size_t* amount_of_chunks, const xtr_t* xtr, const xtr_t* pattern);
 
 XTR_API xtr_t**
-xtr_split_at(const xtr_t* xtr, const xtr_t* pattern);
-
-XTR_API xtr_t**
-xtr_split_every(const xtr_t* xtr, size_t part_len);
-
-XTR_API xtr_t**
-xtr_split_into(const xtr_t* xtr, size_t parts_amount);
+xtr_split_every(size_t* amount_of_chunks, const xtr_t* xtr, size_t chunk_len);
 
 // ------------------- Concatenation ------------------------------------
 /**

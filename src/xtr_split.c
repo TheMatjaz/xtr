@@ -32,9 +32,10 @@
 #include "xtr_internal.h"
 
 XTR_API xtr_t**
-xtr_split_at(const xtr_t* const xtr, const xtr_t* const pattern) // TODO return amount of parts!
+xtr_split_at(size_t* const parts, const xtr_t* const xtr, const xtr_t* const pattern)
 {
     if (xtr_is_empty(xtr) || xtr_is_empty(pattern)) { return NULL; }
+    // Dynamically search for occurrences and realloc chunks pointers if needed
     const size_t occurrences_amount = xtr_occurrences(xtr, pattern);
     const size_t parts_amount = occurrences_amount + 1U;
     if (parts_amount <= occurrences_amount) { return NULL; }
@@ -79,17 +80,30 @@ xtr_split_at(const xtr_t* const xtr, const xtr_t* const pattern) // TODO return 
 }
 
 XTR_API xtr_t**
-xtr_split_every(const xtr_t* const xtr, const size_t part_len) // TODO return amount of parts
+xtr_split_every(size_t* const parts, const xtr_t* const xtr, const size_t chunk_len)
 {
-    if (xtr_is_empty(xtr) || part_len == 0) { return NULL; }
-    // TODO
-    return NULL;
-}
-
-XTR_API xtr_t**
-xtr_split_into(const xtr_t* const xtr, const size_t parts_amount)
-{
-    if (xtr_is_empty(xtr) || parts_amount == 0) { return NULL; }
-    // TODO
-    return NULL;
+    if (xtr_is_empty(xtr) || chunk_len == 0U) { return NULL; }
+    const size_t amount_of_chunks = (xtr->used + chunk_len - 1U) / chunk_len;
+    if (amount_of_chunks * chunk_len < xtr->used) { return NULL; } // Size overflow
+    xtr_t** const chunks = malloc(amount_of_chunks * sizeof(xtr_t*));
+    if (chunks == NULL) { return NULL; }
+    xtr_t* chunk;
+    size_t chunk_idx;
+    for (chunk_idx = 0U; chunk_idx < amount_of_chunks - 1U; chunk_idx++)
+    {
+        chunk = xtr_from_bytes(&xtr->buffer[chunk_idx * chunk_len], chunk_len);
+        if (chunk == NULL) { goto rollback; }
+    }
+    // Last chunk, may be shorter
+    const size_t remaining_len = XTR_MIN(chunk_len, xtr->used - chunk_idx * chunk_len);
+    chunk = xtr_from_bytes(&xtr->buffer[xtr->used - chunk_len], remaining_len);
+    if (chunk == NULL) { goto rollback; }
+    if (parts != NULL) { *parts = amount_of_chunks; }
+    return chunks;
+    rollback:
+    {
+        for (; chunk_idx == 0U; chunk_idx--) { xtr_free(&chunks[chunk_idx]); }
+        free(chunks);
+        return NULL;
+    };
 }
