@@ -1012,22 +1012,67 @@ xtr_repeated(const xtr_t* xtr, size_t repetitions);
 
 // ------------------- Appending ------------------------------------
 
-XTR_API void xtr_extend(xtr_t** pbase, const xtr_t* ext);
+/**
+ * Appends the extension to the existing xtring's start, if there is enough capacity.
+ * Otherwise does nothing.
+ *
+ * If there is some capacity but not enough for the
+ * full extension, it also does nothing - no partial copy is performed.
+ *
+ * @param [in, out] xtr xtring to extend
+ * @param [in] extension xtring to add as extension
+ * @return Amount of bytes extended. Zero if any pointer is NULL or if `xtr` has not
+ *         enough space for the full extension.
+ */
+XTR_API size_t
+xtr_push_head(xtr_t* xtr, const xtr_t* extension);
 
-XTR_API void xtr_extend_many(xtr_t** pbase, const xtr_t* ext, size_t repetitions);
+/**
+ * Appends the extension to the existing xtring's end, if there is enough capacity.
+ * Otherwise does nothing.
+ *
+ * If there is some capacity but not enough for the
+ * full extension, it also does nothing - no partial copy is performed.
+ *
+ * @param [in, out] xtr xtring to extend
+ * @param [in] extension xtring to add as extension
+ * @return Amount of bytes extended. Zero if any pointer is NULL or if `xtr` has not
+ *         enough space for the full extension.
+ */
+XTR_API size_t
+xtr_push_tail(xtr_t* xtr, const xtr_t* extension);
 
-XTR_API void xtr_extend_from(xtr_t** pbase, const char* ext);
+/**
+ * Appends the extension to the existing xtring's start, reallocating the xtring
+ * if necessary, freeing the old one.
+ *
+ * @param [in, out] pxtr pointer to the original xtring to extend. Pointed xtr_t*
+ *        will be replaced by a larger copy, if a reallocation happens.
+ *        Frees the previous xtring. Untouched on failure.
+ * @param [in] extension xtring to add as extension
+ * @return the new xtring or NULL in case of malloc failure or when `pxtr` or `*pxtr` is NULL.
+ *         Note: on success the returned value matches `*pxtr`. On failure the
+ *         returned value is NULL and *pxtr is unchanged.
+ */
+XTR_API xtr_t*
+xtr_extend_head(xtr_t** pxtr, const xtr_t* extension);
+// TODO should it free old one? What if I still need it? Make it parametric?
 
-XTR_API void xtr_extend_from_many(xtr_t** pbase, const char* ext, size_t repetitions);
 
-XTR_API void xtr_append(xtr_t** pbase, char character);
-
-XTR_API void xtr_append_many(xtr_t** pbase, char character, size_t repetitions);
-
-XTR_API void xtr_prepend(xtr_t** pbase, char character);
-
-XTR_API void xtr_prepend_many(xtr_t** pbase, char character, size_t repetitions);
-
+/**
+ * Appends the extension to the existing xtring's end, reallocating the xtring
+ * if necessary, freeing the old one.
+ *
+ * @param [in, out] pxtr pointer to the original xtring to extend. Pointed xtr_t*
+ *        will be replaced by a larger copy, if a reallocation happens.
+ *        Frees the previous xtring. Untouched on failure.
+ * @param [in] extension xtring to add as extension
+ * @return the new xtring or NULL in case of malloc failure or when `pxtr` or `*pxtr` is NULL.
+ *         Note: on success the returned value matches `*pxtr`. On failure the
+ *         returned value is NULL and *pxtr is unchanged.
+ */
+XTR_API xtr_t*
+xtr_extend_tail(xtr_t** pxtr, const xtr_t* extension);
 
 // ------------------- Encoding ------------------------------------
 /**

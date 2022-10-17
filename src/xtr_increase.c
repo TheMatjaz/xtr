@@ -31,69 +31,60 @@
 
 #include "xtr_internal.h"
 
-static void
-xtr_extend_raw(xtr_t** const pbase, const uint8_t* const part,
-               const size_t part_len, const size_t repetitions)
+XTR_API size_t
+xtr_push_tail(xtr_t* const xtr, const xtr_t* const extension)
 {
-    const size_t total_len = ((*pbase)->used + part_len) * repetitions;
-    // Check for size_t overflow
-    if (total_len < (*pbase)->used || total_len < part_len) { return; }
-    // TODO not all overflow  cases are checkde
-    xtr_t* const resized = xtr_resize_free(pbase, total_len);
-    if (resized == NULL) { return; }
-    for (size_t i = 0U; i < repetitions; i++)
+    if (xtr == NULL || extension == NULL || xtr_capacity(xtr) < extension->used) { return 0U; }
+    memcpy(&xtr->buffer[xtr->used], extension->buffer, extension->used);
+    set_used_and_terminator(xtr, xtr->used + extension->used);
+    return extension->used;
+}
+
+XTR_API size_t
+xtr_push_head(xtr_t* const xtr, const xtr_t* const extension)
+{
+    if (xtr == NULL || extension == NULL || xtr_capacity(xtr) < extension->used) { return 0U; }
+    memmove(&xtr->buffer[extension->used], xtr->buffer, xtr->used);
+    memcpy(xtr->buffer, extension->buffer, extension->used);
+    set_used_and_terminator(xtr, xtr->used + extension->used);
+    return extension->used;
+}
+
+XTR_API xtr_t*
+xtr_extend_tail(xtr_t** const pxtr, const xtr_t* const extension)
+{
+    // TODO copy pointers locally for reentrancy
+    if (pxtr == NULL || *pxtr == NULL || extension == NULL) { return NULL; }
+    if (xtr_capacity(*pxtr) >= extension->used)
     {
-        memcpy(&resized->buffer[i * part_len], part, part_len);
+        xtr_push_tail(*pxtr, extension);
     }
-    set_used_and_terminator(resized, total_len);
+    else
+    {
+        xtr_t* const new = xtr_concat(*pxtr, extension);
+        if (new == NULL) { return NULL; }
+        xtr_free(pxtr);
+        *pxtr = new;
+    }
+    return *pxtr;
 }
 
-XTR_API void
-xtr_extend(xtr_t** const pbase, const xtr_t* ext)
-// TODO some error code
+XTR_API xtr_t*
+xtr_extend_head(xtr_t** const pxtr, const xtr_t* const extension)
 {
-    if (pbase == NULL || *pbase == NULL || ext == NULL) { return; }
-    xtr_extend_raw(pbase, ext->buffer, ext->used, 1);
-}
-
-XTR_API void
-xtr_extend_many(xtr_t** const pbase, const xtr_t* ext, const size_t repetitions)
-// TODO some error code
-{
-    if (pbase == NULL || *pbase == NULL || ext == NULL) { return; }
-    xtr_extend_raw(pbase, ext->buffer, ext->used, repetitions);
-}
-
-XTR_API void
-xtr_extend_from(xtr_t** const pbase, const char* const ext) // TODO some error code
-{
-    if (pbase == NULL || *pbase == NULL || ext == NULL) { return; }
-    const size_t ext_len = strlen(ext);
-    xtr_extend_raw(pbase, (const uint8_t*) ext, ext_len, 1);
-}
-
-XTR_API void
-xtr_extend_from_many(xtr_t** const pbase, const char* const ext, const size_t repetitions)
-// TODO some error code
-{
-    if (pbase == NULL || *pbase == NULL || ext == NULL) { return; }
-    const size_t ext_len = strlen(ext);
-    xtr_extend_raw(pbase, (const uint8_t*)ext, ext_len, repetitions);
-}
-
-XTR_API void // TODO name it push?
-xtr_append(xtr_t** const pbase, const char c) // TODO some error code
-{
-    if (pbase == NULL || *pbase == NULL) { return; }
-    xtr_extend_raw(pbase, (const uint8_t*) &c, 1, 1);
-}
-
-XTR_API void
-xtr_append_many(xtr_t** const pbase, const char c, const size_t repetitions)
-// TODO some error code
-{
-    if (pbase == NULL || *pbase == NULL) { return; }
-    xtr_extend_raw(pbase, (const uint8_t*) &c, 1, repetitions);
+    if (pxtr == NULL || *pxtr == NULL || extension == NULL) { return NULL; }
+    if (xtr_capacity(*pxtr) >= extension->used)
+    {
+        xtr_push_head(*pxtr, extension);
+    }
+    else
+    {
+        xtr_t* const new = xtr_concat(extension, *pxtr);
+        if (new == NULL) { return NULL; }
+        xtr_free(pxtr);
+        *pxtr = new;
+    }
+    return *pxtr;
 }
 
 XTR_API xtr_t*
@@ -109,7 +100,7 @@ xtr_concat(const xtr_t* const a, const xtr_t* const b)
     if (a == NULL || b == NULL) { return NULL; }
     const size_t merged_len = a->used + b->used;
     if (merged_len < a->used || merged_len < b->used) { return NULL; } // Size overflow
-    xtr_t* const merged = xtr_new(merged_len);
+    xtr_t* const merged = xtr_malloc(merged_len, merged_len);
     if (merged == NULL) { return NULL; }
     memcpy(merged->buffer, a->buffer, a->used);
     memcpy(merged->buffer + a->used, b->buffer, b->used);
