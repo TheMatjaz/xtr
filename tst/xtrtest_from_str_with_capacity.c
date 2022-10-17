@@ -35,11 +35,11 @@ static void
 xtrtest_from_str_with_capacity_valid_null_string_0_bytes(void)
 {
     // Should provide an empty string with 0 available free bytes
-    xtr_t* obtained = xtr_from_str_with_capacity(NULL, 0);
+    xtr_t* obtained = xtr_from_str_capac(NULL, 0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -49,11 +49,11 @@ static void
 xtrtest_from_str_with_capacity_valid_null_string_6_bytes(void)
 {
     // Should provide an empty string with 6 available free bytes
-    xtr_t* obtained = xtr_from_str_with_capacity(NULL, 6);
+    xtr_t* obtained = xtr_from_str_capac(NULL, 6);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 6);
     atto_eq(xtr_available(obtained), 6);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -63,11 +63,11 @@ static void
 xtrtest_from_str_with_capacity_valid_empty_string_0_bytes(void)
 {
     // Should provide an empty string with 0 available free bytes
-    xtr_t* obtained = xtr_from_str_with_capacity("", 0);
+    xtr_t* obtained = xtr_from_str_capac("", 0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -77,11 +77,11 @@ static void
 xtrtest_from_str_with_capacity_valid_empty_string_1_byte(void)
 {
     // Should provide an empty string with 1 available free bytes
-    xtr_t* obtained = xtr_from_str_with_capacity("", 1);
+    xtr_t* obtained = xtr_from_str_capac("", 1);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 1);
     atto_eq(xtr_available(obtained), 1);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -91,11 +91,11 @@ static void
 xtrtest_from_str_with_capacity_valid_empty_string_15_bytes(void)
 {
     // Should provide an empty string with 15 available free bytes
-    xtr_t* obtained = xtr_from_str_with_capacity("", 15);
+    xtr_t* obtained = xtr_from_str_capac("", 15);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 15);
     atto_eq(xtr_available(obtained), 15);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -106,11 +106,11 @@ xtrtest_from_str_with_capacity_valid_1_char_0_bytes(void)
 {
     // Should provide a 1-char string with 0 available free bytes
     // because the string is longer than the ensured space
-    xtr_t* obtained = xtr_from_str_with_capacity("a", 0);
+    xtr_t* obtained = xtr_from_str_capac("a", 0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 1);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 1);
+    atto_eq(xtr_length(obtained), 1);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "a", 2);
     xtr_free(&obtained);
@@ -121,11 +121,11 @@ xtrtest_from_str_with_capacity_valid_1_char_1_bytes(void)
 {
     // Should provide a 1-char string with 0 available free bytes
     // because the string is equal than the ensured space
-    xtr_t* obtained = xtr_from_str_with_capacity("a", 1);
+    xtr_t* obtained = xtr_from_str_capac("a", 1);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 1);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 1);
+    atto_eq(xtr_length(obtained), 1);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "a", 2);
     xtr_free(&obtained);
@@ -136,11 +136,11 @@ xtrtest_from_str_with_capacity_valid_1_char_2_bytes(void)
 {
     // Should provide a 1-char string with 0 available free bytes
     // because the string is equal than the ensured space
-    xtr_t* obtained = xtr_from_str_with_capacity("a", 2);
+    xtr_t* obtained = xtr_from_str_capac("a", 2);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 2);
     atto_eq(xtr_available(obtained), 1);
-    atto_eq(xtr_len(obtained), 1);
+    atto_eq(xtr_length(obtained), 1);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "a", 2);
     xtr_free(&obtained);
@@ -151,11 +151,11 @@ xtrtest_from_str_with_capacity_valid_6_chars_6_bytes(void)
 {
     // Should provide a 6-char string with 0 available free bytes
     // because the string is equal than the ensured space
-    xtr_t* obtained = xtr_from_str_with_capacity("Abcdef", 6);
+    xtr_t* obtained = xtr_from_str_capac("Abcdef", 6);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 6);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 6);
+    atto_eq(xtr_length(obtained), 6);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "Abcdef", 7);
     xtr_free(&obtained);
@@ -166,11 +166,11 @@ xtrtest_from_str_with_capacity_valid_6_chars_4_bytes(void)
 {
     // Should provide a 6-char string with 0 available free bytes
     // because the string is longer than the ensured space
-    xtr_t* obtained = xtr_from_str_with_capacity("Abcdef", 4);
+    xtr_t* obtained = xtr_from_str_capac("Abcdef", 4);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 6);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 6);
+    atto_eq(xtr_length(obtained), 6);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "Abcdef", 7);
     xtr_free(&obtained);
@@ -180,11 +180,11 @@ static void
 xtrtest_from_str_with_capacity_valid_6_chars_10_bytes(void)
 {
     // Should provide a 6-char string with 4 available free bytes
-    xtr_t* obtained = xtr_from_str_with_capacity("Abcdef", 10);
+    xtr_t* obtained = xtr_from_str_capac("Abcdef", 10);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 10);
     atto_eq(xtr_available(obtained), 4);
-    atto_eq(xtr_len(obtained), 6);
+    atto_eq(xtr_length(obtained), 6);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "Abcdef", 7);
     xtr_free(&obtained);
@@ -194,16 +194,16 @@ static void
 xtrtest_from_str_with_capacity_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
-    xtr_t* obtained = xtr_from_str_with_capacity("abc", 10);
+    xtr_t* obtained = xtr_from_str_capac("abc", 10);
     atto_eq(obtained, NULL);
 }
 
 static void
 xtrtest_new_ensure_fail_size_overflow(void)
 {
-    xtr_t* obtained = xtr_from_str_with_capacity(NULL, SIZE_MAX);
+    xtr_t* obtained = xtr_from_str_capac(NULL, SIZE_MAX);
     atto_eq(obtained, NULL);
-    obtained = xtr_from_str_with_capacity("abc", SIZE_MAX);
+    obtained = xtr_from_str_capac("abc", SIZE_MAX);
     atto_eq(obtained, NULL);
 }
 

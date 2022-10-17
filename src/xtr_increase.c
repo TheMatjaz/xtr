@@ -31,7 +31,6 @@
 
 #include "xtr_internal.h"
 
-
 static void
 xtr_extend_raw(xtr_t** const pbase, const uint8_t* const part,
                const size_t part_len, const size_t repetitions)
@@ -97,44 +96,20 @@ xtr_append_many(xtr_t** const pbase, const char c, const size_t repetitions)
     xtr_extend_raw(pbase, (const uint8_t*) &c, 1, repetitions);
 }
 
-
-static xtr_t*
-xtr_repeat_raw(const uint8_t* const part, const size_t repetitions, const size_t part_len)
-{
-    const size_t total_len = part_len * repetitions;
-    if (total_len < part_len) { return NULL; }// TODO are all overflows cases handled correctly?
-    xtr_t* const new = xtr_new_with_capacity(total_len);
-    if (new == NULL) { return NULL; }
-    for (size_t i = 0; i < repetitions; i++)
-    {
-        memcpy(&new->buffer[i * part_len], part, part_len);
-    }
-    set_used_and_terminator(new, total_len);
-    return new;
-}
-
 XTR_API xtr_t*
-xtr_new_repeat(const char* const str, const size_t repetitions)
-{
-    if (str == NULL) { return NULL; }
-    const size_t part_len = strlen(str);
-    return xtr_repeat_raw((const uint8_t*) str, repetitions, part_len);
-}
-
-XTR_API xtr_t*
-xtr_repeat(const xtr_t* const xtr, const size_t repetitions)
+xtr_repeated(const xtr_t* const xtr, const size_t repetitions)
 {
     if (xtr == NULL) { return NULL; }
-    return xtr_repeat_raw(xtr->buffer, repetitions, xtr->used);
+    return xtr_from_bytes_repeat(xtr->buffer, xtr->used, repetitions);
 }
 
 XTR_API xtr_t*
-xtr_concat(const xtr_t* a, const xtr_t* b)
+xtr_concat(const xtr_t* const a, const xtr_t* const b)
 {
     if (a == NULL || b == NULL) { return NULL; }
     const size_t merged_len = a->used + b->used;
     if (merged_len < a->used || merged_len < b->used) { return NULL; } // Size overflow
-    xtr_t* const merged = xtr_new_with_capacity(merged_len);
+    xtr_t* const merged = xtr_new(merged_len);
     if (merged == NULL) { return NULL; }
     memcpy(merged->buffer, a->buffer, a->used);
     memcpy(merged->buffer + a->used, b->buffer, b->used);

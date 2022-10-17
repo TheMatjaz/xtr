@@ -36,7 +36,7 @@ xtr_from_hex(const char* hex, size_t len)
 {
     if (hex == NULL && len != 0U) { return NULL; }
     if (len == XTR_UNKNOWN_STRLEN) { len = strlen(hex); }
-    xtr_t* bin = xtr_new_with_capacity(len / 2U);
+    xtr_t* bin = xtr_new(len / 2U);
     size_t converted = 0U;
     int byte = 0;
     while (*hex != TERMINATOR)
@@ -96,7 +96,7 @@ xtr_to_hex(const xtr_t* const bin, const bool upper, const char* const separator
     if (bin == NULL) { return NULL; }
     size_t sep_len = 0U;
     if (separator != NULL) { sep_len = strlen(separator); }
-    xtr_t* hex = xtr_new_with_capacity(bin->used * (2U + sep_len));
+    xtr_t* hex = xtr_new(bin->used * (2U + sep_len));
     if (hex == NULL) { return NULL; }
     const uint8_t* hexchars;
     if (upper) { hexchars = HEXCHARS_UPPER; }

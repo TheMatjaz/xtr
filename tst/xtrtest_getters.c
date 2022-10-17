@@ -40,7 +40,7 @@ xtrtest_getters_do_nothing_on_null_input(void)
 {
     atto_eq(xtr_available(NULL), 0);
     atto_eq(xtr_capacity(NULL), 0);
-    atto_eq(xtr_len(NULL), 0);
+    atto_eq(xtr_length(NULL), 0);
     atto_eq(xtr_cstring(NULL), NULL);
 }
 

@@ -40,7 +40,7 @@ xtrtest_is_empty_valid_null(void)
 static void
 xtrtest_is_empty_valid_empty(void)
 {
-    xtr_t* obtained = xtr_new();
+    xtr_t* obtained = xtr_new_empty();
     atto_true(xtr_is_empty(obtained));
     xtr_free(&obtained);
 }
@@ -49,7 +49,7 @@ xtrtest_is_empty_valid_empty(void)
 static void
 xtrtest_is_empty_valid_empty_with_capacity(void)
 {
-    xtr_t* obtained = xtr_new_with_capacity(1);
+    xtr_t* obtained = xtr_new(1);
     atto_true(xtr_is_empty(obtained));
     xtr_free(&obtained);
 }

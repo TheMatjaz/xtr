@@ -71,7 +71,7 @@ xtr_random(const size_t len)
 XTR_API xtr_t*
 xtr_random(const size_t len)
 {
-    xtr_t* random = xtr_new_with_capacity(len);
+    xtr_t* random = xtr_new(len);
     if (random == NULL) { return NULL; }
     FILE* rng = fopen("/dev/urandom", "r");
     size_t obtained = 0U;

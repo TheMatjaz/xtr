@@ -1,6 +1,6 @@
 /**
  * @file
- * Xtring - Extendible strings for C
+ * Xtring - Extendable strings for C
  *
  * @copyright Copyright © 2022, Matjaž Guštin <dev@matjaz.it>
  * <https://matjaz.it>. All rights reserved.
@@ -81,6 +81,9 @@ extern "C"
 
 #define XTR_UNKNOWN_STRLEN SIZE_MAX
 
+/** Search failure value, larger than any possible index. */
+#define XTR_NOT_FOUND SIZE_MAX
+
 /**
  * Opaque xtring structure.
  *
@@ -116,12 +119,12 @@ typedef struct xtr xtr_t;
 /**
  * Allocates an empty xtring with no additional pre-allocated free space.
  *
- * Equivalent to `xtr_new_with_capacity(0)`.
+ * Equivalent to `xtr_new(0)`.
  *
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_new(void);
+xtr_new_empty(void);
 
 /**
  * Allocates empty xtring with `capacity` bytes of pre-allocated free space.
@@ -141,14 +144,14 @@ xtr_new(void);
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_new_with_capacity(size_t capacity);
+xtr_new(size_t capacity);
 
 /**
  * Frees the allocated memory of xtring after usage and sets the xtring pointer
  * to NULL to avoid use-after-free.
  *
  * Example:
- *         xtr_t* xtring = xtr_new();
+ *         xtr_t* xtring = xtr_new_empty();
  *         // ... usage of the xtring
  *         xtr_free(&xtring);
  *         assert(xtring == NULL);
@@ -167,6 +170,19 @@ xtr_free(xtr_t** pxtr);
  */
 XTR_API xtr_t*
 xtr_zeros(size_t len);
+
+/**
+ * New xtring initialised with the `len` cryptographically-secure random bytes.
+ *
+ * On Windows it obtains the random bytes using `BCryptGenRandom`, on
+ * Unix-like systems it uses `/dev/urandom`.
+ *
+ * Does not reserve any additional capacity for expansions.
+ * @param [in] len amount of random bytes.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
+XTR_API xtr_t*
+xtr_random(size_t len);
 
 /**
  * New xtring initialised with the C-string content.
@@ -198,7 +214,7 @@ xtr_from_str(const char* str);
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_str_with_capacity(const char* str, size_t at_least);
+xtr_from_str_capac(const char* str, size_t at_least);
 
 /**
  * New xtring initialised with the C-string content repeated `repetitions` times.
@@ -210,7 +226,7 @@ xtr_from_str_with_capacity(const char* str, size_t at_least);
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_str_repeated(const char* str, size_t repetitions);
+xtr_from_str_repeat(const char* str, size_t repetitions);
 
 /**
  * New xtring initialised with the C-string content repeated `repetitions` times
@@ -226,9 +242,9 @@ xtr_from_str_repeated(const char* str, size_t repetitions);
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_str_repeated_with_capacity(const char* str,
-                                    size_t repetitions,
-                                    size_t at_least);
+xtr_from_str_repeat_capac(const char* str,
+                          size_t repetitions,
+                          size_t at_least);
 
 /**
  * New xtring initialised with the array content.
@@ -240,7 +256,7 @@ xtr_from_str_repeated_with_capacity(const char* str,
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_array(const uint8_t* array,
+xtr_from_bytes(const uint8_t* array,
                size_t array_len);
 
 /**
@@ -257,9 +273,9 @@ xtr_from_array(const uint8_t* array,
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_array_with_capacity(const uint8_t* array,
-                             size_t array_len,
-                             size_t at_least);
+xtr_from_bytes_capac(const uint8_t* array,
+                     size_t array_len,
+                     size_t at_least);
 
 /**
  * New xtring initialised with the array content repeated `repetitions` times.
@@ -272,9 +288,9 @@ xtr_from_array_with_capacity(const uint8_t* array,
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_array_repeated(const uint8_t* array,
-                        size_t array_len,
-                        size_t repetitions);
+xtr_from_bytes_repeat(const uint8_t* array,
+                      size_t array_len,
+                      size_t repetitions);
 
 /**
  * New xtring initialised with the C-string content repeated `repetitions` times
@@ -291,10 +307,10 @@ xtr_from_array_repeated(const uint8_t* array,
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_array_repeated_with_capacity(const uint8_t* array,
-                                      size_t array_len,
-                                      size_t repetitions,
-                                      size_t at_least);
+xtr_from_bytes_repeat_capac(const uint8_t* array,
+                            size_t array_len,
+                            size_t repetitions,
+                            size_t at_least);
 
 /**
  * New xtring of length 1 initialised with a single byte.
@@ -315,7 +331,7 @@ xtr_from_byte(uint8_t byte);
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_byte_repeated(uint8_t byte, size_t repetitions);
+xtr_from_byte_repeat(uint8_t byte, size_t repetitions);
 
 /**
  * New xtring initialised with the `byte` repeated `repetitions` times
@@ -332,24 +348,11 @@ xtr_from_byte_repeated(uint8_t byte, size_t repetitions);
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_byte_repeated_with_capacity(uint8_t byte, size_t len, size_t at_least);
-
-/**
- * New xtring initialised with the `len` cryptographically-secure random bytes.
- *
- * On Windows it obtains the random bytes using `BCryptGenRandom`, on
- * Unix-like systems it uses `/dev/urandom`.
- *
- * Does not reserve any additional capacity for expansions.
- * @param [in] len amount of random bytes.
- * @return the new xtring or NULL in case of malloc failure.
- */
-XTR_API xtr_t*
-xtr_random(size_t len);
+xtr_from_byte_repeat_capac(uint8_t byte, size_t len, size_t at_least);
 
 // ------------------- New cloned xtrings ------------------------------------
 /**
- * New xtring with same content as another one (copy by value).
+ * New xtring with same content and buffer size as another one (copy by value).
  *
  * @param [in] xtr to copy.
  * @return the new xtring or NULL in case of malloc failure or when `xtr` is NULL.
@@ -361,34 +364,66 @@ xtr_clone(const xtr_t* xtr);
  * New xtring with same content as another one (copy by value)
  * and overall `at_least` allocated space.
  *
- * Ensures the `at_least - xtr_len(xtr)` available allocated free space at the
+ * Ensures the `at_least - xtr_length(xtr)` available allocated free space at the
  * clone's end, to have some space ready for expansions without reallocation.
  * @param [in] xtr to copy. Returns NULL if `xtr` is NULL.
  * @param [in] at_least minimum amount of bytes to allocate, but
- *        `xtr_len(xtr)` is anyhow allocated not to truncate any data.
+ *        `xtr_length(xtr)` is anyhow allocated not to truncate any data.
  * @return the new xtring or NULL in case of malloc failure or when `xtr` is NULL.
  */
 XTR_API xtr_t*
-xtr_clone_with_capacity(const xtr_t* xtr, size_t max_len);
+xtr_expanded(const xtr_t* xtr, size_t at_least); // TODO better to call it capacity?
 
 /**
- * Like xtr_clone_with_capacity(), but also frees the original xtring after
- * cloning it into a larger buffer.
+ * Reallocates the xtring into a larger buffer, freeing the previous one.
  *
- * Ensures the `at_least - xtr_len(xtr)` available allocated free space at the
+ * Ensures the `at_least - xtr_length(xtr)` available allocated free space at the
  * clone's end, to have some space ready for expansions without reallocation.
  * @param [in, out] pxtr point to the original xtring to copy. Pointed xtr_t*
  *        will be replaced by a larger copy, if a reallocation happens.
- *        Unchanged on failure.
+ *        Frees the previous xtring. Untouched on failure.
  * @param [in] at_least minimum amount of bytes to allocate, but
- *        `xtr_len(*pxtr)` is anyhow allocated not to truncate any data.
+ *        `xtr_length(*pxtr)` is anyhow allocated not to truncate any data.
  * @return the new xtring or NULL in case of malloc failure or when `pxtr` or `*pxtr` is NULL.
  *         Note: on success the returned value matches `*pxtr`. On failure the
  *         returned value is NULL and *pxtr is unchanged.
  */
 XTR_API xtr_t*
-xtr_clone_with_capacity_free(xtr_t** pxtr, size_t at_least);
+xtr_expand(xtr_t** pxtr, size_t at_least);
 
+/**
+ * New xtring with same content as another one (copy by value)
+ * but truncated to `max_len` bytes.
+ *
+ * The first `max_len` bytes are copied over to the new xtring.
+ * Does not reserve any additional capacity for expansions. For that use
+ * xtr_truncate_tail() or xtr_expanded().
+ * @param [in] xtr to reduce. Returns NULL if `xtr` is NULL.
+ * @param [in] at_most maximum amount of bytes to copy, automatically
+ *        limited to at most `xtr_length(xtr)`.
+ * @return the new xtring or NULL in case of malloc failure or when `xtr` is NULL.
+ */
+XTR_API xtr_t*
+xtr_truncated(const xtr_t* xtr, size_t at_most);
+
+/**
+ * Reallocates the xtring into a smaller buffer, freeing the previous one,
+ * truncating the content to `max_len` bytes.
+ *
+ * The first `max_len` bytes are copied over to the new xtring.
+ * Does not reserve any additional capacity for expansions. For that use
+ * xtr_truncate_tail() or xtr_expand().
+* @param [in, out] pxtr point to the original xtring to copy. Pointed xtr_t*
+ *        will be replaced by a smaller copy, if a reallocation happens.
+ *        Frees the previous xtring. Untouched on failure.
+ * @param [in] at_most maximum amount of bytes to copy, automatically
+ *        limited to at most `xtr_length(xtr)`.
+ * @return the new xtring or NULL in case of malloc failure or when `pxtr` or `*pxtr` is NULL.
+ *         Note: on success the returned value matches `*pxtr`. On failure the
+ *         returned value is NULL and *pxtr is unchanged.
+ */
+XTR_API xtr_t*
+xtr_truncate(xtr_t** pxtr, size_t at_most);
 
 // ------------------- Xtring properties (getters) ------------------------------------
 /**
@@ -406,7 +441,9 @@ xtr_clone_with_capacity_free(xtr_t** pxtr, size_t at_least);
  * @return the length or 0 if `xtr` is NULL.
  */
 XTR_API size_t
-xtr_len(const xtr_t* xtr);
+xtr_length(const xtr_t* xtr);
+
+#define xtr_len xtr_length
 
 /**
  * Buffer size of the xtring = **maximum** possible length the xtring can reach without
@@ -426,6 +463,8 @@ xtr_len(const xtr_t* xtr);
 XTR_API size_t
 xtr_capacity(const xtr_t* xtr);
 
+#define xtr_cap xtr_capacity
+
 /**
  * Available xtring space =  amount of **free** bytes that can be appended to the xtring
  * before reallocating.
@@ -444,6 +483,8 @@ xtr_capacity(const xtr_t* xtr);
 XTR_API size_t
 xtr_available(const xtr_t* xtr);
 
+#define xtr_avail xtr_available
+
 /**
  * Read-only access to the internal buffer as C-string, null-terminated.
  *
@@ -454,6 +495,8 @@ xtr_available(const xtr_t* xtr);
  */
 XTR_API const char*
 xtr_cstring(const xtr_t* xtr);
+
+#define xtr_cstr xtr_cstring
 
 /**
  * Read-only access to the internal buffer as `uint8_t[]`, null-terminated.
@@ -466,7 +509,7 @@ xtr_cstring(const xtr_t* xtr);
  * @return null-terminated `uint8_t` array or NULL if `xtr` is NULL.
  */
 XTR_API const uint8_t*
-xtr_array(const xtr_t* xtr);
+xtr_bytes(const xtr_t* xtr);
 
 /**
  * Read-only pointer to the last byte of the string.
@@ -613,9 +656,46 @@ xtr_is_equal(const xtr_t* a, const xtr_t* b);
 XTR_API bool
 xtr_is_equal_consttime(const xtr_t* a, const xtr_t* b);
 
+/**
+ * True if the xtring's head matches the provided prefix.
+ *
+ * Example:
+ *         xtr_startswith(xtr["abcdef"], xtr["abc"]) --> true
+ *         xtr_startswith(xtr["abcdef"], xtr["abcdef"]) --> true
+ *         xtr_startswith(NULL, NULL) --> true
+ *         xtr_startswith(xtr["abcdef"], xtr["xyz"]) --> false
+ *         xtr_startswith(xtr["abcdef"], NULL= --> false
+ *         xtr_startswith(NULL, xtr["abc"]) --> false
+ *         xtr_startswith(xtr["abcdef"], xtr["abcdefghijklm"]) --> false
+ *
+ * @param [in] xtr to check the beginning of
+ * @param [in] prefix to check whether matches `xtr`'s head
+ * @return true if `xtr` starts with `prefix` or if they are both NULL, false otherwise.
+ *         NOTE: false includes the case of only one being NULL or if the
+ *         provided `prefix` is shorter than `xtr`
+ */
 XTR_API bool
 xtr_startswith(const xtr_t* xtr, const xtr_t* prefix);
 
+/**
+ * True if the xtring's tail matches the provided suffix.
+ *
+ * Example:
+ *         xtr_endswith(xtr["abcdef"], xtr["def"]) --> true
+ *         xtr_endswith(xtr["abcdef"], xtr["abcdef"]) --> true
+ *         xtr_endswith(NULL, NULL) --> true
+ *         xtr_endswith(xtr["abcdef"], xtr["xyz"]) --> false
+ *         xtr_endswith(xtr["abcdef"], xtr["fed"]) --> false
+ *         xtr_endswith(xtr["abcdef"], NULL= --> false
+ *         xtr_endswith(NULL, xtr["abc"]) --> false
+ *         xtr_endswith(xtr["abcdef"], xtr["abcdefghijklm"]) --> false
+ *
+ * @param [in] xtr to check the end of
+ * @param [in] prefix to check whether matches `xtr`'s tail
+ * @return true if `xtr` ends with `suffix` or if they are both NULL, false otherwise.
+ *         NOTE: false includes the case of only one being NULL or if the
+ *         provided `suffix` is shorter than `xtr`
+ */
 XTR_API bool
 xtr_endswith(const xtr_t* xtr, const xtr_t* suffix);
 
@@ -634,6 +714,7 @@ xtr_clear(xtr_t* xtr);
  * Removes `len` bytes from the xtring start and returns them as a new xtring.
  *
  * Example of popping 3 bytes:
+ *
  *         xtr before: "Hello world!"
  *         xtr after:  "lo world!"
  *         returned:   "Hel"
@@ -760,40 +841,40 @@ XTR_API void
 xtr_trim(xtr_t* xtr, const char* chars);
 
 /**
- * Truncates the provided substring from the end of the xtring, if present.
- *
- * If either parameter is NULL or the suffix is not found, then nothing happens.
- * If the suffix appears multiple times, it's removed only once.
- *
- * Example:
- *         xtr_trim(xtr["Hello world!"], " world!") --> xtr["Hello"]
- *         xtr_trim(xtr["Hello world!"], "abc!") --> xtr["Hello world!"]
- *         xtr_trim(xtr["Hello world..."], ".") --> xtr["Hello world.."]
- * @param [in, out] xtr xtring to truncate in-place. NULL does nothing.
- * @param [in] chars substring to remove. NULL does nothing.
- */
-XTR_API void
-xtr_remove_suffix(xtr_t* xtr, const char* suffix);
-
-/**
  * Truncates the provided substring from the start of the xtring, if present.
  *
  * If either parameter is NULL or the prefix is not found, then nothing happens.
  * If the prefix appears multiple times, it's removed only once.
  *
  * Example:
- *         xtr_trim(xtr["Hello world!"], "He") --> xtr["llo world!"]
- *         xtr_trim(xtr["Hello world!"], "abc!") --> xtr["Hello world!"]
- *         xtr_trim(xtr["...Hello world!"], ".") --> xtr["..Hello world!"]
+ *         xtr_truncate_prefix(xtr["Hello world!"], "He") --> xtr["llo world!"]
+ *         xtr_truncate_prefix(xtr["Hello world!"], "abc!") --> xtr["Hello world!"]
+ *         xtr_truncate_prefix(xtr["...Hello world!"], ".") --> xtr["..Hello world!"]
  * @param [in, out] xtr xtring to truncate in-place. NULL does nothing.
  * @param [in] chars substring to remove. NULL does nothing.
  */
 XTR_API void
-xtr_remove_prefix(xtr_t* xtr, const char* prefix);
+xtr_truncate_prefix(xtr_t* xtr, const char* prefix);
 
+/**
+ * Truncates the provided substring from the end of the xtring, if present.
+ *
+ * If either parameter is NULL or the suffix is not found, then nothing happens.
+ * If the suffix appears multiple times, it's removed only once.
+ *
+ * Example:
+ *         xtr_truncate_suffix(xtr["Hello world!"], " world!") --> xtr["Hello"]
+ *         xtr_truncate_suffix(xtr["Hello world!"], "abc!") --> xtr["Hello world!"]
+ *         xtr_truncate_suffix(xtr["Hello world..."], ".") --> xtr["Hello world.."]
+ * @param [in, out] xtr xtring to truncate in-place. NULL does nothing.
+ * @param [in] chars substring to remove. NULL does nothing.
+ */
+XTR_API void
+xtr_truncate_suffix(xtr_t* xtr, const char* suffix);
 
 // ------------------- Alter the Xtring's allocated memory ------------------------------------
 
+// TODO replace with `ensure` functions
 XTR_API xtr_t*
 xtr_resize(xtr_t* xtr, size_t new_capacity);
 
@@ -806,8 +887,7 @@ xtr_resize_free_double(xtr_t** pxtr);
 XTR_API xtr_t*
 xtr_compress_free(xtr_t** pxtr);
 
-
-// ------ OTHER
+// ------------------- Reverse the xtring's content ------------------------------------
 /**
  * Creates a reversed (end-to-start) copy of the xtring.
  *
@@ -825,15 +905,77 @@ xtr_reversed(const xtr_t* xtr);
 XTR_API void
 xtr_reverse(xtr_t* xtr);
 
+
+// ------------------- Search for substrings ------------------------------------
 /**
- * Counts how many times the needle (needle, substring) appears in the haystack xtring.
+ * Counts how many times a substring appears in the xtring.
  *
  * @param [in] haystack xtring to search in.
- * @param [in] needle sub-xtring to search for (pattern).
- * @return amount or #SIZE_MAX in case of NULL pointers.
+ * @param [in] needle pattern to search for (substring).
+ * @return amount or #XTR_NOT_FOUND in case of NULL pointers. Returns zero if
+ *         `needle` is too short to fit the `haystack`.
  */
 XTR_API size_t
 xtr_occurrences(const xtr_t* haystack, const xtr_t* needle);
+
+/**
+ * Checks whether a substring exists in the xtring.
+ *
+ * @param [in] haystack xtring to search in
+ * @param [in] needle pattern to search for
+ * @return true if the patter is found, false otherwise. False is also returned
+ *         when any pointer is NULL, if any xtring is empty or
+ *         if `needle` does not fit into `haystack` at all.
+ */
+XTR_API bool
+xtr_contains(const xtr_t* haystack, const xtr_t* needle);
+
+/**
+ * Searches for a substring in the xtring starting.
+ *
+ * @param [in] haystack xtring to search in
+ * @param [in] needle pattern to search for
+ * @return index to the found section or #XTR_NOT_FOUND if not found.
+ *         #XTR_NOT_FOUND is also returned if the indexes
+ *         are out of range, if any pointer is NULL, if any xtring is empty,
+ *         if `needle` does not fit into `haystack` at all.
+ */
+XTR_API size_t
+xtr_find(const xtr_t* haystack, const xtr_t* needle);
+
+/**
+ * Searches for a substring in the xtring starting from an index.
+ *
+ * @param [in] haystack xtring to search in
+ * @param [in] needle pattern to search for
+ * @param [in] start first index to check, inclusive
+ * @return index to the found section or #XTR_NOT_FOUND if not found.
+ *         #XTR_NOT_FOUND is also returned if the indexes
+ *         are out of range, if any pointer is NULL, if any xtring is empty,
+ *         if `needle` does not fit into `haystack` at all.
+ */
+XTR_API size_t
+xtr_find_from(const xtr_t* haystack, const xtr_t* needle, size_t start);
+
+// TODO rfind
+
+/**
+ * Searches for a substring `needle` in the xtring within an index range.
+ *
+ * @param [in] haystack xtring to search in
+ * @param [in] needle pattern to search for
+ * @param [in] start first index to check, inclusive
+ * @param [in] end end of search, excluded (points to byte after last)
+ * @return index to the found section or #XTR_NOT_FOUND if not found.
+ *         #XTR_NOT_FOUND is also returned if the indexes
+ *         are out of range, if any pointer is NULL, if any xtring is empty,
+ *         if `needle` does not fit into `haystack` at all.
+ */
+XTR_API size_t
+xtr_find_within(const xtr_t* haystack, const xtr_t* needle, size_t start, size_t end);
+
+// ------------------- Splitting ------------------------------------
+
 
 XTR_API xtr_t**
 xtr_split_at(const xtr_t* xtr, const xtr_t* pattern);
@@ -844,56 +986,32 @@ xtr_split_every(const xtr_t* xtr, size_t part_len);
 XTR_API xtr_t**
 xtr_split_into(const xtr_t* xtr, size_t parts_amount);
 
-// Concatenation
+// ------------------- Concatenation ------------------------------------
 /**
  * Concatenates two xtrings into a third one.
  *
  * Can be also used to concatenate `a` with itself.
  * @param [in] a first half.
- * @param [in] b second half.
+ * @param [in] b second half. May also be `a`.
  * @return the new xtring containing `a+b` or NULL in case of malloc failure,
  *         NULL inputs or size overflow.
  */
 XTR_API xtr_t*
 xtr_concat(const xtr_t* a, const xtr_t* b);
 
+/**
+ * New xtring with the content repeated `repetition` times.
+ *
+ * Does not reserve any additional capacity for expansions.
+ * @param [in] xtr xtring to repeat.
+ * @param [in] repetitions amount of times to repeat `xtr`. `0` for an empty xtring.
+ * @return the new xtring or NULL in case of malloc failure.
+ */
 XTR_API xtr_t*
-xtr_repeat(const xtr_t* xtr, size_t repetitions);
-// TODO merge many? Varlena?
+xtr_repeated(const xtr_t* xtr, size_t repetitions);
 
-// TODO join many with optional separators
+// ------------------- Appending ------------------------------------
 
-// Comparing
-XTR_API int xtr_cmp_c(const xtr_t* a, const char* b);
-
-
-XTR_API bool xtr_equal_c(const xtr_t* a, const char* b);
-
-XTR_API bool xtr_not_equal_c(const xtr_t* a, const char* b);
-
-
-XTR_API bool xtr_contains(const xtr_t* haystack, const xtr_t* pattern);
-
-XTR_API const uint8_t*
-xtr_find(const xtr_t* haystack, const xtr_t* needle);
-
-XTR_API const uint8_t*
-xtr_find_from(const xtr_t* haystack, const xtr_t* needle, size_t start);
-
-XTR_API const uint8_t*
-xtr_find_in(const xtr_t* haystack, const xtr_t* needle, size_t start, size_t end);
-
-
-// TODO substring search, like strstr
-// TODO case compare
-// TODO constant time compare
-
-// TODO iterator?
-// TODO utf8 iterator
-
-// TODO split between safe and fast functions, don't make it a compile-time
-// option, but a runtime option. I may not care for all strings, but for some.
-// TODo consider making functions WITHOUT side effects for max clarity, purely funcitonal
 XTR_API void xtr_extend(xtr_t** pbase, const xtr_t* ext);
 
 XTR_API void xtr_extend_many(xtr_t** pbase, const xtr_t* ext, size_t repetitions);
@@ -909,10 +1027,7 @@ XTR_API void xtr_append_many(xtr_t** pbase, char character, size_t repetitions);
 XTR_API void xtr_prepend(xtr_t** pbase, char character);
 
 XTR_API void xtr_prepend_many(xtr_t** pbase, char character, size_t repetitions);
-// TODO prepending another char* or xtr
-// TODO padding to size
 
-// Trimming
 
 // ------------------- Encoding ------------------------------------
 /**
@@ -997,6 +1112,21 @@ xtr_from_hex(const char* hex, size_t len);
 // TODO function to indent lines
 // TODO function to iterate lines
 // TODO function to split into lines
+// TODO prepending another char* or xtr
+// TODO padding to size
+// TODO merge many? Varlena?
+// TODO join many with optional separators
+// TODO substring search, like strstr
+// TODO case compare
+// TODO constant time compare
+// TODO iterator?
+// TODO utf8 iterator
+// TODO split between safe and fast functions, don't make it a compile-time
+// option, but a runtime option. I may not care for all strings, but for some.
+// TODo consider making functions WITHOUT side effects for max clarity, purely funcitonal
+// TODO compare with C strings
+// TODO consider differentiating between API functions which create a new xtr, modify in-place or
+//  replace by freeing the old one
 
 #ifdef __cplusplus
 }

@@ -35,11 +35,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_null_0_times_0_space(void)
 {
     // Produces an empty xtring
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity(NULL, 0, 0);
+    xtr_t* obtained = xtr_from_str_repeat_capac(NULL, 0, 0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -49,11 +49,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_null_0_times_7_space(void)
 {
     // Produces an empty xtring
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity(NULL, 0, 7);
+    xtr_t* obtained = xtr_from_str_repeat_capac(NULL, 0, 7);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 7);
     atto_eq(xtr_available(obtained), 7);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -63,11 +63,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_null_1_time_0_space(void)
 {
     // Produces an empty xtring
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity(NULL, 1, 0);
+    xtr_t* obtained = xtr_from_str_repeat_capac(NULL, 1, 0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -77,11 +77,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_null_1_time_7_space(void)
 {
     // Produces an empty xtring
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity(NULL, 1, 7);
+    xtr_t* obtained = xtr_from_str_repeat_capac(NULL, 1, 7);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 7);
     atto_eq(xtr_available(obtained), 7);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -91,11 +91,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_times_0_space(void)
 {
     // Produces an empty xtring
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("", 0, 0);
+    xtr_t* obtained = xtr_from_str_repeat_capac("", 0, 0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -105,11 +105,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_times_7_space(void)
 {
     // Produces an empty xtring
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("", 0, 7);
+    xtr_t* obtained = xtr_from_str_repeat_capac("", 0, 7);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 7);
     atto_eq(xtr_available(obtained), 7);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -119,11 +119,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_space(void)
 {
     // Produces an empty xtring
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("", 1, 0);
+    xtr_t* obtained = xtr_from_str_repeat_capac("", 1, 0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -133,11 +133,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_empty_string_7_space(void)
 {
     // Produces an empty xtring
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("", 1, 7);
+    xtr_t* obtained = xtr_from_str_repeat_capac("", 1, 7);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 7);
     atto_eq(xtr_available(obtained), 7);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -147,11 +147,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_0_times_0_space(void)
 {
     // Produces an empty xtring
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("a", 0, 0);
+    xtr_t* obtained = xtr_from_str_repeat_capac("a", 0, 0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -161,11 +161,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_0_times_7_space(void)
 {
     // Produces an empty xtring
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("a", 0, 7);
+    xtr_t* obtained = xtr_from_str_repeat_capac("a", 0, 7);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 7);
     atto_eq(xtr_available(obtained), 7);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -175,11 +175,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_1_times_0_space(void)
 {
     // Produces "a"
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("a", 1, 0);
+    xtr_t* obtained = xtr_from_str_repeat_capac("a", 1, 0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 1);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 1);
+    atto_eq(xtr_length(obtained), 1);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "a", 2);
     xtr_free(&obtained);
@@ -189,11 +189,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_1_times_7_space(void)
 {
     // Produces "a"
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("a", 1, 7);
+    xtr_t* obtained = xtr_from_str_repeat_capac("a", 1, 7);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 7);
     atto_eq(xtr_available(obtained), 6);
-    atto_eq(xtr_len(obtained), 1);
+    atto_eq(xtr_length(obtained), 1);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "a", 2);
     xtr_free(&obtained);
@@ -203,11 +203,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_2_times_0_space(void)
 {
     // Produces "a"
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("a", 2, 0);
+    xtr_t* obtained = xtr_from_str_repeat_capac("a", 2, 0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 2);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 2);
+    atto_eq(xtr_length(obtained), 2);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "aa", 2);
     xtr_free(&obtained);
@@ -217,11 +217,11 @@ static void
 xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_2_times_7_space(void)
 {
     // Produces "a"
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("a", 2, 7);
+    xtr_t* obtained = xtr_from_str_repeat_capac("a", 2, 7);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 7);
     atto_eq(xtr_available(obtained), 5);
-    atto_eq(xtr_len(obtained), 2);
+    atto_eq(xtr_length(obtained), 2);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "aa", 2);
     xtr_free(&obtained);
@@ -230,11 +230,11 @@ xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_2_times_7_space(void
 static void
 xtrtest_from_str_repeated_with_capacity_valid_6_bytes_string_3_times_0_space(void)
 {
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("Abcdef", 3, 0);
+    xtr_t* obtained = xtr_from_str_repeat_capac("Abcdef", 3, 0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 6 * 3);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 6 * 3);
+    atto_eq(xtr_length(obtained), 6 * 3);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "AbcdefAbcdefAbcdef", 6 * 3 + 1);
     xtr_free(&obtained);
@@ -243,11 +243,11 @@ xtrtest_from_str_repeated_with_capacity_valid_6_bytes_string_3_times_0_space(voi
 static void
 xtrtest_from_str_repeated_with_capacity_valid_6_bytes_string_3_times_20_space(void)
 {
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("Abcdef", 3, 20);
+    xtr_t* obtained = xtr_from_str_repeat_capac("Abcdef", 3, 20);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 20);
     atto_eq(xtr_available(obtained), 2);
-    atto_eq(xtr_len(obtained), 18);
+    atto_eq(xtr_length(obtained), 18);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "AbcdefAbcdefAbcdef", 18 + 1);
     xtr_free(&obtained);
@@ -257,7 +257,7 @@ static void
 xtrtest_from_str_repeated_with_capacity_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
-    xtr_t* obtained = xtr_from_str_repeated_with_capacity("abc", 2, 0);
+    xtr_t* obtained = xtr_from_str_repeat_capac("abc", 2, 0);
     atto_eq(obtained, NULL);
 }
 

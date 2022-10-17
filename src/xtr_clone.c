@@ -35,21 +35,21 @@ XTR_API xtr_t*
 xtr_clone(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return NULL; }
-    return xtr_from_array(xtr->buffer, xtr->used);
+    return xtr_from_bytes(xtr->buffer, xtr->used);
 }
 
 XTR_API xtr_t*
-xtr_clone_with_capacity(const xtr_t* const xtr, const size_t at_least)
+xtr_expanded(const xtr_t* xtr, size_t at_least)
 {
     if (xtr == NULL) { return NULL; }
-    return xtr_from_array_with_capacity(xtr->buffer, xtr->used, at_least);
+    return xtr_from_bytes_capac(xtr->buffer, xtr->used, at_least);
 }
 
 XTR_API xtr_t*
-xtr_clone_with_capacity_free(xtr_t** const pxtr, const size_t at_least)
+xtr_expand(xtr_t** pxtr, size_t at_least)
 {
     if (pxtr == NULL) { return NULL; }
-    xtr_t* const clone = xtr_from_array_with_capacity((*pxtr)->buffer, (*pxtr)->used, at_least);
+    xtr_t* const clone = xtr_from_bytes_capac((*pxtr)->buffer, (*pxtr)->used, at_least);
     if (clone == NULL) { return NULL; }
     xtr_free(pxtr);
     *pxtr = clone;

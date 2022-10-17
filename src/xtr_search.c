@@ -32,39 +32,40 @@
 #include "xtr_internal.h"
 
 
-XTR_API const uint8_t*
+XTR_API size_t
 xtr_find(const xtr_t* const haystack, const xtr_t* const needle)
 {
-    return xtr_find_in(haystack, needle, 0U, haystack->used);
+    return xtr_find_within(haystack, needle, 0U, haystack->used);
 }
 
-XTR_API const uint8_t*
+XTR_API size_t
 xtr_find_from(const xtr_t* const haystack, const xtr_t* const needle, const size_t start)
 {
-    return xtr_find_in(haystack, needle, start, haystack->used);
+    return xtr_find_within(haystack, needle, start, haystack->used);
 }
 
-XTR_API const uint8_t*
-xtr_find_in(const xtr_t* const haystack, const xtr_t* const needle,
-            const size_t start, const size_t end)
+XTR_API size_t
+xtr_find_within(const xtr_t* haystack, const xtr_t* needle,
+                size_t start, size_t end)
 {
     if (xtr_is_empty(haystack) || xtr_is_empty(needle)
-        || start >= haystack->used || end >= haystack->used) { return NULL; }
+        || start >= haystack->used || end >= haystack->used) { return SIZE_MAX; }
     const uint8_t* const location = xtr_memmem(haystack->buffer + start,
                                                end - start, needle->buffer, needle->used);
-    return location;
+    if (location == NULL) {return SIZE_MAX;}
+    return (size_t) (location - haystack->buffer);
 }
 
 XTR_API bool
-xtr_contains(const xtr_t* const haystack, const xtr_t* const pattern)
+xtr_contains(const xtr_t* const haystack, const xtr_t* const needle)
 {
-    return xtr_find_in(haystack, pattern, 0U, haystack->used) != NULL;
+    return xtr_find_within(haystack, needle, 0U, haystack->used) != XTR_NOT_FOUND;
 }
 
 XTR_API size_t
 xtr_occurrences(const xtr_t* const haystack, const xtr_t* const needle)
 {
-    if (xtr_is_empty(haystack) || xtr_is_empty(needle)) { return SIZE_MAX; }
+    if (xtr_is_empty(haystack) || xtr_is_empty(needle)) { return XTR_NOT_FOUND; }
     size_t count = 0U;
     const uint8_t* prev_occurrence = haystack->buffer;
     const uint8_t* this_occurrence = NULL;
@@ -80,34 +81,4 @@ xtr_occurrences(const xtr_t* const haystack, const xtr_t* const needle)
         prev_occurrence = this_occurrence + needle->used;
     }
     return count;
-}
-
-typedef struct xtr_iter
-{
-    const xtr_t* haystack;
-    const xtr_t* needle;
-    ptrdiff_t progress;
-} xtr_iter_t;
-
-XTR_API xtr_iter_t*
-xtr_finder(const xtr_t* const haystack, const xtr_t* const needle)
-{
-    if (xtr_is_empty(haystack) || xtr_is_empty(needle)) { return NULL; }
-    xtr_iter_t* iterator = malloc(sizeof(xtr_iter_t));
-    if (iterator == NULL) { return NULL; }
-    iterator->haystack = haystack;
-    iterator->needle = needle;
-    iterator->progress = 0;
-    return iterator;
-}
-
-XTR_API const void*
-xtr_finder_next(xtr_iter_t* const iterator)
-{
-    if (iterator == NULL || iterator->progress < 0) { return NULL; }
-    const uint8_t* const match = xtr_find_in(iterator->haystack, iterator->needle,
-                                             (size_t) iterator->progress, iterator->haystack->used);
-    if (match == NULL) { return NULL; }
-    iterator->progress = match - iterator->haystack->buffer;
-    return match;
 }

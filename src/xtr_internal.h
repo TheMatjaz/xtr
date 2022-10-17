@@ -131,6 +131,18 @@ sizeof_struct_xtr(size_t capacity); // todo reneame to xtr_sizeof
 
 /**
  * @internal
+ * Allocates a new xtring structure, clearing only the last `capacity-used` bytes.
+ *
+ * @param [in] used amount of bytes to be overwritten, NOT initialised.
+ * @param [in] capacity buffer size.
+ * @return the new xtring or NULL in case of malloc failure or integer overflow
+ *         or if `used` > `capacity`.
+ */
+xtr_t*
+xtr_malloc(size_t used, size_t capacity);
+
+/**
+ * @internal
  * Securely sets the data to all-zeros.
  * @param [in] data location to erase
  * @param [in] len length of \p data in bytes

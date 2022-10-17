@@ -31,26 +31,30 @@
 
 #include "xtr_internal.h"
 
-XTR_API xtr_t*
-xtr_new_with_capacity(const size_t max_len)
+xtr_t*
+xtr_malloc(const size_t used, const size_t capacity)
 {
-    const size_t to_allocate = sizeof_struct_xtr(max_len);
+    if (used > capacity) { return NULL; }
+    const size_t to_allocate = sizeof_struct_xtr(capacity);
     if (to_allocate == SIZE_OVERFLOW) { return NULL; }
-#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
-    xtr_t* const new = XTR_CALLOC(to_allocate);
-#else
     xtr_t* const new = XTR_MALLOC(to_allocate);
-#endif
     if (new == NULL) { return NULL; }
-    set_capacity_and_terminator(new, max_len);
+    memset(&new->buffer[used], 0, capacity - used);
+    set_capacity_and_terminator(new, capacity);
     set_used_and_terminator(new, 0U);
     return new;
 }
 
-XTR_API XTR_INLINE xtr_t*
-xtr_new(void)
+XTR_API xtr_t*
+xtr_new(size_t capacity)
 {
-    return xtr_new_with_capacity(0);
+    return xtr_malloc(0U, capacity);
+}
+
+XTR_API XTR_INLINE xtr_t*
+xtr_new_empty(void)
+{
+    return xtr_malloc(0U, 0U);
 }
 
 XTR_API void
@@ -64,17 +68,4 @@ xtr_free(xtr_t** const pxtr)
         free((*pxtr));
         *pxtr = NULL;  // Clear outside reference to avoid use-after-free
     }
-}
-
-XTR_API xtr_t* // TODO rename space->capacity
-xtr_new_from_c_with_space(const char* const str, const size_t extra)
-{
-    if (str == NULL) { return xtr_new_with_capacity(extra); }
-    const size_t str_len = strlen(str);
-    const size_t ensure_len = str_len + extra;
-    xtr_t* const new = xtr_new_with_capacity(ensure_len);
-    if (new == NULL) { return NULL; }
-    memcpy(new->buffer, str, str_len);
-    set_used_and_terminator(new, str_len);
-    return new;
 }

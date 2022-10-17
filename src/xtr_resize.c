@@ -61,7 +61,7 @@ xtr_resize(xtr_t* const xtr, const size_t new_capacity)
     else
     {
         // Buffer needs to be expanded, reallocate
-        return xtr_clone_with_capacity(xtr, new_capacity);
+        return xtr_expanded(xtr, new_capacity);
     }
 }
 
@@ -80,7 +80,7 @@ xtr_resize_free_double(xtr_t** const pxtr) // TODO clarify difference with clone
     if (pxtr == NULL || *pxtr == NULL) { return NULL; }
     const size_t doublesize = (*pxtr)->used * 2U;
     if (doublesize < (*pxtr)->used) { return NULL; } // Size overflow
-    return xtr_clone_with_capacity_free(pxtr, doublesize);
+    return xtr_expand(pxtr, doublesize);
 }
 
 XTR_API xtr_t*

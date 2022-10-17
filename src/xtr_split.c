@@ -54,7 +54,7 @@ xtr_split_at(const xtr_t* const xtr, const xtr_t* const pattern) // TODO return 
         if (this_occurrence != NULL)
         {
             part_len = this_occurrence - prev_occurrence - pattern->used;
-            part = xtr_new_with_capacity(part_len);
+            part = xtr_new(part_len);
             if (part != NULL)
             {
                 parts[i++] = part;

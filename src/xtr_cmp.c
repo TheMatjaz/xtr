@@ -79,7 +79,7 @@ xtr_is_equal(const xtr_t* const a, const xtr_t* const b)
 }
 
 XTR_API bool
-xtr_startswith(const xtr_t* xtr, const xtr_t* prefix)
+xtr_startswith(const xtr_t* const xtr, const xtr_t* const prefix)
 {
     if (xtr == prefix) { return true; }
     if (xtr == NULL || prefix == NULL || xtr->used < prefix->used) { return false; }
@@ -87,7 +87,7 @@ xtr_startswith(const xtr_t* xtr, const xtr_t* prefix)
 }
 
 XTR_API bool
-xtr_endswith(const xtr_t* xtr, const xtr_t* suffix)
+xtr_endswith(const xtr_t* const xtr, const xtr_t* const suffix)
 {
     if (xtr == suffix) { return true; }
     if (xtr == NULL || suffix == NULL || xtr->used < suffix->used) { return false; }

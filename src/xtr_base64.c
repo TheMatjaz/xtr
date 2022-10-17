@@ -73,7 +73,7 @@ xtr_base64_encode(const xtr_t* const binary)
 {
     const size_t b64_text_len = ((binary->used + 2U) * 4U) / 3U;
     if (b64_text_len < (binary->used + 2U)) { return NULL; } // Integer overflow
-    xtr_t* const b64_text = xtr_new_with_capacity(b64_text_len);
+    xtr_t* const b64_text = xtr_new(b64_text_len);
     if (b64_text == NULL) { return NULL; }
     const size_t remainder = binary->used % 3U;
     const size_t trail_start_idx = binary->used - remainder;
@@ -123,7 +123,7 @@ xtr_base64_decode(const xtr_t* const b64_text)
     // TODO make padding optional in the decoding
     // tODO make paddings forbidden parametrically in the encoding
     const size_t binary_len = (b64_text->used / 4U) * 3U;  // Cannot overflow
-    xtr_t* binary = xtr_new_with_capacity(binary_len);
+    xtr_t* binary = xtr_new(binary_len);
     if (binary == NULL) { return NULL; }
     size_t bin_idx = 0U;
     size_t text_idx = 0U;

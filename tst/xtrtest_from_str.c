@@ -38,7 +38,7 @@ xtrtest_from_str_valid_null(void)
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -51,7 +51,7 @@ xtrtest_from_str_valid_empty_string(void)
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -64,7 +64,7 @@ xtrtest_from_str_valid_1_byte_string(void)
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 1);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 1);
+    atto_eq(xtr_length(obtained), 1);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "a", 2);
     xtr_free(&obtained);
@@ -77,7 +77,7 @@ xtrtest_from_str_valid_6_bytes_string(void)
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 6);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 6);
+    atto_eq(xtr_length(obtained), 6);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "Abcdef", 7);
     xtr_free(&obtained);

@@ -32,7 +32,7 @@
 #include "xtr_internal.h"
 
 XTR_API XTR_INLINE size_t
-xtr_len(const xtr_t* const xtr)
+xtr_length(const xtr_t* xtr)
 {
     if (xtr == NULL) { return 0U; }
     return xtr->used;
@@ -60,7 +60,7 @@ xtr_cstring(const xtr_t* const xtr)
 }
 
 XTR_API const uint8_t*
-xtr_array(const xtr_t* const xtr)
+xtr_bytes(const xtr_t* xtr)
 {
     if (xtr == NULL) { return NULL; }
     else { return (uint8_t*) xtr->buffer; }
@@ -117,5 +117,8 @@ xtr_slice(const xtr_t* const xtr, const size_t start, size_t end)
 XTR_API void
 xtr_write(const xtr_t* const xtr, const xtr_t* const substring, const size_t start)
 {
+    (void) xtr;
+    (void) substring;
+    (void) start;
     //TODO
 }

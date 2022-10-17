@@ -40,7 +40,7 @@ xtrtest_is_spaces_valid_null(void)
 static void
 xtrtest_is_spaces_valid_empty(void)
 {
-    xtr_t* obtained = xtr_new();
+    xtr_t* obtained = xtr_new_empty();
     atto_false(xtr_is_spaces(obtained));
     xtr_free(&obtained);
 }
@@ -49,7 +49,7 @@ xtrtest_is_spaces_valid_empty(void)
 static void
 xtrtest_is_spaces_valid_empty_with_capacity(void)
 {
-    xtr_t* obtained = xtr_new_with_capacity(1);
+    xtr_t* obtained = xtr_new(1);
     atto_false(xtr_is_spaces(obtained));
     xtr_free(&obtained);
 }

@@ -36,7 +36,7 @@ XTR_API xtr_t*
 xtr_reversed(const xtr_t* const xtr)
 {
     if (xtr == NULL) { return NULL; }
-    xtr_t* const reversed = xtr_new_with_capacity(xtr->used);
+    xtr_t* const reversed = xtr_new(xtr->used);
     if (reversed == NULL) { return NULL; }
     for (size_t head = 0U, tail = xtr->used - 1U; head < tail; head++, tail--)
     {

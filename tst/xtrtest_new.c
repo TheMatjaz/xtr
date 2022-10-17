@@ -34,11 +34,11 @@
 static void
 xtrtest_new_empty_valid(void)
 {
-    xtr_t* obtained = xtr_new();
+    xtr_t* obtained = xtr_new_empty();
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -48,7 +48,7 @@ static void
 xtrtest_new_empty_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
-    xtr_t* obtained = xtr_new();
+    xtr_t* obtained = xtr_new_empty();
     atto_eq(obtained, NULL);
 }
 

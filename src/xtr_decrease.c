@@ -72,7 +72,7 @@ xtr_pop_tail(xtr_t* const xtr, const size_t amount_to_pop)
     if (xtr == NULL) { return NULL; }
     const size_t poppable = XTR_MIN(amount_to_pop, xtr->used);
     const size_t new_len = xtr->used - poppable;
-    xtr_t* const popped = xtr_from_array(&xtr->buffer[new_len], poppable);
+    xtr_t* const popped = xtr_from_bytes(&xtr->buffer[new_len], poppable);
     if (popped == NULL) { return NULL; }
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
     zero_out(&xtr->buffer[new_len], poppable);
@@ -87,7 +87,7 @@ xtr_pop_head(xtr_t* const xtr, const size_t amount_to_pop)
     if (xtr == NULL) { return NULL; }
     const size_t poppable = XTR_MIN(amount_to_pop, xtr->used);
     const size_t new_len = xtr->used - poppable;
-    xtr_t* const popped = xtr_from_array(xtr->buffer, poppable);
+    xtr_t* const popped = xtr_from_bytes(xtr->buffer, poppable);
     if (popped == NULL) { return NULL; }
     memmove_zero_out(xtr->buffer, xtr->buffer + poppable, new_len);
     set_used_and_terminator(xtr, new_len);
@@ -145,7 +145,7 @@ xtr_trim(xtr_t* xtr, const char* chars)
 
 // TODO binary version? not char* but void*?
 XTR_API void
-xtr_remove_suffix(xtr_t* xtr, const char* suffix)
+xtr_truncate_suffix(xtr_t* xtr, const char* suffix)
 {
     if (xtr_is_empty(xtr) || suffix == NULL) { return; }
     const size_t suffix_len = strlen(suffix);
@@ -157,7 +157,7 @@ xtr_remove_suffix(xtr_t* xtr, const char* suffix)
 }
 
 XTR_API void
-xtr_remove_prefix(xtr_t* xtr, const char* prefix)
+xtr_truncate_prefix(xtr_t* xtr, const char* prefix)
 {
     if (xtr_is_empty(xtr) || prefix == NULL) { return; }
     const size_t prefix_len = strlen(prefix);
@@ -166,4 +166,27 @@ xtr_remove_prefix(xtr_t* xtr, const char* prefix)
     {
         xtr_truncate_head(xtr, prefix_len);
     }
+}
+
+XTR_API xtr_t*
+xtr_truncated(const xtr_t* const xtr, size_t at_most)
+{
+    if (xtr == NULL) { return NULL; }
+    if (at_most > xtr->used) { at_most = xtr->used; }
+    xtr_t* const shorter = xtr_malloc(at_most, at_most);
+    if (shorter == NULL) { return NULL; }
+    memcpy(shorter->buffer, xtr->buffer, at_most);
+    set_used_and_terminator(shorter, at_most);
+    return shorter;
+}
+
+XTR_API xtr_t*
+xtr_truncate(xtr_t** const pxtr, const size_t max_len)
+{
+    if (pxtr == NULL) { return NULL; }
+    xtr_t* const smaller = xtr_truncated(*pxtr, max_len);
+    if (smaller == NULL) { return NULL; }
+    xtr_free(pxtr);
+    *pxtr = smaller;
+    return smaller;
 }

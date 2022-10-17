@@ -34,11 +34,11 @@
 static void
 xtrtest_new_with_capacity_valid_allocate_0_bytes(void)
 {
-    xtr_t* obtained = xtr_new_with_capacity(0);
+    xtr_t* obtained = xtr_new(0);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0);
     atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -47,11 +47,11 @@ xtrtest_new_with_capacity_valid_allocate_0_bytes(void)
 static void
 xtrtest_new_with_capacity_valid_allocate_1_byte(void)
 {
-    xtr_t* obtained = xtr_new_with_capacity(1);
+    xtr_t* obtained = xtr_new(1);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 1);
     atto_eq(xtr_available(obtained), 1);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -60,11 +60,11 @@ xtrtest_new_with_capacity_valid_allocate_1_byte(void)
 static void
 xtrtest_new_with_capacity_valid_allocate_15_bytes(void)
 {
-    xtr_t* obtained = xtr_new_with_capacity(15);
+    xtr_t* obtained = xtr_new(15);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 15);
     atto_eq(xtr_available(obtained), 15);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -73,11 +73,11 @@ xtrtest_new_with_capacity_valid_allocate_15_bytes(void)
 static void
 xtrtest_new_with_capacity_valid_allocate_ffff_plus_1_bytes(void)
 {
-    xtr_t* obtained = xtr_new_with_capacity(0x10000);
+    xtr_t* obtained = xtr_new(0x10000);
     atto_neq(obtained, NULL);
     atto_eq(xtr_capacity(obtained), 0x10000);
     atto_eq(xtr_available(obtained), 0x10000);
-    atto_eq(xtr_len(obtained), 0);
+    atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_cstring(obtained), NULL);
     atto_memeq(xtr_cstring(obtained), "", 1);
     xtr_free(&obtained);
@@ -87,14 +87,14 @@ static void
 xtrtest_new_with_capacity_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
-    xtr_t* obtained = xtr_new_with_capacity(15);
+    xtr_t* obtained = xtr_new(15);
     atto_eq(obtained, NULL);
 }
 
 static void
 xtrtest_new_with_capacity_fail_size_overflow(void)
 {
-    xtr_t* obtained = xtr_new_with_capacity(SIZE_MAX);
+    xtr_t* obtained = xtr_new(SIZE_MAX);
     atto_eq(obtained, NULL);
 }
 
