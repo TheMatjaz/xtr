@@ -166,5 +166,7 @@ xtr_memmem(const void* haystack_vp, const size_t haystack_len,
             }
         }
     }
+    // TODO if the search reaches index haystack->used-needle->used+1U, then the rest does not
+    //  contain a needle anyhow
     return NULL;
 }

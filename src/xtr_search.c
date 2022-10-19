@@ -31,6 +31,33 @@
 
 #include "xtr_internal.h"
 
+typedef struct xtr_iter
+{
+    xtr_t* haystack;
+    xtr_t* needle;
+    size_t progress;
+} xtr_iter_t;
+
+XTR_API void // TODO errcode
+xtr_iter(xtr_iter_t* const iter, const xtr_t* const haystack, const xtr_t* const needle)
+{
+    if (iter == NULL) { return; }  // TODO catch NULL haystack, NULL needle early?
+    iter->haystack = haystack;
+    iter->needle = needle;
+    iter->progress = 0U;
+}
+
+XTR_API size_t
+xtr_next(xtr_iter_t* const iter)
+{
+    if (iter == NULL || iter->haystack == NULL || iter->needle == NULL
+        || iter->haystack->used < iter->needle->used
+        || iter->progress > haystack->used - needle->used) { return XTR_NOT_FOUND; }
+    iter->progress = xtr_memmem(iter->haystack->buffer + iter->progress,
+                                iter->haystack->used - iter->progress,
+                                iter->needle->buffer, iter->needle->used);
+    return iter->progress;
+}
 
 XTR_API size_t
 xtr_find(const xtr_t* const haystack, const xtr_t* const needle)
@@ -45,14 +72,14 @@ xtr_find_from(const xtr_t* const haystack, const xtr_t* const needle, const size
 }
 
 XTR_API size_t
-xtr_find_within(const xtr_t* haystack, const xtr_t* needle,
-                size_t start, size_t end)
+xtr_find_within(const xtr_t* const haystack, const xtr_t* const needle,
+                const size_t start, const size_t end)
 {
     if (xtr_is_empty(haystack) || xtr_is_empty(needle)
-        || start >= haystack->used || end >= haystack->used) { return SIZE_MAX; }
+        || start >= haystack->used || end >= haystack->used) { return XTR_NOT_FOUND; }
     const uint8_t* const location = xtr_memmem(haystack->buffer + start,
                                                end - start, needle->buffer, needle->used);
-    if (location == NULL) {return SIZE_MAX;}
+    if (location == NULL) { return XTR_NOT_FOUND; }
     return (size_t) (location - haystack->buffer);
 }
 
@@ -65,20 +92,56 @@ xtr_contains(const xtr_t* const haystack, const xtr_t* const needle)
 XTR_API size_t
 xtr_occurrences(const xtr_t* const haystack, const xtr_t* const needle)
 {
-    if (xtr_is_empty(haystack) || xtr_is_empty(needle)) { return XTR_NOT_FOUND; }
+    if (xtr_is_empty(haystack) || xtr_is_empty(needle)
+        || needle->used > haystack->used) { return XTR_NOT_FOUND; } // TODO return 0 instead?
     size_t count = 0U;
-    const uint8_t* prev_occurrence = haystack->buffer;
-    const uint8_t* this_occurrence = NULL;
-    size_t remaining_len = haystack->used;
+    const uint8_t* occurrence = haystack->buffer;
+    size_t remaining_len = haystack->used - needle->used;
     while (true)
     {
-        this_occurrence = xtr_memmem(prev_occurrence, remaining_len,
-                                     needle->buffer, needle->used);
-        if (this_occurrence == NULL) { break; }
+        occurrence = xtr_memmem(occurrence, remaining_len,
+                                needle->buffer, needle->used);
+        if (occurrence == NULL) { break; }
+        XTR_ASSERT(occurrence >= haystack->buffer);
+        XTR_ASSERT(occurrence < haystack->buffer + haystack->used);
         count++;
-        // TODO use ptrdiff
-        remaining_len -= (this_occurrence - prev_occurrence - needle->used);
-        prev_occurrence = this_occurrence + needle->used;
+        remaining_len -= (size_t) (occurrence - haystack->buffer) + needle->used;
+        occurrence += needle->used;
     }
     return count;
+}
+
+// First element in returned array contains length of array (in elements)
+XTR_API const size_t*
+xtr_find_all(const xtr_t* const haystack, const xtr_t* const needle)
+{
+    if (haystack == NULL || needle == NULL || haystack->used > needle->used) { return NULL; }
+    size_t max_matches = 8U;
+    size_t* matches = malloc(max_matches * sizeof(size_t));
+    if (matches == NULL) { return NULL; }
+    matches[0] = 0U; // Amount of matches, i.e. amount of elements after this in matches[]
+    size_t progress = 0U;
+    size_t match;
+    while (true)
+    {
+        match = xtr_find_from(xtr, needle, progress);
+        if (match == XTR_NOT_FOUND) { break; }
+        matches[matches[0]++] = match;
+        progress = match + needle->used;
+        if (matches[0] > max_matches) // Resizing array of results
+        {
+            max_matches *= 2U;
+            size_t* const larger_needles = realloc(matches, max_matches);
+            if (larger_needles == NULL) { goto rollback; }
+            free(matches);
+            matches = larger_needles;
+        }
+    }
+    return matches;
+    rollback:{
+        memset(matches, 0, max_matches * sizeof(size_t));
+        free(matches);
+        mathces = NULL;
+        return NULL;
+    }
 }

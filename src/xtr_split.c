@@ -31,52 +31,61 @@
 
 #include "xtr_internal.h"
 
+#define MAX_NEEDLES 10U
+
 XTR_API xtr_t**
-xtr_split_at(size_t* const parts, const xtr_t* const xtr, const xtr_t* const pattern)
+xtr_split(size_t* const amount_of_chunks, const xtr_t* const haystack, const xtr_t* const needle)
 {
-    if (xtr_is_empty(xtr) || xtr_is_empty(pattern)) { return NULL; }
-    // Dynamically search for occurrences and realloc chunks pointers if needed
-    const size_t occurrences_amount = xtr_occurrences(xtr, pattern);
-    const size_t parts_amount = occurrences_amount + 1U;
-    if (parts_amount <= occurrences_amount) { return NULL; }
-    xtr_t** const parts = calloc(parts_amount, sizeof(xtr_t*));
-    const uint8_t* prev_occurrence = xtr->buffer;
-    const uint8_t* this_occurrence = NULL;
-    xtr_t* part = NULL;
-    size_t part_len = 0U;
-    size_t remaining_len = xtr->used;
-    size_t i = 0;
-    do
+    if (amount_of_chunks == NULL) { return NULL; }
+    const size_t* matches = xtr_find_all(haystack, needle);
+    if (matches == NULL) { return NULL; }
+    size_t chunk_idx = 0U;
+    xtr_t** chunks = calloc((matches[0] + 1U), sizeof(size_t));
+    if (chunks == NULL) { goto rollback; }
+    if (matches[0] == 0U)
     {
-        // TODO find a way to combine the iterator function into one
-        // from this function and occurences() and find()
-        this_occurrence = memmem(prev_occurrence, remaining_len,
-                                 pattern->buffer, pattern->used);
-        if (this_occurrence != NULL)
-        {
-            part_len = this_occurrence - prev_occurrence - pattern->used;
-            part = xtr_new(part_len);
-            if (part != NULL)
-            {
-                parts[i++] = part;
-            }
-            else
-            {
-                // Free existing parts
-                for (size_t p = 0; p < parts_amount; p++)
-                {
-                    xtr_free(&parts[p]);
-                }
-                free(parts);
-                return NULL;
-            }
-            remaining_len -= this_occurrence - prev_occurrence;
-            prev_occurrence = this_occurrence + pattern->used;
-        }
-        else { break; }
+        chunks[chunk_idx] = xtr_clone(haystack);
+        if (chunks[chunk_idx] == NULL) { goto rollback; }
+        chunk_idx++;
     }
-    while (true);
-    return parts;
+    else
+    {
+        // First chunk, from start to first match
+        chunks[chunk_idx] = xtr_from_bytes(&haystack->buffer[0], matches[1]);
+        if (chunks[chunk_idx] == NULL) { goto rollback; }
+        chunk_idx++;
+        // Middle chunks, between matches
+        for (size_t i = 1U; i <= matches[0] - 1U; i++)
+        {
+            const size_t chunk_start = matches[i] + needle->used;
+            const size_t chunk_len = matches[i + 1U] - chunk_start;
+            chunks[chunk_idx] = xtr_from_bytes(&haystack->buffer[start], chunk_len);
+            if (chunks[chunk_idx] == NULL) { goto rollback; }
+            chunk_idx++;
+        }
+        // Last chunk, from last match to end
+        const size_t chunk_start = matches[matches[0]] + needle->used;
+        const size_t chunk_len = haystack->used - chunk_start;
+        chunks[chunk_idx] = xtr_from_bytes(&haystack->buffer[start], chunk_len);
+        if (chunks[chunk_idx] == NULL) { goto rollback; }
+        chunk_idx++;
+    }
+    free(matches);
+    matches = NULL;
+    *amount_of_chunks = chunk_idx;
+    return chunks;
+    rollback;
+    {
+        free(matches);
+        matches = NULL;
+        if (chunks != NULL)
+        {
+            while (chunk_idx) { xtr_free(&chunks[chunk_idx--]); }
+            free(chunks);
+            chunks = NULL;
+        }
+        return NULL;
+    }
 }
 
 XTR_API xtr_t**
@@ -102,8 +111,8 @@ xtr_split_every(size_t* const parts, const xtr_t* const xtr, const size_t chunk_
     return chunks;
     rollback:
     {
-        for (; chunk_idx == 0U; chunk_idx--) { xtr_free(&chunks[chunk_idx]); }
+        while (chunk_idx) { xtr_free(&chunks[chunk_idx--]); }
         free(chunks);
         return NULL;
-    };
+    }
 }

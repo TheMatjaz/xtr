@@ -74,7 +74,7 @@ xtr_random(const size_t len)
     xtr_t* random = xtr_new(len);
     if (random == NULL) { return NULL; }
     FILE* rng = fopen("/dev/urandom", "r");
-    size_t obtained = 0U;
+    size_t obtained = len - 1U; // Different than len to see if it changes
     if (rng != NULL)
     {
         obtained = fread(random->buffer, sizeof(uint8_t), len, rng);

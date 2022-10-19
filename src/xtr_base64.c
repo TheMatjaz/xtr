@@ -43,7 +43,7 @@ static const uint8_t BASE64_PADDING = '=';
  *                     \\               //
  *         | AA AA AA | aa BB BB|cc cc CC | dd dd dd | = base64/text
  */
-inline static void
+XTR_INLINE static void
 base64_encode_buffer(uint8_t* const text, const uint8_t binary[3])
 {
     text[0] = BASE64_SYMBOLS[binary[0] >> 2U];
@@ -60,7 +60,7 @@ base64_encode_buffer(uint8_t* const text, const uint8_t binary[3])
  *            :  :  : \\    :  :  :  :  //   :  :  :
  *         | AA AA AA | aa BB BB|cc cc CC | dd dd dd | = base64/text
  */
-inline static void
+XTR_INLINE static void
 base64_decode_buffer(uint8_t* const binary, const uint8_t text[4])
 {
     binary[0] = (uint8_t) ((text[0] << 2U) | ((text[1] >> 4U) & 0x03U));

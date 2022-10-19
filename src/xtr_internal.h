@@ -48,6 +48,8 @@ extern "C"
 #define XTR_CALLOC(len) calloc((len), 1U)
 #define XTR_REALLOC(ptr, len) realloc((ptr), (len))
 
+#define XTR_ASSERT(expr) assert(expr)
+
 // TODO auto garbage collection?
 // Consider making it a smart-pointer-like struct: add a counter of references
 // a the free function actually reduces the counter. On zero: it frees.

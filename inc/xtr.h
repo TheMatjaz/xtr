@@ -73,6 +73,7 @@ extern "C"
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <assert.h>
 #include <stdlib.h>
 // TODO make stdlib optional for embedded
 
@@ -90,12 +91,22 @@ extern "C"
 /** Alias for not freeing previous xtring after reallocation. */
 #define XTR_KEEP_OLD false
 
+typedef enum xtr_err
+{
+    XTR_OK = 0,
+    XTR_ERR_EMPTY,
+    XTR_ERR_TOO_SHORT,
+    XTR_ERR_FULL,
+    XTR_ERR_INTEGER_OVERFLOW,
+    XTR_ERR_NULL,
+} xtr_err_t;
+
 /**
  * Opaque xtring structure.
  *
  * Keeps track of the data length, of the allocated buffer length (which
  * may be longer than the data), keeps everything null-terminated for
- * compatibility with the C-strings. All in a single-allocation.
+ * compatibility with the C-strings.
  *
  *                                +-- content always null-terminated
  *                                |
@@ -983,8 +994,12 @@ xtr_find_within(const xtr_t* haystack, const xtr_t* needle, size_t start, size_t
 
 // ------------------- Splitting ------------------------------------
 
+// TODO like split but get-only-nth via iteration
+// TODO rsplit and get nth
+// TODO add a maxsplits param
+
 XTR_API xtr_t**
-xtr_split_at(size_t* amount_of_chunks, const xtr_t* xtr, const xtr_t* pattern);
+xtr_split(size_t* amount_of_chunks, const xtr_t* xtr, const xtr_t*  separator);
 
 XTR_API xtr_t**
 xtr_split_every(size_t* amount_of_chunks, const xtr_t* xtr, size_t chunk_len);
