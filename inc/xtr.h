@@ -182,7 +182,7 @@ xtr_free(xtr_t** pxtr);
 /**
  * New xtring filled with zero-values bytes, similar to `calloc`.
  *
- * @param  [in]len length in bytes = amount of zeros. `0` for empty xtring.
+ * @param [in] len length in bytes = amount of zeros. `0` for empty xtring.
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
@@ -365,7 +365,7 @@ xtr_from_byte_repeat(uint8_t byte, size_t repetitions);
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_byte_repeat_capac(uint8_t byte, size_t len, size_t at_least);
+xtr_from_byte_repeat_capac(uint8_t byte, size_t repetitions, size_t at_least);
 
 // ------------------- New cloned xtrings ------------------------------------
 /**
@@ -589,13 +589,13 @@ xtr_is_not_zeros(const xtr_t* xtr);
 /**
  * Like xtr_is_not_zeros() but with constant runtime for security application.
  *
- * The entire string is always scanned, even if a non-zero byte is found early.
+ * The entire string is always scanned, even if xtr non-zero byte is found early.
  * @param [in] xtr xtring to inspect.
  * @return true if `xtr` contains any non-zero byte, false otherwise.
  *         Note: an empty or NULL xtring returns false.
  */
 XTR_API bool
-xtr_is_not_zeros_consttime(const xtr_t* a);
+xtr_is_not_zeros_consttime(const xtr_t* xtr);
 
 // ------------------- Xtring equality check and comparison ------------------------------------
 
@@ -709,7 +709,7 @@ xtr_startswith(const xtr_t* xtr, const xtr_t* prefix);
  *         xtr_endswith(xtr["abcdef"], xtr["abcdefghijklm"]) --> false
  *
  * @param [in] xtr to check the end of
- * @param [in] prefix to check whether matches `xtr`'s tail
+ * @param [in] suffix to check whether matches `xtr`'s tail
  * @return true if `xtr` ends with `suffix` or if they are both NULL, false otherwise.
  *         NOTE: false includes the case of only one being NULL or if the
  *         provided `suffix` is shorter than `xtr`
@@ -869,7 +869,7 @@ xtr_trim(xtr_t* xtr, const char* chars);
  *         xtr_truncate_prefix(xtr["Hello world!"], "abc!") --> xtr["Hello world!"]
  *         xtr_truncate_prefix(xtr["...Hello world!"], ".") --> xtr["..Hello world!"]
  * @param [in, out] xtr xtring to truncate in-place. NULL does nothing.
- * @param [in] chars substring to remove. NULL does nothing.
+ * @param [in] prefix substring to remove from the xtring's head, if present. NULL does nothing.
  */
 XTR_API void
 xtr_truncate_prefix(xtr_t* xtr, const char* prefix);
@@ -885,7 +885,7 @@ xtr_truncate_prefix(xtr_t* xtr, const char* prefix);
  *         xtr_truncate_suffix(xtr["Hello world!"], "abc!") --> xtr["Hello world!"]
  *         xtr_truncate_suffix(xtr["Hello world..."], ".") --> xtr["Hello world.."]
  * @param [in, out] xtr xtring to truncate in-place. NULL does nothing.
- * @param [in] chars substring to remove. NULL does nothing.
+ * @param [in] suffix substring to remove from the xtring's tail, if present. NULL does nothing.
  */
 XTR_API void
 xtr_truncate_suffix(xtr_t* xtr, const char* suffix);

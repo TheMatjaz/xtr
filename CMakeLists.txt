@@ -180,7 +180,6 @@ if (DOXYGEN_FOUND)
     set(DOXYGEN_EXTRACT_ANON_NSPACES NO)
     set(DOXYGEN_INTERNAL_DOCS NO)
     set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
-    set(DOXYGEN_IMAGE_PATH ${PROJECT_SOURCE_DIR}/images)
 
     # How to process the source code
     set(DOXYGEN_INPUT_ENCODING UTF-8)
@@ -225,14 +224,13 @@ if (DOXYGEN_FOUND)
 
     # Customisations
     set(DOXYGEN_ALIASES license="**License:**")
-    set(DOXYGEN_PREDEFINED WIN32 ASCON_INPUT_ASSERTS)
+    set(DOXYGEN_PREDEFINED WIN32 XTR_INPUT_ASSERTS)
 
     doxygen_add_docs(xtr_doxygen
             # Do NOT build doxygen on make-all, to avoid polluting the stdout
             # List of input files for Doxygen
-            ${PROJECT_SOURCE_DIR}/inc/ascon.h
+            ${PROJECT_SOURCE_DIR}/inc/xtr.h
             ${PROJECT_SOURCE_DIR}/LICENSE.md
-            ${PROJECT_SOURCE_DIR}/AUTHORS.md
             ${PROJECT_SOURCE_DIR}/README.md
             ${PROJECT_SOURCE_DIR}/CHANGELOG.md
             COMMENT "Generating Doxygen documentation...")
