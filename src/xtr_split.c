@@ -37,12 +37,12 @@ XTR_API xtr_t**
 xtr_split(size_t* const amount_of_chunks, const xtr_t* const haystack, const xtr_t* const needle)
 {
     if (amount_of_chunks == NULL) { return NULL; }
-    const size_t* matches = xtr_find_all(haystack, needle);
-    if (matches == NULL) { return NULL; }
+    const size_t* occurrence_indices = xtr_find_all(haystack, needle);
+    if (occurrence_indices == NULL) { return NULL; }
     size_t chunk_idx = 0U;
-    xtr_t** chunks = calloc((matches[0] + 1U), sizeof(size_t));
+    xtr_t** chunks = calloc((occurrence_indices[0] + 1U), sizeof(size_t));
     if (chunks == NULL) { goto rollback; }
-    if (matches[0] == 0U)
+    if (occurrence_indices[0] == 0U)
     {
         chunks[chunk_idx] = xtr_clone(haystack);
         if (chunks[chunk_idx] == NULL) { goto rollback; }
@@ -50,34 +50,34 @@ xtr_split(size_t* const amount_of_chunks, const xtr_t* const haystack, const xtr
     }
     else
     {
-        // First chunk, from start to first match
-        chunks[chunk_idx] = xtr_from_bytes(&haystack->buffer[0], matches[1]);
+        // First chunk, from start to first needle occurrence
+        chunks[chunk_idx] = xtr_from_bytes(&haystack->buffer[0], occurrence_indices[1]);
         if (chunks[chunk_idx] == NULL) { goto rollback; }
         chunk_idx++;
-        // Middle chunks, between matches
-        for (size_t i = 1U; i <= matches[0] - 1U; i++)
+        // Middle chunks, between occurrence_indices
+        for (size_t i = 1U; i <= occurrence_indices[0] - 1U; i++)
         {
-            const size_t chunk_start = matches[i] + needle->used;
-            const size_t chunk_len = matches[i + 1U] - chunk_start;
+            const size_t chunk_start = occurrence_indices[i] + needle->used;
+            const size_t chunk_len = occurrence_indices[i + 1U] - chunk_start;
             chunks[chunk_idx] = xtr_from_bytes(&haystack->buffer[start], chunk_len);
             if (chunks[chunk_idx] == NULL) { goto rollback; }
             chunk_idx++;
         }
         // Last chunk, from last match to end
-        const size_t chunk_start = matches[matches[0]] + needle->used;
+        const size_t chunk_start = occurrence_indices[occurrence_indices[0]] + needle->used;
         const size_t chunk_len = haystack->used - chunk_start;
         chunks[chunk_idx] = xtr_from_bytes(&haystack->buffer[start], chunk_len);
         if (chunks[chunk_idx] == NULL) { goto rollback; }
         chunk_idx++;
     }
-    free(matches);
-    matches = NULL;
+    free(occurrence_indices);
+    occurrence_indices = NULL;
     *amount_of_chunks = chunk_idx;
     return chunks;
-    rollback;
+    rollback:
     {
-        free(matches);
-        matches = NULL;
+        free(occurrence_indices);
+        occurrence_indices = NULL;
         if (chunks != NULL)
         {
             while (chunk_idx) { xtr_free(&chunks[chunk_idx--]); }
