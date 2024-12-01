@@ -33,22 +33,16 @@
 #define XTR_INTERNAL_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "xtr.h"
 
 #define TERMINATOR_LEN 1U
 #define TERMINATOR '\0'
-#define XTR_MIN(a, b) ((a) <  (b) ? (a) : (b))
+#define XTR_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define XTR_MAX(a, b) ((a) >= (b) ? (a) : (b))
 #define SIZE_OVERFLOW 0U
-#define XTR_MALLOC(len) malloc(len)
-#define XTR_CALLOC(len) calloc((len), 1U)
-#define XTR_REALLOC(ptr, len) realloc((ptr), (len))
-
-#define XTR_ASSERT(expr) assert(expr)
 
 // TODO auto garbage collection?
 // Consider making it a smart-pointer-like struct: add a counter of references

@@ -31,41 +31,43 @@
 
 #include "xtr_internal.h"
 
-xtr_t*
-xtr_malloc(const size_t used, const size_t capacity)
+xtr_t *xtr_alloc(const size_t used, const size_t capacity)
 {
-    if (used > capacity) { return NULL; }
+    if (used > capacity)
+    {
+        return NULL;
+    }
     const size_t to_allocate = sizeof_struct_xtr(capacity);
-    if (to_allocate == SIZE_OVERFLOW) { return NULL; }
-    xtr_t* const new = XTR_MALLOC(to_allocate);
-    if (new == NULL) { return NULL; }
-    memset(&new->buffer[used], 0, capacity - used);
+    if (to_allocate == SIZE_OVERFLOW)
+    {
+        return NULL;
+    }
+#if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
+    xtr_t *const new = XTR_CALLOC(to_allocate, sizeof(uint8_t));
+#else
+    xtr_t *const new = XTR_MALLOC(to_allocate);
+#endif
+    if (new == NULL)
+    {
+        return NULL;
+    }
     set_capacity_and_terminator(new, capacity);
     set_used_and_terminator(new, 0U);
     return new;
 }
 
-XTR_API xtr_t*
-xtr_new(size_t capacity)
-{
-    return xtr_malloc(0U, capacity);
-}
+XTR_API xtr_t *xtr_new(size_t capacity) { return xtr_alloc(0U, capacity); }
 
-XTR_API XTR_INLINE xtr_t*
-xtr_new_empty(void)
-{
-    return xtr_malloc(0U, 0U);
-}
+XTR_API XTR_INLINE xtr_t *xtr_new_empty(void) { return xtr_alloc(0U, 0U); }
 
-XTR_API void
-xtr_free(xtr_t** const pxtr)
+XTR_API void xtr_free(xtr_t **const pxtr)
 {
     if (pxtr != NULL && *pxtr != NULL)
     {
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
         zero_out((*pxtr)->buffer, (*pxtr)->capacity);
 #endif
-        free((*pxtr));
-        *pxtr = NULL;  // Clear outside reference to avoid use-after-free
+        XTR_FREE(*pxtr);
+        *pxtr = NULL; // Clear outside reference to avoid use-after-free
     }
 }

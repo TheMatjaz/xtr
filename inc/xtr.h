@@ -108,14 +108,20 @@ extern "C" {
 /** Alias for not freeing previous xtring after reallocation. */
 #define XTR_KEEP_OLD false
 
+#define XTR_MALLOC malloc
+#define XTR_CALLOC calloc
+#define XTR_REALLOC realloc
+#define XTR_FREE free
+#define XTR_ASSERT assert
+
 typedef enum xtr_err
 {
     XTR_OK = 0,
-    XTR_ERR_EMPTY,
-    XTR_ERR_TOO_SHORT,
-    XTR_ERR_FULL,
-    XTR_ERR_INTEGER_OVERFLOW,
-    XTR_ERR_NULL,
+    XTR_ERR_EMPTY = 1,
+    XTR_ERR_TOO_SHORT = 2,
+    XTR_ERR_FULL = 3,
+    XTR_ERR_INTEGER_OVERFLOW = 4,
+    XTR_ERR_NULL = 5,
 } xtr_err_t;
 
 /**
@@ -146,7 +152,7 @@ typedef struct xtr xtr_t;
  * Recommended for higher memory safety assurance, at the cost of additional
  * O(n) operation on construction and destruction.
  */
-#define XTR_CLEAR_HEAP 1
+#define XTR_ZERO_OUT_HEAP 1
 
 // =================== NEW XTRINGS ============================================
 // ------------------- New empty xtrings ------------------------------------------
