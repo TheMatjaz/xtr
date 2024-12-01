@@ -34,22 +34,39 @@
 #define XTR_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
+
+
+/**
+ * @def XTR_OS
+ * Indicator of the platform's operating system.
+ * Used in internal decisions on which OS API to call, for example, to
+ * generate random numbers.
+ *
+ * - `w` for Microsoft Windows
+ * - `u` for Unix-like, including Linux and BSD
+ * - `m` for Apple macOS
+ * - 0 (false) for unknown
+ */
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__NT__)
+#define XTR_OS 'w'
+#elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__linux__) ||               \
+        defined(linux) || defined(__linux) || defined(BSD)
+#define XTR_OS 'u'
+#elif defined(__APPLE__) || defined(__MACH__)
+#define XTR_OS 'm'
+#else
+#define XTR_OS 0
+#endif
+
 
 /**
  * @def XTR_API
  * Marker of all the library's public API functions. Used to add exporting
  * indicators for DLL on Windows, empty on other platforms.
  */
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__NT__)
-/**
- * @def XTR_WINDOWS
- * Indicator simplifying the check for the Windows platform (undefined on other platforms).
- * Used for internal decisions on how to inline functions.
- */
-#define XTR_WINDOWS 1
+#if XTR_OS == 'w'
 #define XTR_API __declspec(dllexport)
 #else
 #define XTR_API
