@@ -34,39 +34,22 @@
 #define XTR_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-
-
-/**
- * @def XTR_OS
- * Indicator of the platform's operating system.
- * Used in internal decisions on which OS API to call, for example, to
- * generate random numbers.
- *
- * - `w` for Microsoft Windows
- * - `u` for Unix-like, including Linux and BSD
- * - `m` for Apple macOS
- * - 0 (false) for unknown
- */
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__NT__)
-#define XTR_OS 'w'
-#elif defined(unix) || defined(__unix) || defined(__unix__) || defined(__linux__) ||               \
-        defined(linux) || defined(__linux) || defined(BSD)
-#define XTR_OS 'u'
-#elif defined(__APPLE__) || defined(__MACH__)
-#define XTR_OS 'm'
-#else
-#define XTR_OS 0
-#endif
-
 
 /**
  * @def XTR_API
  * Marker of all the library's public API functions. Used to add exporting
  * indicators for DLL on Windows, empty on other platforms.
  */
-#if XTR_OS == 'w'
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__NT__)
+/**
+ * @def XTR_WINDOWS
+ * Indicator simplifying the check for the Windows platform (undefined on other platforms).
+ * Used for internal decisions on how to inline functions.
+ */
+#define XTR_WINDOWS 1
 #define XTR_API __declspec(dllexport)
 #else
 #define XTR_API
@@ -108,20 +91,14 @@ extern "C" {
 /** Alias for not freeing previous xtring after reallocation. */
 #define XTR_KEEP_OLD false
 
-#define XTR_MALLOC malloc
-#define XTR_CALLOC calloc
-#define XTR_REALLOC realloc
-#define XTR_FREE free
-#define XTR_ASSERT assert
-
 typedef enum xtr_err
 {
     XTR_OK = 0,
-    XTR_ERR_EMPTY = 1,
-    XTR_ERR_TOO_SHORT = 2,
-    XTR_ERR_FULL = 3,
-    XTR_ERR_INTEGER_OVERFLOW = 4,
-    XTR_ERR_NULL = 5,
+    XTR_ERR_EMPTY,
+    XTR_ERR_TOO_SHORT,
+    XTR_ERR_FULL,
+    XTR_ERR_INTEGER_OVERFLOW,
+    XTR_ERR_NULL,
 } xtr_err_t;
 
 /**
@@ -152,7 +129,7 @@ typedef struct xtr xtr_t;
  * Recommended for higher memory safety assurance, at the cost of additional
  * O(n) operation on construction and destruction.
  */
-#define XTR_ZERO_OUT_HEAP 1
+#define XTR_CLEAR_HEAP 1
 
 // =================== NEW XTRINGS ============================================
 // ------------------- New empty xtrings ------------------------------------------
@@ -1199,6 +1176,10 @@ xtr_from_hex(const char* hex, size_t len);
 // TODO function to iterate lines
 // TODO function to split into lines
 // TODO prepending another char* or xtr
+// TODO prefix: add/remove/startswith
+// TODO suffix: add/remove/endswith
+// TODO change UTF encoding between UTF8, UTF16, UTF32, all LE, BE
+// TODO use void* instead of uint8_t* where applicable
 // TODO padding to size
 // TODO merge many? Varlena?
 // TODO join many with optional separators
