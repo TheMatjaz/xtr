@@ -121,7 +121,7 @@ utf8_decode(const uint8_t* encoded)
             else
             {
                 // Unexpected byte after first one.
-                codepoint = UNICODE_REPLACEMENT_CHAR; // TODO yield
+                codepoint = UNICODE_REPLACEMENT_CHAR;  // TODO yield
                 break;
             }
         }

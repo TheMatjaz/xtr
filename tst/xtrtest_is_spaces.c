@@ -45,7 +45,6 @@ xtrtest_is_spaces_valid_empty(void)
     xtr_free(&obtained);
 }
 
-
 static void
 xtrtest_is_spaces_valid_empty_with_capacity(void)
 {

@@ -34,21 +34,30 @@
 XTR_API xtr_t*
 xtr_ensure(xtr_t* const xtr, const size_t len)
 {
-    if (xtr == NULL) { return NULL; }
+    if (xtr == NULL)
+    {
+        return NULL;
+    }
     return xtr_resize(xtr, XTR_MIN(xtr->used, len));
 }
 
 XTR_API xtr_t*
 xtr_ensure_free(xtr_t** const pxtr, const size_t len)
 {
-    if (pxtr == NULL || *pxtr == NULL) { return NULL; }
+    if (pxtr == NULL || *pxtr == NULL)
+    {
+        return NULL;
+    }
     return xtr_resize_free(pxtr, XTR_MIN((*pxtr)->used, len));
 }
 
 XTR_API xtr_t*
 xtr_resize(xtr_t* const xtr, const size_t new_capacity)
 {
-    if (xtr == NULL) { return NULL; }
+    if (xtr == NULL)
+    {
+        return NULL;
+    }
     if (new_capacity < xtr->used)
     {
         // Clear bytes at the end, but keep same allocation buffer
@@ -68,27 +77,45 @@ xtr_resize(xtr_t* const xtr, const size_t new_capacity)
 XTR_API xtr_t*
 xtr_resize_free(xtr_t** const pxtr, const size_t new_length)
 {
-    if (pxtr == NULL) { return NULL; }
+    if (pxtr == NULL)
+    {
+        return NULL;
+    }
     xtr_t* const resized = xtr_resize(*pxtr, new_length);
-    if (resized != *pxtr) { xtr_free(pxtr); }
+    if (resized != *pxtr)
+    {
+        xtr_free(pxtr);
+    }
     return resized;
 }
 
 XTR_API xtr_t*
-xtr_resize_free_double(xtr_t** const pxtr) // TODO clarify difference with clone_with_capacity
+xtr_resize_free_double(xtr_t** const pxtr)  // TODO clarify difference with clone_with_capacity
 {
-    if (pxtr == NULL || *pxtr == NULL) { return NULL; }
+    if (pxtr == NULL || *pxtr == NULL)
+    {
+        return NULL;
+    }
     const size_t doublesize = (*pxtr)->used * 2U;
-    if (doublesize < (*pxtr)->used) { return NULL; } // Size overflow
+    if (doublesize < (*pxtr)->used)
+    {
+        return NULL;
+    }  // Size overflow
     return xtr_expand(pxtr, doublesize);
 }
 
 XTR_API xtr_t*
-xtr_compress_free(xtr_t** const pxtr) // TODO rename to compact?
+xtr_compress_free(xtr_t** const pxtr)  // TODO rename to compact?
 {
-    if (pxtr == NULL || xtr_available(*pxtr) == 0U) { return NULL; }
+    if (pxtr == NULL || xtr_available(*pxtr) == 0U)
+    {
+        return NULL;
+    }
     xtr_t* const compressed = xtr_clone(*pxtr);
-    if (compressed == NULL) { return NULL; }
+    if (compressed == NULL)
+    {
+        return NULL;
+    }
     xtr_free(pxtr);
     return compressed;
 }

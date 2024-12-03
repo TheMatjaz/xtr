@@ -34,7 +34,10 @@
 XTR_API size_t
 xtr_push_tail(xtr_t* const xtr, const xtr_t* const extension)
 {
-    if (xtr == NULL || extension == NULL || xtr_capacity(xtr) < extension->used) { return 0U; }
+    if (xtr == NULL || extension == NULL || xtr_capacity(xtr) < extension->used)
+    {
+        return 0U;
+    }
     memcpy(&xtr->buffer[xtr->used], extension->buffer, extension->used);
     set_used_and_terminator(xtr, xtr->used + extension->used);
     return extension->used;
@@ -43,7 +46,10 @@ xtr_push_tail(xtr_t* const xtr, const xtr_t* const extension)
 XTR_API size_t
 xtr_push_head(xtr_t* const xtr, const xtr_t* const extension)
 {
-    if (xtr == NULL || extension == NULL || xtr_capacity(xtr) < extension->used) { return 0U; }
+    if (xtr == NULL || extension == NULL || xtr_capacity(xtr) < extension->used)
+    {
+        return 0U;
+    }
     memmove(&xtr->buffer[extension->used], xtr->buffer, xtr->used);
     memcpy(xtr->buffer, extension->buffer, extension->used);
     set_used_and_terminator(xtr, xtr->used + extension->used);
@@ -54,7 +60,10 @@ XTR_API xtr_t*
 xtr_extend_tail(xtr_t** const pxtr, const xtr_t* const extension)
 {
     // TODO copy pointers locally for reentrancy
-    if (pxtr == NULL || *pxtr == NULL || extension == NULL) { return NULL; }
+    if (pxtr == NULL || *pxtr == NULL || extension == NULL)
+    {
+        return NULL;
+    }
     if (xtr_capacity(*pxtr) >= extension->used)
     {
         xtr_push_tail(*pxtr, extension);
@@ -62,7 +71,10 @@ xtr_extend_tail(xtr_t** const pxtr, const xtr_t* const extension)
     else
     {
         xtr_t* const new = xtr_concat(*pxtr, extension);
-        if (new == NULL) { return NULL; }
+        if (new == NULL)
+        {
+            return NULL;
+        }
         xtr_free(pxtr);
         *pxtr = new;
     }
@@ -72,7 +84,10 @@ xtr_extend_tail(xtr_t** const pxtr, const xtr_t* const extension)
 XTR_API xtr_t*
 xtr_extend_head(xtr_t** const pxtr, const xtr_t* const extension)
 {
-    if (pxtr == NULL || *pxtr == NULL || extension == NULL) { return NULL; }
+    if (pxtr == NULL || *pxtr == NULL || extension == NULL)
+    {
+        return NULL;
+    }
     if (xtr_capacity(*pxtr) >= extension->used)
     {
         xtr_push_head(*pxtr, extension);
@@ -80,7 +95,10 @@ xtr_extend_head(xtr_t** const pxtr, const xtr_t* const extension)
     else
     {
         xtr_t* const new = xtr_concat(extension, *pxtr);
-        if (new == NULL) { return NULL; }
+        if (new == NULL)
+        {
+            return NULL;
+        }
         xtr_free(pxtr);
         *pxtr = new;
     }
@@ -90,18 +108,30 @@ xtr_extend_head(xtr_t** const pxtr, const xtr_t* const extension)
 XTR_API xtr_t*
 xtr_repeated(const xtr_t* const xtr, const size_t repetitions)
 {
-    if (xtr == NULL) { return NULL; }
+    if (xtr == NULL)
+    {
+        return NULL;
+    }
     return xtr_from_bytes_repeat(xtr->buffer, xtr->used, repetitions);
 }
 
 XTR_API xtr_t*
 xtr_concat(const xtr_t* const a, const xtr_t* const b)
 {
-    if (a == NULL || b == NULL) { return NULL; }
+    if (a == NULL || b == NULL)
+    {
+        return NULL;
+    }
     const size_t merged_len = a->used + b->used;
-    if (merged_len < a->used || merged_len < b->used) { return NULL; } // Size overflow
+    if (merged_len < a->used || merged_len < b->used)
+    {
+        return NULL;
+    }  // Size overflow
     xtr_t* const merged = xtr_malloc(merged_len, merged_len);
-    if (merged == NULL) { return NULL; }
+    if (merged == NULL)
+    {
+        return NULL;
+    }
     memcpy(merged->buffer, a->buffer, a->used);
     memcpy(merged->buffer + a->used, b->buffer, b->used);
     set_used_and_terminator(merged, merged_len);

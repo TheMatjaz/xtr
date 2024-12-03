@@ -33,16 +33,17 @@
 #define XTR_INTERNAL_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #include "xtr.h"
 
 #define TERMINATOR_LEN 1U
-#define TERMINATOR '\0'
-#define XTR_MIN(a, b) ((a) < (b) ? (a) : (b))
-#define XTR_MAX(a, b) ((a) >= (b) ? (a) : (b))
-#define SIZE_OVERFLOW 0U
+#define TERMINATOR     '\0'
+#define XTR_MIN(a, b)  ((a) < (b) ? (a) : (b))
+#define XTR_MAX(a, b)  ((a) >= (b) ? (a) : (b))
+#define SIZE_OVERFLOW  0U
 
 // TODO auto garbage collection?
 // Consider making it a smart-pointer-like struct: add a counter of references
@@ -123,7 +124,7 @@ set_capacity_and_terminator(xtr_t* xtr, size_t capacity);
  * #size_t occurred.
  */
 size_t
-sizeof_struct_xtr(size_t capacity); // todo reneame to xtr_sizeof
+sizeof_struct_xtr(size_t capacity);  // todo reneame to xtr_sizeof
 
 /**
  * @internal
@@ -144,7 +145,7 @@ xtr_malloc(size_t used, size_t capacity);
  * @param [in] len length of \p data in bytes
  */
 void
-zero_out(void* data, size_t len); // todo rename to xtr_zero_out
+zero_out(void* data, size_t len);  // todo rename to xtr_zero_out
 
 /**
  * @internal
@@ -180,11 +181,10 @@ memmove_zero_out(void* dst, void* src, size_t len);
  *         that pointer ("the needle is equal to itself" scenario)
  */
 void*
-xtr_memmem(const void* haystack, size_t haystack_len,
-           const void* needle, size_t needle_len);
+xtr_memmem(const void* haystack, size_t haystack_len, const void* needle, size_t needle_len);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  /* XTR_INTERNAL_H */
+#endif /* XTR_INTERNAL_H */

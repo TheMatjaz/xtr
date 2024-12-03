@@ -207,7 +207,8 @@ xtrtest_new_ensure_fail_size_overflow(void)
     atto_eq(obtained, NULL);
 }
 
-void xtrtest_from_str_with_capacity(void)
+void
+xtrtest_from_str_with_capacity(void)
 {
     xtrtest_from_str_with_capacity_valid_empty_string_0_bytes();
     xtrtest_from_str_with_capacity_valid_null_string_0_bytes();

@@ -34,12 +34,27 @@
 XTR_API int
 xtr_cmp_length(const xtr_t* const a, const xtr_t* const b)
 {
-    if (a == b) { return 0; }
-    if (a == NULL) { return -1; }
-    if (b == NULL) { return +1; }
-    if (a->used < b->used) { return -2; }
-    else if (a->used > b->used) { return +2; }
-    return 0; // Both non-NULL and equal length
+    if (a == b)
+    {
+        return 0;
+    }
+    if (a == NULL)
+    {
+        return -1;
+    }
+    if (b == NULL)
+    {
+        return +1;
+    }
+    if (a->used < b->used)
+    {
+        return -2;
+    }
+    else if (a->used > b->used)
+    {
+        return +2;
+    }
+    return 0;  // Both non-NULL and equal length
 }
 
 XTR_API bool
@@ -51,17 +66,35 @@ xtr_is_equal_length(const xtr_t* a, const xtr_t* b)
 XTR_API int
 xtr_cmp(const xtr_t* const a, const xtr_t* const b)
 {
-    if (a == b) { return 0; }
-    if (a == NULL) { return -1; }
-    if (b == NULL) { return +1; }
+    if (a == b)
+    {
+        return 0;
+    }
+    if (a == NULL)
+    {
+        return -1;
+    }
+    if (b == NULL)
+    {
+        return +1;
+    }
     const size_t minlen = XTR_MIN(a->used, b->used);
     const int comparison = memcmp(a->buffer, b->buffer, minlen);
     if (comparison == 0)
     {
         // Equal part of the content until the end of the shortest xtring
-        if (a->used < b->used) { return -2; }
-        else if (a->used > b->used) { return +2; }
-        else { return 0; }
+        if (a->used < b->used)
+        {
+            return -2;
+        }
+        else if (a->used > b->used)
+        {
+            return +2;
+        }
+        else
+        {
+            return 0;
+        }
     }
     else
     {
@@ -73,33 +106,60 @@ xtr_cmp(const xtr_t* const a, const xtr_t* const b)
 XTR_API bool
 xtr_is_equal(const xtr_t* const a, const xtr_t* const b)
 {
-    if (a == b) { return true; }
-    if (a == NULL || b == NULL || a->used != b->used) { return false; }
+    if (a == b)
+    {
+        return true;
+    }
+    if (a == NULL || b == NULL || a->used != b->used)
+    {
+        return false;
+    }
     return memcmp(a->buffer, b->buffer, a->used) == 0;
 }
 
 XTR_API bool
 xtr_startswith(const xtr_t* const xtr, const xtr_t* const prefix)
 {
-    if (xtr == prefix) { return true; }
-    if (xtr == NULL || prefix == NULL || xtr->used < prefix->used) { return false; }
+    if (xtr == prefix)
+    {
+        return true;
+    }
+    if (xtr == NULL || prefix == NULL || xtr->used < prefix->used)
+    {
+        return false;
+    }
     return memcmp(xtr->buffer, prefix->buffer, prefix->used) == 0;
 }
 
 XTR_API bool
 xtr_endswith(const xtr_t* const xtr, const xtr_t* const suffix)
 {
-    if (xtr == suffix) { return true; }
-    if (xtr == NULL || suffix == NULL || xtr->used < suffix->used) { return false; }
+    if (xtr == suffix)
+    {
+        return true;
+    }
+    if (xtr == NULL || suffix == NULL || xtr->used < suffix->used)
+    {
+        return false;
+    }
     return memcmp(&xtr->buffer[xtr->used - suffix->used], suffix->buffer, suffix->used) == 0;
 }
 
 XTR_API bool
 xtr_is_equal_consttime(const xtr_t* const a, const xtr_t* const b)
 {
-    if (a == b) { return true; }
-    if (a == NULL || b == NULL) { return false; }
-    if (a->used != b->used) { return false; }
+    if (a == b)
+    {
+        return true;
+    }
+    if (a == NULL || b == NULL)
+    {
+        return false;
+    }
+    if (a->used != b->used)
+    {
+        return false;
+    }
     bool differing = false;
     for (size_t i = 0U; i < a->used; i++)
     {

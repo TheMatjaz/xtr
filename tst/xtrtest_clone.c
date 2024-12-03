@@ -91,7 +91,8 @@ xtrtest_clone_valid_6_char_xtr(void)
     xtr_free(&clone);
 }
 
-void xtrtest_clone(void)
+void
+xtrtest_clone(void)
 {
     xtrtest_clone_valid_empty_xtr();
     xtrtest_clone_valid_1_char_xtr();

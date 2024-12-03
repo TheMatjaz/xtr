@@ -44,14 +44,22 @@ xtr_find_from(const xtr_t* const haystack, const xtr_t* const needle, const size
 }
 
 XTR_API size_t
-xtr_find_within(const xtr_t* const haystack, const xtr_t* const needle,
-                const size_t start, const size_t end)
+xtr_find_within(const xtr_t* const haystack,
+                const xtr_t* const needle,
+                const size_t start,
+                const size_t end)
 {
-    if (xtr_is_empty(haystack) || xtr_is_empty(needle)
-        || start >= haystack->used || end >= haystack->used) { return XTR_NOT_FOUND; }
-    const uint8_t* const location = xtr_memmem(haystack->buffer + start,
-                                               end - start, needle->buffer, needle->used);
-    if (location == NULL) { return XTR_NOT_FOUND; }
+    if (xtr_is_empty(haystack) || xtr_is_empty(needle) || start >= haystack->used ||
+        end >= haystack->used)
+    {
+        return XTR_NOT_FOUND;
+    }
+    const uint8_t* const location =
+        xtr_memmem(haystack->buffer + start, end - start, needle->buffer, needle->used);
+    if (location == NULL)
+    {
+        return XTR_NOT_FOUND;
+    }
     return (size_t) (location - haystack->buffer);
 }
 
@@ -64,16 +72,20 @@ xtr_contains(const xtr_t* const haystack, const xtr_t* const needle)
 XTR_API size_t
 xtr_occurrences(const xtr_t* const haystack, const xtr_t* const needle)
 {
-    if (xtr_is_empty(haystack) || xtr_is_empty(needle)
-        || needle->used > haystack->used) { return XTR_NOT_FOUND; } // TODO return 0 instead?
+    if (xtr_is_empty(haystack) || xtr_is_empty(needle) || needle->used > haystack->used)
+    {
+        return XTR_NOT_FOUND;
+    }  // TODO return 0 instead?
     size_t count = 0U;
     const uint8_t* occurrence = haystack->buffer;
     size_t remaining_len = haystack->used - needle->used;
     while (true)
     {
-        occurrence = xtr_memmem(occurrence, remaining_len,
-                                needle->buffer, needle->used);
-        if (occurrence == NULL) { break; }
+        occurrence = xtr_memmem(occurrence, remaining_len, needle->buffer, needle->used);
+        if (occurrence == NULL)
+        {
+            break;
+        }
         XTR_ASSERT(occurrence >= haystack->buffer);
         XTR_ASSERT(occurrence < haystack->buffer + haystack->used);
         count++;
@@ -86,10 +98,17 @@ xtr_occurrences(const xtr_t* const haystack, const xtr_t* const needle)
 XTR_API const size_t*
 xtr_find_all(const xtr_t* const haystack, const xtr_t* const needle)
 {
-    if (haystack == NULL || needle == NULL || haystack->used > needle->used) { return NULL; }
-    size_t max_matches = 8U; // 1 for amount of occurrence_indices , then 7 needle occurrence_indices = 8 chunks
+    if (haystack == NULL || needle == NULL || haystack->used > needle->used)
+    {
+        return NULL;
+    }
+    size_t max_matches =
+        8U;  // 1 for amount of occurrence_indices , then 7 needle occurrence_indices = 8 chunks
     size_t* occurrence_indices = malloc(max_matches * sizeof(size_t));
-    if (occurrence_indices == NULL) { return NULL; }
+    if (occurrence_indices == NULL)
+    {
+        return NULL;
+    }
     // First element in returned array contains amount of elements **after** the first element.
     occurrence_indices[0] = 0U;
     const size_t last_useful_index = haystack->used - needle->used + 1U;
@@ -98,25 +117,31 @@ xtr_find_all(const xtr_t* const haystack, const xtr_t* const needle)
     while (true)
     {
         match = xtr_find_within(haystack, needle, progress, last_useful_index);
-        if (match == XTR_NOT_FOUND) { break; }
+        if (match == XTR_NOT_FOUND)
+        {
+            break;
+        }
         occurrence_indices[occurrence_indices[0]++] = match;
         progress = match + needle->used;
-        if (occurrence_indices[0] > max_matches) // Resizing array of results
+        if (occurrence_indices[0] > max_matches)  // Resizing array of results
         {
             max_matches *= 2U;
             size_t* const larger_needles = realloc(occurrence_indices, max_matches);
-            if (larger_needles == NULL) { goto rollback; }
+            if (larger_needles == NULL)
+            {
+                goto rollback;
+            }
             memset(occurrence_indices, 0, max_matches * sizeof(size_t));
             free(occurrence_indices);
             occurrence_indices = larger_needles;
         }
     }
     return occurrence_indices;
-    rollback:
-    {
-        memset(occurrence_indices, 0, max_matches * sizeof(size_t));
-        free(occurrence_indices);
-        occurrence_indices = NULL;
-        return NULL;
-    }
+rollback:
+{
+    memset(occurrence_indices, 0, max_matches * sizeof(size_t));
+    free(occurrence_indices);
+    occurrence_indices = NULL;
+    return NULL;
+}
 }

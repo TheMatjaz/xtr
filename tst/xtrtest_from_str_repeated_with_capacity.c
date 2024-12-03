@@ -261,7 +261,8 @@ xtrtest_from_str_repeated_with_capacity_fail_malloc(void)
     atto_eq(obtained, NULL);
 }
 
-void xtrtest_from_str_repeated_with_capacity(void)
+void
+xtrtest_from_str_repeated_with_capacity(void)
 {
     xtrtest_from_str_repeated_with_capacity_valid_null_0_times_0_space();
     xtrtest_from_str_repeated_with_capacity_valid_null_0_times_7_space();

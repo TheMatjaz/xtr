@@ -36,13 +36,13 @@
 
 #if XTR_OS == 'w'
 
-#include <Windows.h> /* To avoid compilation errors for other Windows headers. */
-#include <bcrypt.h> /* For BCryptGenRandom() - requires explicit linking to `bcrypt` lib. */
+    #include <Windows.h> /* To avoid compilation errors for other Windows headers. */
+    #include <bcrypt.h>  /* For BCryptGenRandom() - requires explicit linking to `bcrypt` lib. */
 
-
-XTR_API xtr_t *xtr_random(const size_t len)
+XTR_API xtr_t*
+xtr_random(const size_t len)
 {
-    xtr_t *random = xtr_new_with_capacity(len);
+    xtr_t* random = xtr_new_with_capacity(len);
     if (random == NULL)
     {
         return NULL;
@@ -54,9 +54,10 @@ XTR_API xtr_t *xtr_random(const size_t len)
         // buffer size passed to BCryptGenRandom. This would happen if the user
         // requests 4.3+ GB of random data in a single xtring - unlikely,
         // but not impossible. Usually this is a single-iteration loop.
-        const NTSTATUS result =
-                BCryptGenRandom(NULL, &random->buffer[generated], (ULONG) (len - generated),
-                                BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+        const NTSTATUS result = BCryptGenRandom(NULL,
+                                                &random->buffer[generated],
+                                                (ULONG) (len - generated),
+                                                BCRYPT_USE_SYSTEM_PREFERRED_RNG);
         if (result != STATUS_SUCCESS)
         {
             xtr_free(&random);
@@ -69,17 +70,18 @@ XTR_API xtr_t *xtr_random(const size_t len)
 
 #elif XTR_OS == 'u' || XTR_OS == 'm'
 
-#include <stdio.h> /* For /dev/urandom virtual-file IO */
+    #include <stdio.h> /* For /dev/urandom virtual-file IO */
 
-XTR_API xtr_t *xtr_random(const size_t len)
+XTR_API xtr_t*
+xtr_random(const size_t len)
 {
-    xtr_t *random = xtr_new(len);
+    xtr_t* random = xtr_new(len);
     if (random == NULL)
     {
         return NULL;
     }
-    FILE *rng = fopen("/dev/urandom", "r");
-    size_t obtained = len - 1U; // Different than len to see if it changes
+    FILE* rng = fopen("/dev/urandom", "r");
+    size_t obtained = len - 1U;  // Different than len to see if it changes
     if (rng != NULL)
     {
         obtained = fread(random->buffer, sizeof(uint8_t), len, rng);
@@ -95,7 +97,7 @@ XTR_API xtr_t *xtr_random(const size_t len)
 
 #else
 
-// TODO consider using _Static_assert() and the equivalent for MSVC
-#error "Unsupported OS"
+    // TODO consider using _Static_assert() and the equivalent for MSVC
+    #error "Unsupported OS"
 
 #endif

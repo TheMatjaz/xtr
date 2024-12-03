@@ -34,7 +34,8 @@
 
 #include "xtrtest.h"
 
-int main(void)
+int
+main(void)
 {
     printf("Testing libxtr M:%d m:%d bf:%d = v%s\n",
            XTR_API_VERSION_MAJOR,

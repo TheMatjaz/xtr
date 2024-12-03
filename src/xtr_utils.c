@@ -36,9 +36,9 @@ xtr_api_version(uint64_t* const version)
 {
     if (version != NULL)
     {
-        *version = (uint64_t) XTR_API_VERSION_MAJOR << 48U
-                   | (uint64_t) XTR_API_VERSION_MINOR << 32U
-                   | (uint64_t) XTR_API_VERSION_BUGFIX << 16U;
+        *version = (uint64_t) XTR_API_VERSION_MAJOR << 48U |
+                   (uint64_t) XTR_API_VERSION_MINOR << 32U |
+                   (uint64_t) XTR_API_VERSION_BUGFIX << 16U;
     }
     return XTR_API_VERSION;
 }
@@ -62,9 +62,15 @@ XTR_INLINE size_t
 sizeof_struct_xtr(size_t capacity)
 {
     const size_t size = sizeof(size_t) * 2U + capacity + TERMINATOR_LEN;
-    if (size <= capacity) { return SIZE_OVERFLOW; } else { return size; }
+    if (size <= capacity)
+    {
+        return SIZE_OVERFLOW;
+    }
+    else
+    {
+        return size;
+    }
 }
-
 
 XTR_INLINE void
 zero_out(void* data, size_t len)
@@ -77,9 +83,12 @@ zero_out(void* data, size_t len)
 XTR_INLINE void
 memmove_zero_out(void* const dst, void* const src, const size_t len)
 {
-    if (dst == NULL || src == NULL || dst == src || len == 0U) { return; }
-    uint8_t* const d = dst; // Required for ptr arithmetic
-    uint8_t* const s = src; // Required for ptr arithmetic
+    if (dst == NULL || src == NULL || dst == src || len == 0U)
+    {
+        return;
+    }
+    uint8_t* const d = dst;  // Required for ptr arithmetic
+    uint8_t* const s = src;  // Required for ptr arithmetic
     if (s < d && d < s + len)
     {
         // Overlapping after src: erase from src to dst
@@ -113,17 +122,21 @@ memmove_zero_out(void* const dst, void* const src, const size_t len)
 }
 
 void*
-xtr_memmem(const void* haystack_vp, const size_t haystack_len,
-           const void* const needle_vp, const size_t needle_len)
+xtr_memmem(const void* haystack_vp,
+           const size_t haystack_len,
+           const void* const needle_vp,
+           const size_t needle_len)
 {
     // TODO consider boyer-moore search
-    if (haystack_vp == NULL || needle_vp == NULL
-        || haystack_len == 0U || needle_len == 0U
-        || haystack_len < needle_len)
+    if (haystack_vp == NULL || needle_vp == NULL || haystack_len == 0U || needle_len == 0U ||
+        haystack_len < needle_len)
     {
         return NULL;
     }
-    if (haystack_vp == needle_vp) { return (void*) haystack_vp; }
+    if (haystack_vp == needle_vp)
+    {
+        return (void*) haystack_vp;
+    }
     const uint8_t* haystack = (const uint8_t*) haystack_vp;
     // haystack_end = last possible address where the needle could still be.
     // If not found until this point, the rest of the haystack is too short to fit a needle.
@@ -138,9 +151,12 @@ xtr_memmem(const void* haystack_vp, const size_t haystack_len,
     }
     while (true)
     {
-        haystack_search = memchr(haystack_search, needle[0],
-                                 (size_t) (haystack_end - haystack_search));
-        if (haystack_search == NULL) { return NULL; }
+        haystack_search =
+            memchr(haystack_search, needle[0], (size_t) (haystack_end - haystack_search));
+        if (haystack_search == NULL)
+        {
+            return NULL;
+        }
         // First byte is matching
         haystack_search++;
         needle_search = &needle[1];

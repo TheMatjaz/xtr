@@ -40,18 +40,27 @@ xtr_is_empty(const xtr_t* const xtr)
 XTR_API bool
 xtr_is_zeros(const xtr_t* const xtr)
 {
-    if (xtr_is_empty(xtr)) { return false; }
+    if (xtr_is_empty(xtr))
+    {
+        return false;
+    }
     for (size_t i = 0U; i < xtr->used; i++)
     {
-        if (xtr->buffer[i]) { return false; }
+        if (xtr->buffer[i])
+        {
+            return false;
+        }
     }
     return true;
 }
 
 XTR_API bool
-xtr_is_zeros_consttime(const xtr_t* const xtr) // branchless
+xtr_is_zeros_consttime(const xtr_t* const xtr)  // branchless
 {
-    if (xtr_is_empty(xtr)) { return false; }
+    if (xtr_is_empty(xtr))
+    {
+        return false;
+    }
     int combined = 0U;
     for (size_t i = 0U; i < xtr->used; i++)
     {
@@ -63,18 +72,27 @@ xtr_is_zeros_consttime(const xtr_t* const xtr) // branchless
 XTR_API bool
 xtr_is_not_zeros(const xtr_t* const xtr)
 {
-    if (xtr_is_empty(xtr)) { return false; }
+    if (xtr_is_empty(xtr))
+    {
+        return false;
+    }
     for (size_t i = 0U; i < xtr->used; i++)
     {
-        if (xtr->buffer[i]) { return true; }
+        if (xtr->buffer[i])
+        {
+            return true;
+        }
     }
     return false;
 }
 
 XTR_API bool
-xtr_is_not_zeros_consttime(const xtr_t* const xtr) // branchless
+xtr_is_not_zeros_consttime(const xtr_t* const xtr)  // branchless
 {
-    if (xtr_is_empty(xtr)) { return false; }
+    if (xtr_is_empty(xtr))
+    {
+        return false;
+    }
     int combined = 0U;
     for (size_t i = 0U; i < xtr->used; i++)
     {
@@ -86,10 +104,16 @@ xtr_is_not_zeros_consttime(const xtr_t* const xtr) // branchless
 XTR_API bool
 xtr_is_spaces(const xtr_t* xtr)
 {
-    if (xtr_is_empty(xtr)) { return false; }
+    if (xtr_is_empty(xtr))
+    {
+        return false;
+    }
     for (size_t i = 0; i < xtr->used; i++)
     {
-        if (!isspace(xtr->buffer[i])) { return false; }
+        if (!isspace(xtr->buffer[i]))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -97,10 +121,16 @@ xtr_is_spaces(const xtr_t* xtr)
 XTR_API bool
 xtr_is_letters(const xtr_t* xtr)
 {
-    if (xtr_is_empty(xtr)) { return false; }
+    if (xtr_is_empty(xtr))
+    {
+        return false;
+    }
     for (size_t i = 0; i < xtr->used; i++)
     {
-        if (!isalpha(xtr->buffer[i])) { return false; }
+        if (!isalpha(xtr->buffer[i]))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -108,10 +138,16 @@ xtr_is_letters(const xtr_t* xtr)
 XTR_API bool
 xtr_is_alphanumerics(const xtr_t* xtr)
 {
-    if (xtr_is_empty(xtr)) { return false; }
+    if (xtr_is_empty(xtr))
+    {
+        return false;
+    }
     for (size_t i = 0; i < xtr->used; i++)
     {
-        if (!isalnum(xtr->buffer[i])) { return false; }
+        if (!isalnum(xtr->buffer[i]))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -119,10 +155,16 @@ xtr_is_alphanumerics(const xtr_t* xtr)
 XTR_API bool
 xtr_is_digits(const xtr_t* xtr)
 {
-    if (xtr_is_empty(xtr)) { return false; }
+    if (xtr_is_empty(xtr))
+    {
+        return false;
+    }
     for (size_t i = 0; i < xtr->used; i++)
     {
-        if (!isdigit(xtr->buffer[i])) { return false; }
+        if (!isdigit(xtr->buffer[i]))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -130,10 +172,16 @@ xtr_is_digits(const xtr_t* xtr)
 XTR_API bool
 xtr_is_uppercase(const xtr_t* xtr)
 {
-    if (xtr_is_empty(xtr)) { return false; }
+    if (xtr_is_empty(xtr))
+    {
+        return false;
+    }
     for (size_t i = 0; i < xtr->used; i++)
     {
-        if (!isupper(xtr->buffer[i])) { return false; }
+        if (!isupper(xtr->buffer[i]))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -141,10 +189,16 @@ xtr_is_uppercase(const xtr_t* xtr)
 XTR_API bool
 xtr_is_lowercase(const xtr_t* xtr)
 {
-    if (xtr_is_empty(xtr)) { return false; }
+    if (xtr_is_empty(xtr))
+    {
+        return false;
+    }
     for (size_t i = 0; i < xtr->used; i++)
     {
-        if (!islower(xtr->buffer[i])) { return false; }
+        if (!islower(xtr->buffer[i]))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -152,10 +206,16 @@ xtr_is_lowercase(const xtr_t* xtr)
 XTR_API bool
 xtr_is_printable(const xtr_t* xtr)
 {
-    if (xtr_is_empty(xtr)) { return false; }
+    if (xtr_is_empty(xtr))
+    {
+        return false;
+    }
     for (size_t i = 0; i < xtr->used; i++)
     {
-        if (!isprint(xtr->buffer[i])) { return false; }
+        if (!isprint(xtr->buffer[i]))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -163,10 +223,16 @@ xtr_is_printable(const xtr_t* xtr)
 XTR_API bool
 xtr_is_ascii(const xtr_t* xtr)
 {
-    if (xtr_is_empty(xtr)) { return false; }
+    if (xtr_is_empty(xtr))
+    {
+        return false;
+    }
     for (size_t i = 0; i < xtr->used; i++)
     {
-        if (!isascii(xtr->buffer[i])) { return false; }
+        if (!isascii(xtr->buffer[i]))
+        {
+            return false;
+        }
     }
     return true;
 }

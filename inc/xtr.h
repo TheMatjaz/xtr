@@ -44,15 +44,15 @@ extern "C"
  * indicators for DLL on Windows, empty on other platforms.
  */
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__NT__)
-/**
- * @def XTR_WINDOWS
- * Indicator simplifying the check for the Windows platform (undefined on other platforms).
- * Used for internal decisions on how to inline functions.
- */
-#define XTR_WINDOWS 1
-#define XTR_API __declspec(dllexport)
+    /**
+     * @def XTR_WINDOWS
+     * Indicator simplifying the check for the Windows platform (undefined on other platforms).
+     * Used for internal decisions on how to inline functions.
+     */
+    #define XTR_WINDOWS 1
+    #define XTR_API     __declspec(dllexport)
 #else
-#define XTR_API
+    #define XTR_API
 #endif
 
 #define XTR_INLINE inline
@@ -68,17 +68,17 @@ extern "C"
 /** Version of this API conforming to semantic versioning as a string. */
 #define XTR_API_VERSION "0.1.0"
 
-#include <stdint.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdbool.h>
-#include <ctype.h>
 #include <assert.h>
+#include <ctype.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 // TODO make stdlib optional for embedded
 
 // Assuming enough memory
-#define XTR_MAX_CAPACITY (SIZE_MAX - sizeof(size_t) * 2U - 1U)
+#define XTR_MAX_CAPACITY   (SIZE_MAX - sizeof(size_t) * 2U - 1U)
 
 #define XTR_UNKNOWN_STRLEN SIZE_MAX
 
@@ -259,9 +259,7 @@ xtr_from_str_repeat(const char* str, size_t repetitions);
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_str_repeat_capac(const char* str,
-                          size_t repetitions,
-                          size_t at_least);
+xtr_from_str_repeat_capac(const char* str, size_t repetitions, size_t at_least);
 
 /**
  * New xtring initialised with the array content.
@@ -273,8 +271,7 @@ xtr_from_str_repeat_capac(const char* str,
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_bytes(const uint8_t* array,
-               size_t array_len);
+xtr_from_bytes(const uint8_t* array, size_t array_len);
 
 /**
  * New xtring initialised with the array content and overall `at_least` allocated
@@ -290,9 +287,7 @@ xtr_from_bytes(const uint8_t* array,
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_bytes_capac(const uint8_t* array,
-                     size_t array_len,
-                     size_t at_least);
+xtr_from_bytes_capac(const uint8_t* array, size_t array_len, size_t at_least);
 
 /**
  * New xtring initialised with the array content repeated `repetitions` times.
@@ -305,9 +300,7 @@ xtr_from_bytes_capac(const uint8_t* array,
  * @return the new xtring or NULL in case of malloc failure.
  */
 XTR_API xtr_t*
-xtr_from_bytes_repeat(const uint8_t* array,
-                      size_t array_len,
-                      size_t repetitions);
+xtr_from_bytes_repeat(const uint8_t* array, size_t array_len, size_t repetitions);
 
 /**
  * New xtring initialised with the C-string content repeated `repetitions` times
@@ -389,7 +382,7 @@ xtr_clone(const xtr_t* xtr);
  * @return the new xtring or NULL in case of malloc failure or when `xtr` is NULL.
  */
 XTR_API xtr_t*
-xtr_expanded(const xtr_t* xtr, size_t at_least); // TODO better to call it capacity?
+xtr_expanded(const xtr_t* xtr, size_t at_least);  // TODO better to call it capacity?
 
 /**
  * Reallocates the xtring into a larger buffer, optionally freeing the previous one.
@@ -431,7 +424,7 @@ xtr_truncated(const xtr_t* xtr, size_t at_most);
  * The first `max_len` bytes are copied over to the new xtring.
  * Does not reserve any additional capacity for expansions. For that use
  * xtr_truncate_tail() or xtr_expand().
-* @param [in, out] pxtr point to the original xtring to copy. Pointed xtr_t*
+ * @param [in, out] pxtr point to the original xtring to copy. Pointed xtr_t*
  *        will be replaced by a smaller copy, if a reallocation happens.
  *        Frees the previous xtring. Untouched on failure.
  * @param [in] at_most maximum amount of bytes to copy, automatically
@@ -725,7 +718,7 @@ xtr_endswith(const xtr_t* xtr, const xtr_t* suffix);
  * use xtr_compress_free();
  * @param [in, out] xtr xtring to erase.
  */
-XTR_API void // TODO if safe, then O(n) operation
+XTR_API void  // TODO if safe, then O(n) operation
 xtr_clear(xtr_t* xtr);
 
 /**
@@ -838,7 +831,7 @@ xtr_trim_tail(xtr_t* xtr, const char* chars);
  * @param [in] chars characters to remove, regardless of their order of appearance.
  *        NULL for all whitespace characters.
  */
-XTR_API void // O(n) operation!
+XTR_API void  // O(n) operation!
 xtr_trim_head(xtr_t* xtr, const char* chars);
 
 /**
@@ -923,7 +916,6 @@ xtr_reversed(const xtr_t* xtr);
 XTR_API void
 xtr_reverse(xtr_t* xtr);
 
-
 // ------------------- Search for substrings ------------------------------------
 /**
  * Counts how many times a substring appears in the xtring.
@@ -999,7 +991,7 @@ xtr_find_within(const xtr_t* haystack, const xtr_t* needle, size_t start, size_t
 // TODO add a maxsplits param
 
 XTR_API xtr_t**
-xtr_split(size_t* amount_of_chunks, const xtr_t* xtr, const xtr_t*  separator);
+xtr_split(size_t* amount_of_chunks, const xtr_t* xtr, const xtr_t* separator);
 
 XTR_API xtr_t**
 xtr_split_every(size_t* amount_of_chunks, const xtr_t* xtr, size_t chunk_len);
@@ -1076,7 +1068,6 @@ XTR_API xtr_t*
 xtr_extend_head(xtr_t** pxtr, const xtr_t* extension);
 // TODO should it free old one? What if I still need it? Make it parametric?
 
-
 /**
  * Appends the extension to the existing xtring's end, reallocating the xtring
  * if necessary, freeing the old one.
@@ -1129,40 +1120,39 @@ xtr_to_hex(const xtr_t* bin, bool upper, const char* separator);
 XTR_API xtr_t*
 xtr_from_hex(const char* hex, size_t len);
 
-
 // Utils
-//TODO count occurences
-//TODO capitalize
-//TODO encoding change
-//TODO endswith
-//TODO startswith
-//TODO fmt
-//TODO printf
-//TODO sprintf
+// TODO count occurences
+// TODO capitalize
+// TODO encoding change
+// TODO endswith
+// TODO startswith
+// TODO fmt
+// TODO printf
+// TODO sprintf
 // TODO sscanf
 // TODO string-based STDIO functions
-//TODO isascii
-//TODO isalnum
-//TODO isalpha
-//TODO islower
-//TODO isdigit
-//TODO isnumeric
-//TODO isprintable
-//TODO isspace
-//TODO isupper
-//TODO tolower
-//TODO toupper
-//TODO partition
-//TODO replace
-//TODO rfind
-//TODO justify
-//TODO split
-//TODO rsplit
-//TODO splitlines
-//TODO swapcase
-//TODO zerofill
+// TODO isascii
+// TODO isalnum
+// TODO isalpha
+// TODO islower
+// TODO isdigit
+// TODO isnumeric
+// TODO isprintable
+// TODO isspace
+// TODO isupper
+// TODO tolower
+// TODO toupper
+// TODO partition
+// TODO replace
+// TODO rfind
+// TODO justify
+// TODO split
+// TODO rsplit
+// TODO splitlines
+// TODO swapcase
+// TODO zerofill
 // TODO insert
-//TODO prepend
+// TODO prepend
 // TODO base64
 // TODO tokenise
 // TODO parse as u16, u32, u64, f16, f32, f64, LE and BE - or maybe just iterate?
@@ -1199,4 +1189,4 @@ xtr_from_hex(const char* hex, size_t len);
 }
 #endif
 
-#endif  /* XTR_H */
+#endif /* XTR_H */

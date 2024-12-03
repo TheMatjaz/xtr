@@ -31,13 +31,18 @@
 
 #include "xtr_internal.h"
 
-
 XTR_API xtr_t*
 xtr_reversed(const xtr_t* const xtr)
 {
-    if (xtr == NULL) { return NULL; }
+    if (xtr == NULL)
+    {
+        return NULL;
+    }
     xtr_t* const reversed = xtr_new(xtr->used);
-    if (reversed == NULL) { return NULL; }
+    if (reversed == NULL)
+    {
+        return NULL;
+    }
     for (size_t head = 0U, tail = xtr->used - 1U; head < tail; head++, tail--)
     {
         reversed->buffer[head] = xtr->buffer[tail];
@@ -49,7 +54,10 @@ xtr_reversed(const xtr_t* const xtr)
 XTR_API void
 xtr_reverse(xtr_t* const xtr)
 {
-    if (xtr == NULL) { return; } // TODO errcodes
+    if (xtr == NULL)
+    {
+        return;
+    }  // TODO errcodes
     uint8_t temp;
     for (size_t head = 0U, tail = xtr->used - 1U; head < tail; head++, tail--)
     {

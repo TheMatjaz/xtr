@@ -40,7 +40,7 @@ xtrtest_zeros_valid_empty(void)
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_length(obtained), 0);
     atto_neq(xtr_bytes(obtained), NULL);
-    atto_zeros(xtr_bytes(obtained), 1); // NULL terminator
+    atto_zeros(xtr_bytes(obtained), 1);  // NULL terminator
     xtr_free(&obtained);
 }
 
@@ -53,7 +53,7 @@ xtrtest_zeros_valid_1_byte(void)
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_length(obtained), 1);
     atto_neq(xtr_bytes(obtained), NULL);
-    atto_zeros(xtr_bytes(obtained), 1); // Before NULL terminator
+    atto_zeros(xtr_bytes(obtained), 1);  // Before NULL terminator
     xtr_free(&obtained);
 }
 
@@ -66,7 +66,7 @@ xtrtest_zeros_valid_6_bytes(void)
     atto_eq(xtr_available(obtained), 0);
     atto_eq(xtr_length(obtained), 6);
     atto_neq(xtr_bytes(obtained), NULL);
-    atto_zeros(xtr_bytes(obtained), 6); // Before NULL terminator
+    atto_zeros(xtr_bytes(obtained), 6);  // Before NULL terminator
     xtr_free(&obtained);
 }
 

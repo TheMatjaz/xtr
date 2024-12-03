@@ -131,7 +131,8 @@ xtrtest_clone_with_capacity_valid_1_char_xtr_more_capacity(void)
     xtr_free(&clone);
 }
 
-void xtrtest_clone_with_capacity(void)
+void
+xtrtest_clone_with_capacity(void)
 {
     xtrtest_clone_with_capacity_valid_empty_xtr_same_capacity();
     xtrtest_clone_with_capacity_valid_empty_xtr_more_capacity();

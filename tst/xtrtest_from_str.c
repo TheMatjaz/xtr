@@ -91,7 +91,8 @@ xtrtest_from_str_fail_malloc(void)
     atto_eq(obtained, NULL);
 }
 
-void xtrtest_from_str(void)
+void
+xtrtest_from_str(void)
 {
     xtrtest_from_str_valid_null();
     xtrtest_from_str_valid_empty_string();

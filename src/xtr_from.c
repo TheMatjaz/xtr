@@ -31,7 +31,7 @@
 
 #include "xtr_internal.h"
 
-#define NO_REPETITIONS 1U
+#define NO_REPETITIONS    1U
 #define NO_EXTRA_CAPACITY 0U
 
 XTR_API xtr_t*
@@ -53,35 +53,30 @@ xtr_from_str_repeat(const char* const str, const size_t repetitions)
 }
 
 XTR_API xtr_t*
-xtr_from_str_repeat_capac(const char* const str,
-                          const size_t repetitions,
-                          const size_t at_least)
+xtr_from_str_repeat_capac(const char* const str, const size_t repetitions, const size_t at_least)
 {
     size_t len = 0U;
-    if (str != NULL) { len = strlen(str); }
+    if (str != NULL)
+    {
+        len = strlen(str);
+    }
     return xtr_from_bytes_repeat_capac((const uint8_t*) str, len, repetitions, at_least);
 }
 
 XTR_API xtr_t*
-xtr_from_bytes(const uint8_t* const array,
-               const size_t array_len)
+xtr_from_bytes(const uint8_t* const array, const size_t array_len)
 {
-    return xtr_from_bytes_repeat_capac(array, array_len, NO_REPETITIONS,
-                                       NO_EXTRA_CAPACITY);
+    return xtr_from_bytes_repeat_capac(array, array_len, NO_REPETITIONS, NO_EXTRA_CAPACITY);
 }
 
 XTR_API xtr_t*
-xtr_from_bytes_capac(const uint8_t* const array,
-                     const size_t array_len,
-                     const size_t at_least)
+xtr_from_bytes_capac(const uint8_t* const array, const size_t array_len, const size_t at_least)
 {
     return xtr_from_bytes_repeat_capac(array, array_len, NO_REPETITIONS, at_least);
 }
 
 XTR_API xtr_t*
-xtr_from_bytes_repeat(const uint8_t* const array,
-                      const size_t array_len,
-                      const size_t repetitions)
+xtr_from_bytes_repeat(const uint8_t* const array, const size_t array_len, const size_t repetitions)
 {
     return xtr_from_bytes_repeat_capac(array, array_len, repetitions, NO_EXTRA_CAPACITY);
 }
@@ -92,13 +87,28 @@ xtr_from_bytes_repeat_capac(const uint8_t* const array,
                             const size_t repetitions,
                             const size_t at_least)
 {
-    if (array == NULL && array_len != 0U) { return NULL; }
-    if (repetitions == 0U) { return xtr_new(at_least); }
+    if (array == NULL && array_len != 0U)
+    {
+        return NULL;
+    }
+    if (repetitions == 0U)
+    {
+        return xtr_new(at_least);
+    }
     const size_t total_len = repetitions * array_len;
-    if (total_len < array_len) { return NULL; } // Integer overflow
+    if (total_len < array_len)
+    {
+        return NULL;
+    }  // Integer overflow
     xtr_t* const new = xtr_new(XTR_MAX(total_len, at_least));
-    if (new == NULL) { return NULL; }
-    if (array == NULL) { return new; } // Don't risk passing NULL to memcpy
+    if (new == NULL)
+    {
+        return NULL;
+    }
+    if (array == NULL)
+    {
+        return new;
+    }  // Don't risk passing NULL to memcpy
     for (size_t i = 0U; i < repetitions; i++)
     {
         memcpy(&new->buffer[i * array_len], array, array_len);
@@ -120,12 +130,13 @@ xtr_from_byte_repeat(const uint8_t byte, const size_t repetitions)
 }
 
 XTR_API xtr_t*
-xtr_from_byte_repeat_capac(const uint8_t byte,
-                           const size_t repetitions,
-                           const size_t at_least)
+xtr_from_byte_repeat_capac(const uint8_t byte, const size_t repetitions, const size_t at_least)
 {
     xtr_t* const new = xtr_new(XTR_MAX(repetitions, at_least));
-    if (new == NULL) { return NULL; }
+    if (new == NULL)
+    {
+        return NULL;
+    }
     memset(new->buffer, byte, repetitions);
     set_used_and_terminator(new, repetitions);
     return new;
@@ -135,7 +146,10 @@ XTR_API xtr_t*
 xtr_zeros(const size_t len)
 {
     xtr_t* const new = xtr_new(len);
-    if (new == NULL) { return NULL; }
+    if (new == NULL)
+    {
+        return NULL;
+    }
 #if (defined(XTR_CLEAR_HEAP) && XTR_CLEAR_HEAP)
     // Uses calloc already, no need to clear
 #else

@@ -32,7 +32,7 @@
 #include "xtr_internal.h"
 
 static const uint8_t BASE64_SYMBOLS[] =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const uint8_t BASE64_PADDING = '=';
 
 /**
@@ -72,9 +72,15 @@ XTR_API xtr_t*
 xtr_base64_encode(const xtr_t* const binary)
 {
     const size_t b64_text_len = ((binary->used + 2U) * 4U) / 3U;
-    if (b64_text_len < (binary->used + 2U)) { return NULL; } // Integer overflow
+    if (b64_text_len < (binary->used + 2U))
+    {
+        return NULL;
+    }  // Integer overflow
     xtr_t* const b64_text = xtr_new(b64_text_len);
-    if (b64_text == NULL) { return NULL; }
+    if (b64_text == NULL)
+    {
+        return NULL;
+    }
     const size_t remainder = binary->used % 3U;
     const size_t trail_start_idx = binary->used - remainder;
     size_t bin_idx = 0U;
@@ -113,7 +119,10 @@ xtr_base64_encode(const xtr_t* const binary)
 XTR_API xtr_t*
 xtr_base64_decode(const xtr_t* const b64_text)
 {
-    if (b64_text == NULL) { return NULL; }
+    if (b64_text == NULL)
+    {
+        return NULL;
+    }
     // TODO shall we support it and truncate it?
     // TODO check all chars are valid
     // TODo support non-padded strings
@@ -124,7 +133,10 @@ xtr_base64_decode(const xtr_t* const b64_text)
     // tODO make paddings forbidden parametrically in the encoding
     const size_t binary_len = (b64_text->used / 4U) * 3U;  // Cannot overflow
     xtr_t* binary = xtr_new(binary_len);
-    if (binary == NULL) { return NULL; }
+    if (binary == NULL)
+    {
+        return NULL;
+    }
     size_t bin_idx = 0U;
     size_t text_idx = 0U;
     size_t buffer_idx = 0U;
@@ -149,9 +161,18 @@ xtr_base64_decode(const xtr_t* const b64_text)
         }
         // TODO make encoding in different formats parameteric
         // base64url encoding
-        if (chr == '-') { chr = '+'; }
-        else if (chr == '_') { chr = '/'; }
-        else if (chr == ',') { chr = '+'; } // IMAP encoding
+        if (chr == '-')
+        {
+            chr = '+';
+        }
+        else if (chr == '_')
+        {
+            chr = '/';
+        }
+        else if (chr == ',')
+        {
+            chr = '+';
+        }  // IMAP encoding
         if (isalnum(chr) || chr == '+' || chr == '/')
         {
             text_idx++;
@@ -172,8 +193,14 @@ xtr_base64_decode(const xtr_t* const b64_text)
     }
     // TODO Remainder section, if there is any trailing data without padding
     // TODO make ignoring of non-padded parametric
-    if (b64_text->buffer[text_idx - 1U] == BASE64_PADDING) { binary->buffer[bin_idx--] = 0U; }
-    if (b64_text->buffer[text_idx - 2U] == BASE64_PADDING) { binary->buffer[bin_idx--] = 0U; }
+    if (b64_text->buffer[text_idx - 1U] == BASE64_PADDING)
+    {
+        binary->buffer[bin_idx--] = 0U;
+    }
+    if (b64_text->buffer[text_idx - 2U] == BASE64_PADDING)
+    {
+        binary->buffer[bin_idx--] = 0U;
+    }
     set_used_and_terminator(binary, bin_idx);
     return binary;
 }

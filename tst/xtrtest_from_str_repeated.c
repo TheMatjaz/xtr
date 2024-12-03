@@ -150,7 +150,8 @@ xtrtest_from_str_repeated_fail_malloc(void)
     atto_eq(obtained, NULL);
 }
 
-void xtrtest_from_str_repeated(void)
+void
+xtrtest_from_str_repeated(void)
 {
     xtrtest_from_str_repeated_valid_null_0_times();
     xtrtest_from_str_repeated_valid_null_1_time();

@@ -34,8 +34,14 @@
 XTR_API xtr_t*
 xtr_from_hex(const char* hex, size_t len)
 {
-    if (hex == NULL && len != 0U) { return NULL; }
-    if (len == XTR_UNKNOWN_STRLEN) { len = strlen(hex); }
+    if (hex == NULL && len != 0U)
+    {
+        return NULL;
+    }
+    if (len == XTR_UNKNOWN_STRLEN)
+    {
+        len = strlen(hex);
+    }
     xtr_t* bin = xtr_new(len / 2U);
     size_t converted = 0U;
     int byte = 0;
@@ -47,16 +53,25 @@ xtr_from_hex(const char* hex, size_t len)
             hex++;
             continue;
         }
-            // Skip 0x or 0X
+        // Skip 0x or 0X
         else if (*hex == '0' && (*(hex + 1) == 'x' || *(hex + 1) == 'X'))
         {
             hex += 2U;
             continue;
         }
-            // Process actual hex characters
-        else if (*hex >= '0' && *hex <= '9') { byte |= *hex - '0'; }
-        else if (*hex >= 'a' && *hex <= 'f') { byte |= *hex - 'a' + 10; }
-        else if (*hex >= 'A' && *hex <= 'F') { byte |= *hex - 'A' + 10; }
+        // Process actual hex characters
+        else if (*hex >= '0' && *hex <= '9')
+        {
+            byte |= *hex - '0';
+        }
+        else if (*hex >= 'a' && *hex <= 'f')
+        {
+            byte |= *hex - 'a' + 10;
+        }
+        else if (*hex >= 'A' && *hex <= 'F')
+        {
+            byte |= *hex - 'A' + 10;
+        }
         else
         {
             // Non-hex character found.
@@ -93,14 +108,29 @@ static const uint8_t HEXCHARS_LOWER[] = "0123456789abcdef";
 XTR_API xtr_t*
 xtr_to_hex(const xtr_t* const bin, const bool upper, const char* const separator)
 {
-    if (bin == NULL) { return NULL; }
+    if (bin == NULL)
+    {
+        return NULL;
+    }
     size_t sep_len = 0U;
-    if (separator != NULL) { sep_len = strlen(separator); }
+    if (separator != NULL)
+    {
+        sep_len = strlen(separator);
+    }
     xtr_t* hex = xtr_new(bin->used * (2U + sep_len));
-    if (hex == NULL) { return NULL; }
+    if (hex == NULL)
+    {
+        return NULL;
+    }
     const uint8_t* hexchars;
-    if (upper) { hexchars = HEXCHARS_UPPER; }
-    else { hexchars = HEXCHARS_LOWER; }
+    if (upper)
+    {
+        hexchars = HEXCHARS_UPPER;
+    }
+    else
+    {
+        hexchars = HEXCHARS_LOWER;
+    }
     size_t hex_index = 0U;
     for (size_t bin_index = 0U; bin_index < bin->used; bin_index++)
     {
