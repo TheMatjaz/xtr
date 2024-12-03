@@ -1,7 +1,8 @@
+# Check out files with local/native line endings
 * text=auto
 
 # Force these files to be text
-*.gitattributes text
+.gitattributes  text
 .gitignore      text
 *.md            text
 
@@ -10,5 +11,9 @@
 *.cmd text eol=crlf
 *.ps1 text eol=crlf
 
+# Force Unix scripts to use LF
+*.sh   text eol=lf
+*.bash text eol=lf
+
 # Preserve line endings as-they-are
-*.patch    -text
+*.patch -text
