@@ -66,12 +66,12 @@ extern "C"
 #elif defined(__APPLE__) || defined(__MACH__)
     #define XTR_OS 'M'
 #elif defined(__linux__) || defined(linux) || defined(__linux)
-    #define XTR_OS "L"
+    #define XTR_OS 'L'
 #elif defined(unix) || defined(__unix) || defined(__unix__)
-    #define XTR_OS 'U
+    #define XTR_OS 'U'
 #else
     #define XTR_OS 0
-#endif #
+#endif
 
 /**
  * @def XTR_API

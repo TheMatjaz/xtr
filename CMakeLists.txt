@@ -115,6 +115,9 @@ set_target_properties(xtr_static PROPERTIES
         INTERPROCEDURAL_OPTIMISATION TRUE
         PREFIX lib
         OUTPUT_NAME xtr)
+if (WIN32 OR MSYS)
+    target_link_libraries(xtr_static PRIVATE bcrypt)
+endif ()
 
 # Shared library (.so / .dylib / .dll)
 # Does not reuse the static library object files, as they are
@@ -127,6 +130,9 @@ set_target_properties(xtr PROPERTIES
         # Remove any "msys-" and enforce the same lib name with all toolchains
         PREFIX lib
         OUTPUT_NAME xtr)
+if (WIN32 OR MSYS)
+    target_link_libraries(xtr PRIVATE bcrypt)
+endif ()
 
 enable_testing()
 # Test runner executable testing the static library

@@ -34,7 +34,7 @@
 // TODO consuder using the OS TRNG call just to initialise a seed and then use
 // a local non-crypto PRNG to generate further random strings.
 
-#if XTR_OS == 'w'
+#if XTR_OS == 'W'
 
     #include <Windows.h> /* To avoid compilation errors for other Windows headers. */
     #include <bcrypt.h>  /* For BCryptGenRandom() - requires explicit linking to `bcrypt` lib. */
@@ -42,7 +42,7 @@
 XTR_API xtr_t*
 xtr_random(const size_t len)
 {
-    xtr_t* random = xtr_new_with_capacity(len);
+    xtr_t* random = xtr_new(len);
     if (random == NULL)
     {
         return NULL;
@@ -58,7 +58,7 @@ xtr_random(const size_t len)
                                                 &random->buffer[generated],
                                                 (ULONG) (len - generated),
                                                 BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-        if (result != STATUS_SUCCESS)
+        if (result != 0)  // TODO should be result != STATUS_SUCCESS
         {
             xtr_free(&random);
             return NULL;
@@ -68,7 +68,7 @@ xtr_random(const size_t len)
     return random;
 }
 
-#elif XTR_OS == 'u' || XTR_OS == 'm'
+#elif XTR_OS == 'L' || XTR_OS == 'U' || XTR_OS == 'M'
 
     #include <stdio.h> /* For /dev/urandom virtual-file IO */
 
@@ -97,7 +97,13 @@ xtr_random(const size_t len)
 
 #else
 
-    // TODO consider using _Static_assert() and the equivalent for MSVC
-    #error "Unsupported OS"
+_Static_assert(0, "OS not supported for xtr_random() implementation.");
+
+XTR_API xtr_t*
+xtr_random(const size_t len)
+{
+    (void) len;
+    return NULL;
+}
 
 #endif
