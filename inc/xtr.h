@@ -273,6 +273,8 @@ xtr_from_str(const char* str);
 
 // TODO from str/u8-array UNTIL a limit (like strncpy with len < strlen())
 
+#define c2x xtr_from_str
+
 /**
  * New xtring initialised with the C-string content and overall `at_least` allocated
  * space.
@@ -563,6 +565,7 @@ XTR_API const char*
 xtr_cstring(const xtr_t* xtr);
 
 #define xtr_cstr xtr_cstring
+#define x2c      xtr_cstring
 
 /**
  * Read-only access to the internal buffer as `uint8_t[]`, null-terminated.
