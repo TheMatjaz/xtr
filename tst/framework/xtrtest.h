@@ -2,7 +2,7 @@
  * @file
  * Tests run by the xtrtest_main/main().
  *
- * @copyright Copyright © 2022, Matjaž Guštin <dev@matjaz.it>
+ * @copyright Copyright © 2022-2024, Matjaž Guštin <dev@matjaz.it>
  * <https://matjaz.it>. All rights reserved.
  * @license BSD 3-Clause License
  *
