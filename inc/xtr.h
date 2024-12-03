@@ -2,7 +2,7 @@
  * @file
  * Xtring - Extendable strings for C
  *
- * @copyright Copyright © 2022, Matjaž Guštin <dev@matjaz.it>
+ * @copyright Copyright © 2022-2024, Matjaž Guštin <dev@matjaz.it>
  * <https://matjaz.it>. All rights reserved.
  * @license BSD 3-Clause License
  *
@@ -38,26 +38,8 @@ extern "C"
 {
 #endif
 
-/**
- * @def XTR_API
- * Marker of all the library's public API functions. Used to add exporting
- * indicators for DLL on Windows, empty on other platforms.
- */
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__NT__)
-    /**
-     * @def XTR_WINDOWS
-     * Indicator simplifying the check for the Windows platform (undefined on other platforms).
-     * Used for internal decisions on how to inline functions.
-     */
-    #define XTR_WINDOWS 1
-    #define XTR_API     __declspec(dllexport)
-#else
-    #define XTR_API
-#endif
-
-#define XTR_INLINE inline
-
-#define XTR_DESTROYS
+// =================== Macros ============================================
+// ------------------- Version ---------------------------------------
 
 /** Major version of this API conforming to semantic versioning. */
 #define XTR_API_VERSION_MAJOR 0U
@@ -68,6 +50,46 @@ extern "C"
 /** Version of this API conforming to semantic versioning as a string. */
 #define XTR_API_VERSION "0.1.0"
 
+// ------------------- OS selection --------------------------------------
+/**
+ * @def XTR_OS
+ * Marker of the detected operating system the library is compiled for.
+ * A single-character value:
+ * - 'W' = 87 = 0x57 for Microsoft Windows
+ * - 'L' = 76 = 0x4C for GNU/Linux
+ * - 'U' = 85 = 0x55 for Unix
+ * - 'M' = 77 = 0x4D for Apple macOS
+ * - '\0' = 0 = 0x00 for other, unknown, unsupported
+ */
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(_WIN64) || defined(__NT__)
+    #define XTR_OS 'W'
+#elif defined(__APPLE__) || defined(__MACH__)
+    #define XTR_OS 'M'
+#elif defined(__linux__) || defined(linux) || defined(__linux)
+    #define XTR_OS "L"
+#elif defined(unix) || defined(__unix) || defined(__unix__)
+    #define XTR_OS 'U
+#else
+    #define XTR_OS 0
+#endif #
+
+/**
+ * @def XTR_API
+ * Marker of all the library's public API functions. Used to add exporting
+ * indicators for DLL on Windows, empty on other platforms.
+ */
+#if XTR_OS == 'W'
+    #define XTR_API __declspec(dllexport)
+#else
+    #define XTR_API
+#endif
+
+#ifndef XTR_INLINE
+    #define XTR_INLINE inline
+#endif
+
+// ------------------- Includes --------------------------------------
+
 #include <assert.h>
 #include <ctype.h>
 #include <stdbool.h>
@@ -77,6 +99,43 @@ extern "C"
 #include <string.h>
 // TODO make stdlib optional for embedded
 
+// ------------------- Dynamic memory management ---------------------
+
+/**
+ * @def XTR_MALLOC
+ * @def XTR_CALLOC
+ * @def XTR_REALLOC
+ * @def XTR_FREE
+ * Overridable aliases for any custom dynamic memory allocator.
+ */
+#ifndef XTR_MALLOC
+    #define XTR_MALLOC malloc
+#endif
+#ifndef XTR_CALLOC
+    #define XTR_CALLOC calloc
+#endif
+#ifndef XTR_REALLOC
+    #define XTR_REALLOC realloc
+#endif
+#ifndef XTR_FREE
+    #define XTR_FREE free
+#endif
+
+/**
+ * @def XTR_CLEAR_HEAP
+ * Clears (zero-out) the heap memory on allocation and before freeing it.
+ *
+ * Recommended for higher memory safety assurance, at the cost of additional
+ * O(n) operation on construction and destruction.
+ *
+ * Basically: `calloc()` instead of `malloc()` and `memset(...,0,...)` just
+ * before `free()`.
+ */
+#ifndef XTR_CLEAR_HEAP
+    #define XTR_CLEAR_HEAP 1
+#endif
+
+// ------------------- Constants --------------------------------------
 // Assuming enough memory
 #define XTR_MAX_CAPACITY   (SIZE_MAX - sizeof(size_t) * 2U - 1U)
 
@@ -91,6 +150,7 @@ extern "C"
 /** Alias for not freeing previous xtring after reallocation. */
 #define XTR_KEEP_OLD false
 
+// =================== Data types ============================================
 typedef enum xtr_err
 {
     XTR_OK = 0,
@@ -121,15 +181,6 @@ typedef enum xtr_err
  *                          \______________/ capacity (16, excl. null term.)
  */
 typedef struct xtr xtr_t;
-
-/**
- * If true, enables zeroing-out of the heap memory on allocation and before
- * freeing it.
- *
- * Recommended for higher memory safety assurance, at the cost of additional
- * O(n) operation on construction and destruction.
- */
-#define XTR_CLEAR_HEAP 1
 
 // =================== NEW XTRINGS ============================================
 // ------------------- New empty xtrings ------------------------------------------
@@ -1157,8 +1208,8 @@ xtr_from_hex(const char* hex, size_t len);
 // TODO tokenise
 // TODO parse as u16, u32, u64, f16, f32, f64, LE and BE - or maybe just iterate?
 // TODO different comparisons if one string is shorter than the others
-//// TODO xtr_cmp_content should provide also the lexicographical difference between the strings,
-//// i.e. the byte1-byte2 difference as signed output
+//// TODO xtr_cmp_content should provide also the lexicographical difference between the
+/// strings, / i.e. the byte1-byte2 difference as signed output
 // TODO file extension
 // TODO filepath operations WIN + UNIX
 // TODO function to split string into many lines of length N
@@ -1182,7 +1233,8 @@ xtr_from_hex(const char* hex, size_t len);
 // option, but a runtime option. I may not care for all strings, but for some.
 // TODo consider making functions WITHOUT side effects for max clarity, purely funcitonal
 // TODO compare with C strings
-// TODO consider differentiating between API functions which create a new xtr, modify in-place or
+// TODO consider differentiating between API functions which create a new xtr, modify in-place
+// or
 //  replace by freeing the old one
 
 #ifdef __cplusplus
