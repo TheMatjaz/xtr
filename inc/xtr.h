@@ -99,6 +99,10 @@ extern "C"
 #include <string.h>
 // TODO make stdlib optional for embedded
 
+#ifndef XTR_ASSERT
+    #define XTR_ASSERT assert
+#endif
+
 // ------------------- Dynamic memory management ---------------------
 
 /**
@@ -1017,6 +1021,9 @@ xtr_find(const xtr_t* haystack, const xtr_t* needle);
  */
 XTR_API size_t
 xtr_find_from(const xtr_t* haystack, const xtr_t* needle, size_t start);
+
+XTR_API const size_t*
+xtr_find_all(const xtr_t* haystack, const xtr_t* needle);
 
 // TODO rfind
 

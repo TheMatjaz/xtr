@@ -226,7 +226,7 @@ xtr_truncated(const xtr_t* const xtr, size_t at_most)
     {
         at_most = xtr->used;
     }
-    xtr_t* const shorter = xtr_malloc(at_most, at_most);
+    xtr_t* const shorter = xtr_alloc(at_most, at_most);
     if (shorter == NULL)
     {
         return NULL;

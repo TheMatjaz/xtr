@@ -74,7 +74,7 @@ xtr_split(size_t* const amount_of_chunks, const xtr_t* const haystack, const xtr
         {
             const size_t chunk_start = occurrence_indices[i] + needle->used;
             const size_t chunk_len = occurrence_indices[i + 1U] - chunk_start;
-            chunks[chunk_idx] = xtr_from_bytes(&haystack->buffer[start], chunk_len);
+            chunks[chunk_idx] = xtr_from_bytes(&haystack->buffer[chunk_start], chunk_len);
             if (chunks[chunk_idx] == NULL)
             {
                 goto rollback;
@@ -84,20 +84,20 @@ xtr_split(size_t* const amount_of_chunks, const xtr_t* const haystack, const xtr
         // Last chunk, from last match to end
         const size_t chunk_start = occurrence_indices[occurrence_indices[0]] + needle->used;
         const size_t chunk_len = haystack->used - chunk_start;
-        chunks[chunk_idx] = xtr_from_bytes(&haystack->buffer[start], chunk_len);
+        chunks[chunk_idx] = xtr_from_bytes(&haystack->buffer[chunk_start], chunk_len);
         if (chunks[chunk_idx] == NULL)
         {
             goto rollback;
         }
         chunk_idx++;
     }
-    free(occurrence_indices);
+    free((size_t*) occurrence_indices);
     occurrence_indices = NULL;
     *amount_of_chunks = chunk_idx;
     return chunks;
 rollback:
 {
-    free(occurrence_indices);
+    free((size_t*) occurrence_indices);
     occurrence_indices = NULL;
     if (chunks != NULL)
     {

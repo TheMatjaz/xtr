@@ -136,7 +136,7 @@ sizeof_struct_xtr(size_t capacity);  // todo reneame to xtr_sizeof
  *         or if `used` > `capacity`.
  */
 xtr_t*
-xtr_malloc(size_t used, size_t capacity);
+xtr_alloc(size_t used, size_t capacity);
 
 /**
  * @internal

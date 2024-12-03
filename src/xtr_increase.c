@@ -127,7 +127,7 @@ xtr_concat(const xtr_t* const a, const xtr_t* const b)
     {
         return NULL;
     }  // Size overflow
-    xtr_t* const merged = xtr_malloc(merged_len, merged_len);
+    xtr_t* const merged = xtr_alloc(merged_len, merged_len);
     if (merged == NULL)
     {
         return NULL;
