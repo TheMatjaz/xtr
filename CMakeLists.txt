@@ -1,4 +1,4 @@
-# Copyright © 2022, Matjaž Guštin <dev@matjaz.it>
+# Copyright © 2022-2024, Matjaž Guštin <dev@matjaz.it>
 # <https://matjaz.it>. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@ project(Xtr
         VERSION 0.1.0
         LANGUAGES C
         DESCRIPTION
-        "Extendible strings for C")
+        "Extendable strings for C")
 
 # Default build type, if not specified explicitly with `-DCMAKE_BUILD_TYPE`
 if (NOT CMAKE_BUILD_TYPE)
@@ -45,7 +45,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -----------------------------------------------------------------------------
 # Compiler flags
 # -----------------------------------------------------------------------------
-include(compiler_flags.cmake)
+include(toolsupport/compiler_flags.cmake)
 
 include(CheckIncludeFile)
 CHECK_INCLUDE_FILE("assert.h" ASSERT_H_EXISTS)
@@ -60,8 +60,7 @@ endif ()
 # -----------------------------------------------------------------------------
 # Source files
 # -----------------------------------------------------------------------------
-set(LIB_HEADER inc/xtr.h)
-set(LIB_SRC ${LIB_HEADER}
+set(XTR_SRC
         src/xtr_clone.c
         src/xtr_cmp.c
         src/xtr_decrease.c
@@ -80,7 +79,7 @@ set(LIB_SRC ${LIB_HEADER}
         src/xtr_unarycmp.c
         src/xtr_random.c
         src/xtr_base64.c)
-set(TEST_SRC
+set(XTRTEST_SRC
         # Test frameworks
         tst/framework/atto/atto.c
         tst/framework/xtrtest_main.c
@@ -99,7 +98,7 @@ set(TEST_SRC
         tst/xtrtest_clone_with_capacity.c
         tst/xtrtest_is_empty.c
         tst/xtrtest_is_spaces.c
-        )
+)
 
 
 # -----------------------------------------------------------------------------
@@ -107,18 +106,20 @@ set(TEST_SRC
 # -----------------------------------------------------------------------------
 # Copy the library API header into the build directory.
 # With this command, if the header changes, it's copied, otherwise not.
-configure_file(${LIB_HEADER} ${CMAKE_BINARY_DIR} COPYONLY)
+configure_file(inc/xtr.h ${CMAKE_BINARY_DIR} COPYONLY)
 
-# Static libraries (.a), compiled with all features or only some features
-add_library(xtr_static STATIC ${LIB_SRC})
+# Static libraries (.a)
+add_library(xtr_static STATIC ${XTR_SRC})
 target_include_directories(xtr_static PUBLIC inc/ PRIVATE src/)
 set_target_properties(xtr_static PROPERTIES
-        INTERPROCEDURAL_OPTIMISATION TRUE)
+        INTERPROCEDURAL_OPTIMISATION TRUE
+        PREFIX lib
+        OUTPUT_NAME xtr)
 
 # Shared library (.so / .dylib / .dll)
 # Does not reuse the static library object files, as they are
 # recompiled in order to have position-independent code
-add_library(xtr SHARED ${LIB_SRC} src/xtr_utils.c src/xtr_clone.c src/xtr_get.c src/xtr_cmp.c src/xtr_resize.c src/xtr_search.c src/xtr_unicode.c src/xtr_increase.c src/xtr_split.c src/xtr_decrease.c src/xtr_reverse.c src/xtr_hex.c)
+add_library(xtr SHARED ${XTR_SRC})
 target_include_directories(xtr PUBLIC inc/ PRIVATE src/)
 set_target_properties(xtr PROPERTIES
         POSITION_INDEPENDENT_CODE ON
@@ -129,7 +130,7 @@ set_target_properties(xtr PROPERTIES
 
 enable_testing()
 # Test runner executable testing the static library
-add_executable(xtrtest_static ${TEST_SRC})
+add_executable(xtrtest_static ${XTRTEST_SRC})
 target_include_directories(xtrtest_static
         PUBLIC inc/
         PRIVATE tst/framework/
@@ -140,14 +141,17 @@ set_target_properties(xtrtest_static PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         INTERPROCEDURAL_OPTIMISATION TRUE)
 # TODO --wrap does not work on Clang linker, so it should only be used with GCC
-target_link_options(xtrtest_static PUBLIC
-        -Wl,--wrap=malloc
-        -Wl,--wrap=calloc
-        -Wl,--wrap=realloc)
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    target_compile_definitions(xtrtest_static PRIVATE XTRTEST_WRAP_MALLOC=1)
+    target_link_options(xtrtest_static PUBLIC
+            -Wl,--wrap=malloc
+            -Wl,--wrap=calloc
+            -Wl,--wrap=realloc)
+endif ()
 add_test(COMMAND xtrtest_static TARGET xtrtest_static)
 
 # Test runner executable testing the shared library
-add_executable(xtrtest ${TEST_SRC})
+add_executable(xtrtest ${XTRTEST_SRC})
 target_include_directories(xtrtest
         PUBLIC inc/
         PRIVATE tst/framework/
@@ -157,10 +161,13 @@ target_link_libraries(xtrtest PUBLIC xtr)
 set_target_properties(xtrtest PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         INTERPROCEDURAL_OPTIMISATION TRUE)
-target_link_options(xtrtest PUBLIC
-        -Wl,--wrap=malloc
-        -Wl,--wrap=calloc
-        -Wl,--wrap=realloc)
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    target_compile_definitions(xtrtest_static PRIVATE XTRTEST_WRAP_MALLOC=1)
+    target_link_options(xtrtest_static PUBLIC
+            -Wl,--wrap=malloc
+            -Wl,--wrap=calloc
+            -Wl,--wrap=realloc)
+endif ()
 add_test(COMMAND xtrtest TARGET xtrtest)
 
 # Doxygen documentation builder
