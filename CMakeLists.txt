@@ -146,8 +146,7 @@ target_link_libraries(xtrtest_static PUBLIC xtr_static)
 set_target_properties(xtrtest_static PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         INTERPROCEDURAL_OPTIMISATION TRUE)
-# TODO --wrap does not work on Clang linker, so it should only be used with GCC
-if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     target_compile_definitions(xtrtest_static PRIVATE XTRTEST_WRAP_MALLOC=1)
     target_link_options(xtrtest_static PUBLIC
             -Wl,--wrap=malloc
@@ -167,7 +166,7 @@ target_link_libraries(xtrtest PUBLIC xtr)
 set_target_properties(xtrtest PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         INTERPROCEDURAL_OPTIMISATION TRUE)
-if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     target_compile_definitions(xtrtest_static PRIVATE XTRTEST_WRAP_MALLOC=1)
     target_link_options(xtrtest_static PUBLIC
             -Wl,--wrap=malloc
