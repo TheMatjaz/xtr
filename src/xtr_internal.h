@@ -45,12 +45,9 @@ extern "C"
 #define XTR_MAX(a, b)  ((a) >= (b) ? (a) : (b))
 #define SIZE_OVERFLOW  0U
 
-// TODO auto garbage collection?
-// Consider making it a smart-pointer-like struct: add a counter of references
-// a the free function actually reduces the counter. On zero: it frees.
-// A self-garbage-collected thing?
 /**
- * @internal Xtring private structure.
+ * @internal Xtring opaque (private) structure.
+ *
  * Single-allocation flexible array with buffer length and used amount of
  * said buffer. Does not require a second level of pointer indirection
  * because all the data is contiguous.
@@ -80,7 +77,6 @@ extern "C"
 struct xtr
 {
     /** Total bytes for content in buffer (used + free), before terminator. */
-    // TODO implement version with uint8_t/uint16_t/uint32_t instead of size_t
     size_t capacity;
     /** Occupied bytes with content in buffer out of the capacity. */
     size_t used;

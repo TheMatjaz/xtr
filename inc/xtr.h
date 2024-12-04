@@ -97,7 +97,6 @@ extern "C"
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-// TODO make stdlib optional for embedded
 
 #ifndef XTR_ASSERT
     #define XTR_ASSERT assert
@@ -266,12 +265,6 @@ xtr_random(size_t len);
  */
 XTR_API xtr_t*
 xtr_from_str(const char* str);
-// TODO consider providing an OPTIONAL string length field so the function
-// does not compute strlen() again, if avaialable. Use SIZE_MAX as default,
-// which is anyway unsupported, as the xtring would not fit a SIZE_MAX string
-// given the struct overhead.
-
-// TODO from str/u8-array UNTIL a limit (like strncpy with len < strlen())
 
 #define c2x xtr_from_str
 
@@ -439,7 +432,7 @@ xtr_clone(const xtr_t* xtr);
  * @return the new xtring or NULL in case of malloc failure or when `xtr` is NULL.
  */
 XTR_API xtr_t*
-xtr_expanded(const xtr_t* xtr, size_t at_least);  // TODO better to call it capacity?
+xtr_expanded(const xtr_t* xtr, size_t at_least);
 
 /**
  * Reallocates the xtring into a larger buffer, optionally freeing the previous one.
@@ -457,7 +450,6 @@ xtr_expanded(const xtr_t* xtr, size_t at_least);  // TODO better to call it capa
  */
 XTR_API xtr_t*
 xtr_expand(xtr_t** pxtr, size_t at_least);
-// TODO consider xtr_expandf or xtr_expand_free vs. having a parameter bool free.
 
 /**
  * New xtring with same content as another one (copy by value)
@@ -776,7 +768,7 @@ xtr_endswith(const xtr_t* xtr, const xtr_t* suffix);
  * use xtr_compress_free();
  * @param [in, out] xtr xtring to erase.
  */
-XTR_API void  // TODO if safe, then O(n) operation
+XTR_API void
 xtr_clear(xtr_t* xtr);
 
 /**
@@ -798,10 +790,6 @@ xtr_clear(xtr_t* xtr);
  */
 XTR_API xtr_t*
 xtr_pop_head(xtr_t* xtr, size_t len);
-// TODO void* xtr_pop_head_ptr(xtr_t* xtr);
-// TODO void* xtr_pop_tail_ptr(xtr_t* xtr);
-// TODO errcode xtr_push_head_ptr(xtr_t* xtr, void* ptr);
-// TODO errcode xtr_push_tail_ptr(xtr_t* xtr, void* ptr);
 
 /**
  * Removes `len` bytes from the xtring end and returns them as a new xtring.
@@ -838,8 +826,6 @@ xtr_pop_tail(xtr_t* xtr, size_t len);
  */
 XTR_API void
 xtr_truncate_head(xtr_t* xtr, size_t len);
-
-// TODO indicate complexities with safe on and off
 
 /**
  * Removes `len` bytes from the xtring end.
@@ -943,7 +929,6 @@ xtr_truncate_suffix(xtr_t* xtr, const char* suffix);
 
 // ------------------- Alter the Xtring's allocated memory ------------------------------------
 
-// TODO replace with `ensure` functions
 XTR_API xtr_t*
 xtr_resize(xtr_t* xtr, size_t new_capacity);
 
@@ -1028,8 +1013,6 @@ xtr_find_from(const xtr_t* haystack, const xtr_t* needle, size_t start);
 XTR_API const size_t*
 xtr_find_all(const xtr_t* haystack, const xtr_t* needle);
 
-// TODO rfind
-
 /**
  * Searches for a substring `needle` in the xtring within an index range.
  *
@@ -1046,10 +1029,6 @@ XTR_API size_t
 xtr_find_within(const xtr_t* haystack, const xtr_t* needle, size_t start, size_t end);
 
 // ------------------- Splitting ------------------------------------
-
-// TODO like split but get-only-nth via iteration
-// TODO rsplit and get nth
-// TODO add a maxsplits param
 
 XTR_API xtr_t**
 xtr_split(size_t* amount_of_chunks, const xtr_t* xtr, const xtr_t* separator);
@@ -1127,7 +1106,6 @@ xtr_push_tail(xtr_t* xtr, const xtr_t* extension);
  */
 XTR_API xtr_t*
 xtr_extend_head(xtr_t** pxtr, const xtr_t* extension);
-// TODO should it free old one? What if I still need it? Make it parametric?
 
 /**
  * Appends the extension to the existing xtring's end, reallocating the xtring
@@ -1182,70 +1160,6 @@ XTR_API xtr_t*
 xtr_from_hex(const char* hex, size_t len);
 
 // Utils
-// TODO count occurences
-// TODO capitalize
-// TODO encoding change
-// TODO endswith
-// TODO startswith
-// TODO fmt
-// TODO printf
-// TODO sprintf
-// TODO sscanf
-// TODO string-based STDIO functions
-// TODO isascii
-// TODO isalnum
-// TODO isalpha
-// TODO islower
-// TODO isdigit
-// TODO isnumeric
-// TODO isprintable
-// TODO isspace
-// TODO isupper
-// TODO tolower
-// TODO toupper
-// TODO partition
-// TODO replace
-// TODO rfind
-// TODO justify
-// TODO split
-// TODO rsplit
-// TODO splitlines
-// TODO swapcase
-// TODO zerofill
-// TODO insert
-// TODO prepend
-// TODO base64
-// TODO tokenise
-// TODO parse as u16, u32, u64, f16, f32, f64, LE and BE - or maybe just iterate?
-// TODO different comparisons if one string is shorter than the others
-//// TODO xtr_cmp_content should provide also the lexicographical difference between the
-/// strings, / i.e. the byte1-byte2 difference as signed output
-// TODO file extension
-// TODO filepath operations WIN + UNIX
-// TODO function to split string into many lines of length N
-// TODO function to indent lines
-// TODO function to iterate lines
-// TODO function to split into lines
-// TODO prepending another char* or xtr
-// TODO prefix: add/remove/startswith
-// TODO suffix: add/remove/endswith
-// TODO change UTF encoding between UTF8, UTF16, UTF32, all LE, BE
-// TODO use void* instead of uint8_t* where applicable
-// TODO padding to size
-// TODO merge many? Varlena?
-// TODO join many with optional separators
-// TODO substring search, like strstr
-// TODO case compare
-// TODO constant time compare
-// TODO iterator?
-// TODO utf8 iterator
-// TODO split between safe and fast functions, don't make it a compile-time
-// option, but a runtime option. I may not care for all strings, but for some.
-// TODo consider making functions WITHOUT side effects for max clarity, purely funcitonal
-// TODO compare with C strings
-// TODO consider differentiating between API functions which create a new xtr, modify in-place
-// or
-//  replace by freeing the old one
 
 #ifdef __cplusplus
 }

@@ -31,9 +31,6 @@
 
 #include "xtr_internal.h"
 
-// TODO consuder using the OS TRNG call just to initialise a seed and then use
-// a local non-crypto PRNG to generate further random strings.
-
 #if XTR_OS == 'W'
 
     #include <Windows.h> /* To avoid compilation errors for other Windows headers. */
@@ -58,7 +55,7 @@ xtr_random(const size_t len)
                                                 &random->buffer[generated],
                                                 (ULONG) (len - generated),
                                                 BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-        if (result != 0)  // TODO should be result != STATUS_SUCCESS
+        if (result != 0)
         {
             xtr_free(&random);
             return NULL;
