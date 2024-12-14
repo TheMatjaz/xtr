@@ -59,7 +59,7 @@
       "generator": "Unix Makefiles",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
-        "CMAKE_C_FLAGS_INIT": "-Weverything -Wno-declaration-after-statement -Wno-padded -Wno-unsafe-buffer-usage",
+        "CMAKE_C_FLAGS_INIT": "-Weverything -Wno-reserved-identifier -Wno-declaration-after-statement -Wno-padded -Wno-unsafe-buffer-usage",
         "CMAKE_C_FLAGS_DEBUG": "-O0 -g3 -coverage -DDEBUG=1 -static-libsan",
         "CMAKE_C_FLAGS_RELEASE": "-O3 -Werror -march=native -mtune=native -funroll-loops",
         "CMAKE_C_FLAGS_MINSIZEREL": "-Os -Werror -fomit-frame-pointer -march=native -mtune=native"
