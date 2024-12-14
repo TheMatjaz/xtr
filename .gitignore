@@ -1,5 +1,5 @@
 .idea
-cmake-build-*
+cmake-build*
 build*
 .venv
 venv

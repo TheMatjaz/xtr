@@ -1,0 +1,130 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "basic",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_STANDARD": "11",
+        "CMAKE_C_STANDARD_REQUIRED": true,
+        "CMAKE_C_EXTENSIONS": "OFF"
+      }
+    },
+    {
+      "name": "gcc",
+      "inherits": "basic",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_C_FLAGS_INIT": "-Wall -Wextra -pedantic -Wconversion -Wsign-conversion -Wdouble-promotion -Wfloat-equal -Wswitch-default -Wswitch-enum -Wuninitialized -Wunused-variable -Wpacked -Wshadow -Waggregate-return -Wformat-security -Wlogical-not-parentheses -Wmissing-declarations -Wnull-dereference -Wduplicated-cond -Wno-padded",
+        "CMAKE_C_FLAGS_DEBUG": "-O0 -g3 -coverage -DDEBUG=1 -static-libasan -fsanitize=address,undefined -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer",
+        "CMAKE_C_FLAGS_RELEASE": "-O3 -Werror -march=native -mtune=native -funroll-loops",
+        "CMAKE_C_FLAGS_MINSIZEREL": "-Os -s -Werror -fomit-frame-pointer -march=native -mtune=native"
+      }
+    },
+    {
+      "name": "gcc_debug",
+      "inherits": "gcc",
+      "binaryDir": "${sourceDir}/cmake-build/gcc/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "gcc_release",
+      "inherits": "gcc",
+      "binaryDir": "${sourceDir}/cmake-build/gcc/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "gcc_minsizerel",
+      "inherits": "gcc",
+      "binaryDir": "${sourceDir}/cmake-build/gcc/minsizerel",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    },
+    {
+      "name": "clang",
+      "inherits": "basic",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_C_FLAGS_INIT": "-Wno-declaration-after-statement -Weverything",
+        "CMAKE_C_FLAGS_DEBUG": "-O0 -g3 -coverage -DDEBUG=1 -static-libsan",
+        "CMAKE_C_FLAGS_RELEASE": "-O3 -Werror -march=native -mtune=native -funroll-loops",
+        "CMAKE_C_FLAGS_MINSIZEREL": "-Os -Werror -fomit-frame-pointer -march=native -mtune=native"
+      }
+    },
+    {
+      "name": "clang_debug",
+      "inherits": "clang",
+      "binaryDir": "${sourceDir}/cmake-build/clang/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "clang_release",
+      "inherits": "clang",
+      "binaryDir": "${sourceDir}/cmake-build/clang/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "clang_minsizerel",
+      "inherits": "clang",
+      "binaryDir": "${sourceDir}/cmake-build/clang/minsizerel",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    },
+    {
+      "name": "msvc",
+      "inherits": "basic",
+      "hidden": true,
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_C_FLAGS_INIT": "-Wall -Qspectre -wd5045 -wd4996 -wd4127 -wd4710 -wd4711",
+        "CMAKE_C_FLAGS_DEBUG": "-Od -DDEBUG=1",
+        "CMAKE_C_FLAGS_RELEASE": "-O2 -WX",
+        "CMAKE_C_FLAGS_MINSIZEREL": "-O1 -WX"
+      }
+    },
+    {
+      "name": "msvc_debug",
+      "inherits": "msvc",
+      "binaryDir": "${sourceDir}/cmake-build/msvc/debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "msvc_release",
+      "inherits": "msvc",
+      "binaryDir": "${sourceDir}/cmake-build/msvc/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "msvc_minsizerel",
+      "inherits": "msvc",
+      "binaryDir": "${sourceDir}/cmake-build/msvc/minsizerel",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    }
+  ]
+}

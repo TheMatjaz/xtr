@@ -45,15 +45,18 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # -----------------------------------------------------------------------------
 # Compiler flags
 # -----------------------------------------------------------------------------
-include(toolsupport/compiler_flags.cmake)
-
 include(CheckIncludeFile)
 CHECK_INCLUDE_FILE("assert.h" ASSERT_H_EXISTS)
-if (ASSERT_H_EXISTS)
+if (ASSERT_H_EXISTS AND (CMAKE_BUILD_TYPE EQUAL "Debug"))
     message(STATUS "assert.h found. Enabling runtime assertions verifying "
             "the library API inputs using assert() but only in debug mode "
             "for all targets.")
-    string(APPEND CMAKE_C_FLAGS_DEBUG " -DXTR_INPUT_ASSERTS")
+    add_compile_definitions(XTR_INPUT_ASSERTS=1)
+endif ()
+CHECK_INCLUDE_FILE("stdio.h" STDIO_H_EXISTS)
+if (STDIO_H_EXISTS)
+    message(STATUS "stdio.h found. Enabling printing functions for all targets.")
+    add_compile_definitions(XTR_STDIO=1)
 endif ()
 
 
@@ -78,7 +81,8 @@ set(XTR_SRC
         src/xtr_from.c
         src/xtr_unarycmp.c
         src/xtr_random.c
-        src/xtr_base64.c)
+        src/xtr_base64.c
+        src/xtr_print.c)
 set(XTRTEST_SRC
         # Test frameworks
         tst/framework/atto/atto.c
