@@ -34,9 +34,16 @@
 XTR_API xtr_t*
 xtr_from_hex(const char* hex, size_t len)
 {
-    if (hex == NULL && len != 0U)
+    if (hex == NULL)
     {
-        return NULL;
+        if (len == 0)
+        {
+            return xtr_new_empty();
+        }
+        else
+        {
+            return NULL;
+        }
     }
     if (len == XTR_UNKNOWN_STRLEN)
     {

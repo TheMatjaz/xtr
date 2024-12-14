@@ -31,8 +31,6 @@
 
 #include "xtr_internal.h"
 
-#define MAX_NEEDLES 10U
-
 XTR_API xtr_t**
 xtr_split(size_t* const amount_of_chunks, const xtr_t* const haystack, const xtr_t* const needle)
 {
@@ -91,13 +89,13 @@ xtr_split(size_t* const amount_of_chunks, const xtr_t* const haystack, const xtr
         }
         chunk_idx++;
     }
-    free((size_t*) occurrence_indices);
+    free((void*) (uint64_t) occurrence_indices);
     occurrence_indices = NULL;
     *amount_of_chunks = chunk_idx;
     return chunks;
 rollback:
 {
-    free((size_t*) occurrence_indices);
+    free((void*) (uint64_t) occurrence_indices);
     occurrence_indices = NULL;
     if (chunks != NULL)
     {

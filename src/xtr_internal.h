@@ -45,6 +45,8 @@ extern "C"
 #define XTR_MAX(a, b)  ((a) >= (b) ? (a) : (b))
 #define SIZE_OVERFLOW  0U
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpadded"
 /**
  * @internal Xtring opaque (private) structure.
  *
@@ -87,6 +89,7 @@ struct xtr
      * C99 flexible array member <https://en.wikipedia.org/wiki/Flexible_array_member> */
     uint8_t buffer[1U];
 };
+#pragma clang diagnostic pop
 
 /**
  * @internal
@@ -176,7 +179,7 @@ memmove_zero_out(void* dst, void* src, size_t len);
  *         Note: if the needle and the haystack are the same pointer, it returns
  *         that pointer ("the needle is equal to itself" scenario)
  */
-void*
+const void*
 xtr_memmem(const void* haystack, size_t haystack_len, const void* needle, size_t needle_len);
 
 #ifdef __cplusplus

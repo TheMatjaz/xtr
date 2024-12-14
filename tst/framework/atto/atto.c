@@ -31,6 +31,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "atto.h"
 #include "stddef.h"
 
 char atto_at_least_one_fail = 0;

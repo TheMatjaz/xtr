@@ -32,13 +32,13 @@
 #include "xtr_internal.h"
 
 XTR_API const char*
-xtr_api_version(uint64_t* const version)
+xtr_api_version(uint32_t* const version)
 {
     if (version != NULL)
     {
-        *version = (uint64_t) XTR_API_VERSION_MAJOR << 48U |
-                   (uint64_t) XTR_API_VERSION_MINOR << 32U |
-                   (uint64_t) XTR_API_VERSION_BUGFIX << 16U;
+        *version = (((uint32_t) XTR_API_VERSION_MAJOR) << 24U) |
+                   (((uint32_t) XTR_API_VERSION_MINOR) << 16U) |
+                   (((uint32_t) XTR_API_VERSION_BUGFIX) << 8U);
     }
     return XTR_API_VERSION;
 }
@@ -121,7 +121,7 @@ memmove_zero_out(void* const dst, void* const src, const size_t len)
     }
 }
 
-void*
+const void*
 xtr_memmem(const void* haystack_vp,
            const size_t haystack_len,
            const void* const needle_vp,
@@ -135,7 +135,7 @@ xtr_memmem(const void* haystack_vp,
     }
     if (haystack_vp == needle_vp)
     {
-        return (void*) haystack_vp;
+        return haystack_vp;
     }
     const uint8_t* haystack = (const uint8_t*) haystack_vp;
     // haystack_end = last possible address where the needle could still be.
@@ -171,7 +171,7 @@ xtr_memmem(const void* haystack_vp,
                 if (needle_search == needle_end)
                 {
                     // Full match found
-                    return (void*) (haystack_search - needle_len);
+                    return haystack_search - needle_len;
                 }
             }
             else

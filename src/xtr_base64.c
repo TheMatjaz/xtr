@@ -47,8 +47,8 @@ XTR_INLINE static void
 base64_encode_buffer(uint8_t* const text, const uint8_t binary[3])
 {
     text[0] = BASE64_SYMBOLS[binary[0] >> 2U];
-    text[1] = BASE64_SYMBOLS[((binary[0] & 0x03U) << 4U) + (binary[1] >> 4U)];
-    text[2] = BASE64_SYMBOLS[((binary[1] & 0x0FU) << 2U) + (binary[2] >> 6U)];
+    text[1] = BASE64_SYMBOLS[((binary[0] & 0x03U) << 4U) | (binary[1] >> 4U)];
+    text[2] = BASE64_SYMBOLS[((binary[1] & 0x0FU) << 2U) | (binary[2] >> 6U)];
     text[3] = BASE64_SYMBOLS[binary[2] & 0x3FU];
 }
 
@@ -63,9 +63,9 @@ base64_encode_buffer(uint8_t* const text, const uint8_t binary[3])
 XTR_INLINE static void
 base64_decode_buffer(uint8_t* const binary, const uint8_t text[4])
 {
-    binary[0] = (uint8_t) ((text[0] << 2U) | ((text[1] >> 4U) & 0x03U));
-    binary[1] = (uint8_t) ((text[1] << 4U) | ((text[2] >> 2U) & 0x0FU));
-    binary[3] = (uint8_t) ((text[1] << 6U) | (text[2] & 0x3FU));
+    binary[0] = (uint8_t) (((text[0] & 0x3FU) << 2U) | ((text[1] >> 4U) & 0x03U));
+    binary[1] = (uint8_t) (((text[1] & 0x0FU) << 4U) | ((text[2] >> 2U) & 0x0FU));
+    binary[2] = (uint8_t) (((text[1] & 0x03U) << 6U) | (text[2] & 0x3FU));
 }
 
 XTR_API xtr_t*

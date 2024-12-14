@@ -90,7 +90,6 @@ extern "C"
 
 // ------------------- Includes --------------------------------------
 
-#include <assert.h>
 #include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -98,10 +97,15 @@ extern "C"
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef XTR_ASSERT
-    #define XTR_ASSERT assert
+#if defined(XTR_INPUT_ASSERTS) && XTR_INPUT_ASSERTS
+    #include <assert.h>
+    #define XTR_ASSERT(x) assert(x)
+#else
+    #define XTR_ASSERT(x)
 #endif
-
+#if defined(XTR_STDIO) && XTR_STDIO
+    #include <stdio.h>
+#endif
 // ------------------- Dynamic memory management ---------------------
 
 /**
@@ -134,8 +138,8 @@ extern "C"
  * Basically: `calloc()` instead of `malloc()` and `memset(...,0,...)` just
  * before `free()`.
  */
-#ifndef XTR_CLEAR_HEAP
-    #define XTR_CLEAR_HEAP 1
+#ifndef XTR_CLEAR_ALLOCATED
+    #define XTR_CLEAR_ALLOCATED 1
 #endif
 
 // ------------------- Constants --------------------------------------
@@ -154,15 +158,6 @@ extern "C"
 #define XTR_KEEP_OLD false
 
 // =================== Data types ============================================
-typedef enum xtr_err
-{
-    XTR_OK = 0,
-    XTR_ERR_EMPTY,
-    XTR_ERR_TOO_SHORT,
-    XTR_ERR_FULL,
-    XTR_ERR_INTEGER_OVERFLOW,
-    XTR_ERR_NULL,
-} xtr_err_t;
 
 /**
  * Opaque xtring structure.
@@ -227,7 +222,7 @@ xtr_new(size_t capacity);
  *         xtr_free(&xtring);
  *         assert(xtring == NULL);
  *
- * @param [in, out] pxtr **address** of the xtring-pointer.
+ * @param [in,out] pxtr **address** of the xtring-pointer.
  */
 XTR_API void
 xtr_free(xtr_t** pxtr);
@@ -439,7 +434,7 @@ xtr_expanded(const xtr_t* xtr, size_t at_least);
  *
  * Ensures the `at_least - xtr_length(xtr)` available allocated free space at the
  * clone's end, to have some space ready for expansions without reallocation.
- * @param [in, out] pxtr point to the original xtring to copy. Pointed xtr_t*
+ * @param [in,out] pxtr point to the original xtring to copy. Pointed xtr_t*
  *        will be replaced by a larger copy, if a reallocation happens.
  *        Frees the previous xtring. Untouched on failure.
  * @param [in] at_least minimum amount of bytes to allocate, but
@@ -473,7 +468,7 @@ xtr_truncated(const xtr_t* xtr, size_t at_most);
  * The first `max_len` bytes are copied over to the new xtring.
  * Does not reserve any additional capacity for expansions. For that use
  * xtr_truncate_tail() or xtr_expand().
- * @param [in, out] pxtr point to the original xtring to copy. Pointed xtr_t*
+ * @param [in,out] pxtr point to the original xtring to copy. Pointed xtr_t*
  *        will be replaced by a smaller copy, if a reallocation happens.
  *        Frees the previous xtring. Untouched on failure.
  * @param [in] at_most maximum amount of bytes to copy, automatically
@@ -760,13 +755,28 @@ xtr_startswith(const xtr_t* xtr, const xtr_t* prefix);
 XTR_API bool
 xtr_endswith(const xtr_t* xtr, const xtr_t* suffix);
 
+XTR_API bool
+xtr_is_spaces(const xtr_t* xtr);
+XTR_API bool
+xtr_is_alpha(const xtr_t* xtr);
+XTR_API bool
+xtr_is_alphanum(const xtr_t* xtr);
+XTR_API bool
+xtr_is_digits(const xtr_t* xtr);
+XTR_API bool
+xtr_is_upper(const xtr_t* xtr);
+XTR_API bool
+xtr_is_lower(const xtr_t* xtr);
+XTR_API bool
+xtr_is_printable(const xtr_t* xtr);
+
 // ------------------- Shorten the Xtring's content ------------------------------------
 /**
  * Empties the string, cutting its length to zero, without reallocation.
  *
  * The allocated memory (capability) remains the same. To shorten the buffer
  * use xtr_compress_free();
- * @param [in, out] xtr xtring to erase.
+ * @param [in,out] xtr xtring to erase.
  */
 XTR_API void
 xtr_clear(xtr_t* xtr);
@@ -782,7 +792,7 @@ xtr_clear(xtr_t* xtr);
  *
  * O(n) operation, as it requires the rest of the altered string to be
  * shifted with `memmove`.
- * @param [in, out] xtr xtring to pop from an alter, modified in-place.
+ * @param [in,out] xtr xtring to pop from an alter, modified in-place.
  * @param [in] len amount of bytes to pop. If more than the length of `xtr`, a copy
  *        of the entire `xtr` is provided and the modified `xtr` is emptied.
  * @return new xtring with the popped prefix of `xtr`, with the bytes in the
@@ -800,7 +810,7 @@ xtr_pop_head(xtr_t* xtr, size_t len);
  *         returned:   "ld!"
  *
  * O(1) operation.
- * @param [in, out] xtr xtring to pop from an alter, modified in-place.
+ * @param [in,out] xtr xtring to pop from an alter, modified in-place.
  * @param [in] len amount of bytes to pop. If more than the length of `xtr`, a copy
  *        of the entire `xtr` is provided and the modified `xtr` is emptied.
  * @return new xtring with the popped prefix of `xtr`, with the bytes in the
@@ -820,7 +830,7 @@ xtr_pop_tail(xtr_t* xtr, size_t len);
  *
  * O(n) operation, as it requires the rest of the altered string to be
  * shifted with `memmove`.
- * @param [in, out] xtr xtring to truncate, modified in-place.
+ * @param [in,out] xtr xtring to truncate, modified in-place.
  * @param [in] len amount of bytes to erase. If more than the length of `xtr`, the
  *        entire `xtr` is emptied.
  */
@@ -837,7 +847,7 @@ xtr_truncate_head(xtr_t* xtr, size_t len);
  *         xtr after:  "Hello wor"
  *
  * O(1) operation.
- * @param [in, out] xtr xtring to truncate, modified in-place.
+ * @param [in,out] xtr xtring to truncate, modified in-place.
  * @param [in] len amount of bytes to erase. If more than the length of `xtr`, the
  *        entire `xtr` is emptied.
  */
@@ -854,7 +864,7 @@ xtr_truncate_tail(xtr_t* xtr, size_t len);
  *         xtr_trim_tail(xtr["Hello world!"], ".,!d") --> xtr["Hello worl"]
  *         xtr_trim_tail(xtr["Hello world!\r\n"], NULL) --> xtr["Hello world!"]
  *         xtr_trim_tail(xtr["Hello world!AAAAAAA"], "ABC") --> xtr["Hello world!"]
- * @param [in, out] xtr xtring to trim in-place.
+ * @param [in,out] xtr xtring to trim in-place.
  * @param [in] chars characters to remove, regardless of their order of appearance.
  *        NULL for all whitespace characters.
  */
@@ -871,7 +881,7 @@ xtr_trim_tail(xtr_t* xtr, const char* chars);
  *         xtr_trim_head(xtr["Hello world!"], "eHl") --> xtr["o world!"]
  *         xtr_trim_head(xtr["\r\n Hello world!\r\n"], NULL) --> xtr["Hello world!\r\n"]
  *         xtr_trim_head(xtr["===Hello world!"], "=-+") --> xtr["Hello world!"]
- * @param [in, out] xtr xtring to trim in-place.
+ * @param [in,out] xtr xtring to trim in-place.
  * @param [in] chars characters to remove, regardless of their order of appearance.
  *        NULL for all whitespace characters.
  */
@@ -888,7 +898,7 @@ xtr_trim_head(xtr_t* xtr, const char* chars);
  *         xtr_trim(xtr["Hello world!"], "eHl!") --> xtr["o world"]
  *         xtr_trim(xtr["\r\n Hello world!\r\n"], NULL) --> xtr["Hello world!"]
  *         xtr_trim(xtr["===Hello world!==="], "=-+") --> xtr["Hello world!"]
- * @param [in, out] xtr xtring to trim in-place.
+ * @param [in,out] xtr xtring to trim in-place.
  * @param [in] chars characters to remove, regardless of their order of appearance.
  *        NULL for all whitespace characters.
  */
@@ -905,7 +915,7 @@ xtr_trim(xtr_t* xtr, const char* chars);
  *         xtr_truncate_prefix(xtr["Hello world!"], "He") --> xtr["llo world!"]
  *         xtr_truncate_prefix(xtr["Hello world!"], "abc!") --> xtr["Hello world!"]
  *         xtr_truncate_prefix(xtr["...Hello world!"], ".") --> xtr["..Hello world!"]
- * @param [in, out] xtr xtring to truncate in-place. NULL does nothing.
+ * @param [in,out] xtr xtring to truncate in-place. NULL does nothing.
  * @param [in] prefix substring to remove from the xtring's head, if present. NULL does nothing.
  */
 XTR_API void
@@ -921,13 +931,19 @@ xtr_truncate_prefix(xtr_t* xtr, const char* prefix);
  *         xtr_truncate_suffix(xtr["Hello world!"], " world!") --> xtr["Hello"]
  *         xtr_truncate_suffix(xtr["Hello world!"], "abc!") --> xtr["Hello world!"]
  *         xtr_truncate_suffix(xtr["Hello world..."], ".") --> xtr["Hello world.."]
- * @param [in, out] xtr xtring to truncate in-place. NULL does nothing.
+ * @param [in,out] xtr xtring to truncate in-place. NULL does nothing.
  * @param [in] suffix substring to remove from the xtring's tail, if present. NULL does nothing.
  */
 XTR_API void
 xtr_truncate_suffix(xtr_t* xtr, const char* suffix);
 
 // ------------------- Alter the Xtring's allocated memory ------------------------------------
+
+XTR_API xtr_t*
+xtr_ensure(xtr_t* xtr, size_t len);
+
+XTR_API xtr_t*
+xtr_ensure_free(xtr_t** pxtr, size_t len);
 
 XTR_API xtr_t*
 xtr_resize(xtr_t* xtr, size_t new_capacity);
@@ -954,7 +970,7 @@ xtr_reversed(const xtr_t* xtr);
 /**
  * Reverses (end-to-start) the xtring in-place.
  *
- * @param [in, out] xtr to reverse. Does nothing on NULL input.
+ * @param [in,out] xtr to reverse. Does nothing on NULL input.
  */
 XTR_API void
 xtr_reverse(xtr_t* xtr);
@@ -1069,7 +1085,7 @@ xtr_repeated(const xtr_t* xtr, size_t repetitions);
  * If there is some capacity but not enough for the
  * full extension, it also does nothing - no partial copy is performed.
  *
- * @param [in, out] xtr xtring to extend
+ * @param [in,out] xtr xtring to extend
  * @param [in] extension xtring to add as extension
  * @return Amount of bytes extended. Zero if any pointer is NULL or if `xtr` has not
  *         enough space for the full extension.
@@ -1084,7 +1100,7 @@ xtr_push_head(xtr_t* xtr, const xtr_t* extension);
  * If there is some capacity but not enough for the
  * full extension, it also does nothing - no partial copy is performed.
  *
- * @param [in, out] xtr xtring to extend
+ * @param [in,out] xtr xtring to extend
  * @param [in] extension xtring to add as extension
  * @return Amount of bytes extended. Zero if any pointer is NULL or if `xtr` has not
  *         enough space for the full extension.
@@ -1096,7 +1112,7 @@ xtr_push_tail(xtr_t* xtr, const xtr_t* extension);
  * Appends the extension to the existing xtring's start, reallocating the xtring
  * if necessary, freeing the old one.
  *
- * @param [in, out] pxtr pointer to the original xtring to extend. Pointed xtr_t*
+ * @param [in,out] pxtr pointer to the original xtring to extend. Pointed xtr_t*
  *        will be replaced by a larger copy, if a reallocation happens.
  *        Frees the previous xtring. Untouched on failure.
  * @param [in] extension xtring to add as extension
@@ -1111,7 +1127,7 @@ xtr_extend_head(xtr_t** pxtr, const xtr_t* extension);
  * Appends the extension to the existing xtring's end, reallocating the xtring
  * if necessary, freeing the old one.
  *
- * @param [in, out] pxtr pointer to the original xtring to extend. Pointed xtr_t*
+ * @param [in,out] pxtr pointer to the original xtring to extend. Pointed xtr_t*
  *        will be replaced by a larger copy, if a reallocation happens.
  *        Frees the previous xtring. Untouched on failure.
  * @param [in] extension xtring to add as extension
@@ -1159,7 +1175,20 @@ xtr_to_hex(const xtr_t* bin, bool upper, const char* separator);
 XTR_API xtr_t*
 xtr_from_hex(const char* hex, size_t len);
 
-// Utils
+XTR_API xtr_t*
+xtr_base64_decode(const xtr_t* b64_text);
+XTR_API xtr_t*
+xtr_base64_encode(const xtr_t* binary);
+
+// ------------------- Utils ------------------------------------
+XTR_API const char*
+xtr_api_version(uint32_t* version);
+
+#if defined(XTR_STDIO) && XTR_STDIO
+
+XTR_API void
+xtr_puts(const xtr_t* xtr);
+#endif
 
 #ifdef __cplusplus
 }

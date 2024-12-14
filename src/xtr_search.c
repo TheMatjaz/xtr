@@ -29,6 +29,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "xtr.h"
 #include "xtr_internal.h"
 
 XTR_API size_t

@@ -76,7 +76,7 @@ set(XTR_SRC
         src/xtr_reverse.c
         src/xtr_search.c
         src/xtr_split.c
-        src/xtr_unicode.c
+        #src/xtr_unicode.c
         src/xtr_utils.c
         src/xtr_from.c
         src/xtr_unarycmp.c
