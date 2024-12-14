@@ -1,0 +1,9 @@
+// END OF AUTOMATED LISTING OF ALL XTRTEST TESTCASES
+// clang-format on
+// @formatter: on
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  /* XTRTEST_H */

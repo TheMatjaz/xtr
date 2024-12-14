@@ -31,7 +31,7 @@
 
 #include "xtrtest.h"
 
-static void
+void
 xtrtest_zeros_valid_empty(void)
 {
     xtr_t* obtained = xtr_zeros(0);
@@ -44,7 +44,7 @@ xtrtest_zeros_valid_empty(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_zeros_valid_1_byte(void)
 {
     xtr_t* obtained = xtr_zeros(1);
@@ -57,7 +57,7 @@ xtrtest_zeros_valid_1_byte(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_zeros_valid_6_bytes(void)
 {
     xtr_t* obtained = xtr_zeros(6);
@@ -70,20 +70,10 @@ xtrtest_zeros_valid_6_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_zeros_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
     const xtr_t* obtained = xtr_zeros(3);
     atto_eq(obtained, NULL);
-}
-
-void
-xtrtest_zeros(void)
-{
-    xtrtest_zeros_valid_empty();
-    xtrtest_zeros_valid_1_byte();
-    xtrtest_zeros_valid_6_bytes();
-    xtrtest_zeros_fail_malloc();
-    atto_report();
 }

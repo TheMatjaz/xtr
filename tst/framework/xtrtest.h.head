@@ -1,5 +1,6 @@
 /**
- * @file
+* @file
+ * Tests run by the xtrtest_main/main().
  *
  * @copyright Copyright © 2022-2024, Matjaž Guštin <dev@matjaz.it>
  * <https://matjaz.it>. All rights reserved.
@@ -29,25 +30,23 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "xtrtest.h"
+#ifndef XTRTEST_H
+#define XTRTEST_H
 
-void
-xtrtest_new_empty_valid(void)
+#ifdef __cplusplus
+extern "C"
 {
-    xtr_t* obtained = xtr_new_empty();
-    atto_neq(obtained, NULL);
-    atto_eq(xtr_capacity(obtained), 0);
-    atto_eq(xtr_available(obtained), 0);
-    atto_eq(xtr_length(obtained), 0);
-    atto_neq(xtr_cstring(obtained), NULL);
-    atto_memeq(xtr_cstring(obtained), "", 1);
-    xtr_free(&obtained);
-}
+#endif
 
+#include "atto.h"
+#include "xtr.h"
+
+// Test framework functions
 void
-xtrtest_new_empty_fail_malloc(void)
-{
-    xtrtest_malloc_fail_after(0);
-    xtr_t* obtained = xtr_new_empty();
-    atto_eq(obtained, NULL);
-}
+xtrtest_malloc_fail_after(size_t count);
+void
+xtrtest_malloc_disable_failing(void);
+
+// clang-format off
+// @formatter: off
+// BEGIN OF AUTOMATED LISTING OF ALL XTRTEST TESTCASES

@@ -31,13 +31,13 @@
 
 #include "xtrtest.h"
 
-static void
+void
 xtrtest_is_spaces_valid_null(void)
 {
     atto_false(xtr_is_spaces(NULL));
 }
 
-static void
+void
 xtrtest_is_spaces_valid_empty(void)
 {
     xtr_t* obtained = xtr_new_empty();
@@ -45,7 +45,7 @@ xtrtest_is_spaces_valid_empty(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_is_spaces_valid_empty_with_capacity(void)
 {
     xtr_t* obtained = xtr_new(1);
@@ -53,7 +53,7 @@ xtrtest_is_spaces_valid_empty_with_capacity(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_is_spaces_valid_non_spaces(void)
 {
     xtr_t* obtained = xtr_from_str("abc");
@@ -61,7 +61,7 @@ xtrtest_is_spaces_valid_non_spaces(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_is_spaces_valid_single_space(void)
 {
     xtr_t* obtained = xtr_from_str(" ");
@@ -69,7 +69,7 @@ xtrtest_is_spaces_valid_single_space(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_is_spaces_valid_many_spaces(void)
 {
     xtr_t* obtained = xtr_from_str("    ");
@@ -77,7 +77,7 @@ xtrtest_is_spaces_valid_many_spaces(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_is_spaces_valid_different_whitespaces(void)
 {
     xtr_t* obtained = xtr_from_str("    \t  \n  \v \r  ");
@@ -85,24 +85,10 @@ xtrtest_is_spaces_valid_different_whitespaces(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_is_spaces_valid_not_only_whitespaces(void)
 {
     xtr_t* obtained = xtr_from_str("    \t X \n  \v \r  ");
     atto_false(xtr_is_spaces(obtained));
     xtr_free(&obtained);
-}
-
-void
-xtrtest_is_spaces(void)
-{
-    xtrtest_is_spaces_valid_null();
-    xtrtest_is_spaces_valid_empty();
-    xtrtest_is_spaces_valid_empty_with_capacity();
-    xtrtest_is_spaces_valid_non_spaces();
-    xtrtest_is_spaces_valid_single_space();
-    xtrtest_is_spaces_valid_many_spaces();
-    xtrtest_is_spaces_valid_different_whitespaces();
-    xtrtest_is_spaces_valid_not_only_whitespaces();
-    atto_report();
 }

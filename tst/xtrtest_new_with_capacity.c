@@ -31,7 +31,7 @@
 
 #include "xtrtest.h"
 
-static void
+void
 xtrtest_new_with_capacity_valid_allocate_0_bytes(void)
 {
     xtr_t* obtained = xtr_new(0);
@@ -44,7 +44,7 @@ xtrtest_new_with_capacity_valid_allocate_0_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_new_with_capacity_valid_allocate_1_byte(void)
 {
     xtr_t* obtained = xtr_new(1);
@@ -57,7 +57,7 @@ xtrtest_new_with_capacity_valid_allocate_1_byte(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_new_with_capacity_valid_allocate_15_bytes(void)
 {
     xtr_t* obtained = xtr_new(15);
@@ -70,7 +70,7 @@ xtrtest_new_with_capacity_valid_allocate_15_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_new_with_capacity_valid_allocate_ffff_plus_1_bytes(void)
 {
     xtr_t* obtained = xtr_new(0x10000);
@@ -83,7 +83,7 @@ xtrtest_new_with_capacity_valid_allocate_ffff_plus_1_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_new_with_capacity_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
@@ -91,21 +91,9 @@ xtrtest_new_with_capacity_fail_malloc(void)
     atto_eq(obtained, NULL);
 }
 
-static void
+void
 xtrtest_new_with_capacity_fail_size_overflow(void)
 {
     xtr_t* obtained = xtr_new(SIZE_MAX);
     atto_eq(obtained, NULL);
-}
-
-void
-xtrtest_new_with_capacity(void)
-{
-    xtrtest_new_with_capacity_valid_allocate_0_bytes();
-    xtrtest_new_with_capacity_valid_allocate_1_byte();
-    xtrtest_new_with_capacity_valid_allocate_15_bytes();
-    xtrtest_new_with_capacity_valid_allocate_ffff_plus_1_bytes();
-    xtrtest_new_with_capacity_fail_malloc();
-    xtrtest_new_with_capacity_fail_size_overflow();
-    atto_report();
 }

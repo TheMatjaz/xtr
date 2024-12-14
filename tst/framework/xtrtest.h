@@ -1,5 +1,5 @@
 /**
- * @file
+* @file
  * Tests run by the xtrtest_main/main().
  *
  * @copyright Copyright © 2022-2024, Matjaž Guštin <dev@matjaz.it>
@@ -41,35 +41,97 @@ extern "C"
 #include "atto.h"
 #include "xtr.h"
 
-void xtrtest_malloc_fail_after(size_t count);
+// Test framework functions
+void
+xtrtest_malloc_fail_after(size_t count);
+void
+xtrtest_malloc_disable_failing(void);
 
-void xtrtest_malloc_disable_failing(void);
-
-void xtrtest_new(void);
-
-void xtrtest_new_with_capacity(void);
-
-void xtrtest_zeros(void);
-
-void xtrtest_getters(void);
-
-void xtrtest_free(void);
-
-void xtrtest_from_str(void);
-
-void xtrtest_from_str_with_capacity(void);
-
-void xtrtest_from_str_repeated(void);
-
-void xtrtest_from_str_repeated_with_capacity(void);
-
-void xtrtest_clone(void);
-
-void xtrtest_clone_with_capacity(void);
-
-void xtrtest_is_empty(void);
-
-void xtrtest_is_spaces(void);
+// clang-format off
+// @formatter: off
+// BEGIN OF AUTOMATED LISTING OF ALL XTRTEST TESTCASES
+void xtrtest_clone_valid_1_char_xtr(void);
+void xtrtest_clone_valid_empty_xtr(void);
+void xtrtest_clone_validaaaa_6_char_xtr(void);
+void xtrtest_clone_with_capacity_valid_1_char_xtr_less_capacity(void);
+void xtrtest_clone_with_capacity_valid_1_char_xtr_more_capacity(void);
+void xtrtest_clone_with_capacity_valid_1_char_xtr_same_capacity(void);
+void xtrtest_clone_with_capacity_valid_empty_xtr_more_capacity(void);
+void xtrtest_clone_with_capacity_valid_empty_xtr_same_capacity(void);
+void xtrtest_free_valid(void);
+void xtrtest_free_valid_on_null_input(void);
+void xtrtest_from_str_fail_malloc(void);
+void xtrtest_from_str_repeated_fail_malloc(void);
+void xtrtest_from_str_repeated_valid_1_byte_string_0_times(void);
+void xtrtest_from_str_repeated_valid_1_byte_string_1_times(void);
+void xtrtest_from_str_repeated_valid_1_byte_string_2_times(void);
+void xtrtest_from_str_repeated_valid_6_bytes_string_3_times(void);
+void xtrtest_from_str_repeated_valid_empty_string(void);
+void xtrtest_from_str_repeated_valid_empty_string_0_times(void);
+void xtrtest_from_str_repeated_valid_null_0_times(void);
+void xtrtest_from_str_repeated_valid_null_1_time(void);
+void xtrtest_from_str_repeated_with_capacity_fail_malloc(void);
+void xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_0_times_0_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_0_times_7_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_1_times_0_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_1_times_7_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_2_times_0_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_2_times_7_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_6_bytes_string_3_times_0_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_6_bytes_string_3_times_20_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_times_0_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_times_7_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_empty_string_7_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_null_0_times_0_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_null_0_times_7_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_null_1_time_0_space(void);
+void xtrtest_from_str_repeated_with_capacity_valid_null_1_time_7_space(void);
+void xtrtest_from_str_valid_1_byte_string(void);
+void xtrtest_from_str_valid_6_bytes_string(void);
+void xtrtest_from_str_valid_empty_string(void);
+void xtrtest_from_str_valid_null(void);
+void xtrtest_from_str_with_capacity_fail_malloc(void);
+void xtrtest_from_str_with_capacity_valid_1_char_0_bytes(void);
+void xtrtest_from_str_with_capacity_valid_1_char_1_bytes(void);
+void xtrtest_from_str_with_capacity_valid_1_char_2_bytes(void);
+void xtrtest_from_str_with_capacity_valid_6_chars_10_bytes(void);
+void xtrtest_from_str_with_capacity_valid_6_chars_4_bytes(void);
+void xtrtest_from_str_with_capacity_valid_6_chars_6_bytes(void);
+void xtrtest_from_str_with_capacity_valid_empty_string_0_bytes(void);
+void xtrtest_from_str_with_capacity_valid_empty_string_15_bytes(void);
+void xtrtest_from_str_with_capacity_valid_empty_string_1_byte(void);
+void xtrtest_from_str_with_capacity_valid_null_string_0_bytes(void);
+void xtrtest_from_str_with_capacity_valid_null_string_6_bytes(void);
+void xtrtest_getters_do_nothing_on_null_input(void);
+void xtrtest_is_empty_valid_empty(void);
+void xtrtest_is_empty_valid_empty_with_capacity(void);
+void xtrtest_is_empty_valid_non_empty(void);
+void xtrtest_is_empty_valid_null(void);
+void xtrtest_is_spaces_valid_different_whitespaces(void);
+void xtrtest_is_spaces_valid_empty(void);
+void xtrtest_is_spaces_valid_empty_with_capacity(void);
+void xtrtest_is_spaces_valid_many_spaces(void);
+void xtrtest_is_spaces_valid_non_spaces(void);
+void xtrtest_is_spaces_valid_not_only_whitespaces(void);
+void xtrtest_is_spaces_valid_null(void);
+void xtrtest_is_spaces_valid_single_space(void);
+void xtrtest_new_empty_fail_malloc(void);
+void xtrtest_new_empty_valid(void);
+void xtrtest_new_ensure_fail_size_overflow(void);
+void xtrtest_new_with_capacity_fail_malloc(void);
+void xtrtest_new_with_capacity_fail_size_overflow(void);
+void xtrtest_new_with_capacity_valid_allocate_0_bytes(void);
+void xtrtest_new_with_capacity_valid_allocate_15_bytes(void);
+void xtrtest_new_with_capacity_valid_allocate_1_byte(void);
+void xtrtest_new_with_capacity_valid_allocate_ffff_plus_1_bytes(void);
+void xtrtest_zeros_fail_malloc(void);
+void xtrtest_zeros_valid_1_byte(void);
+void xtrtest_zeros_valid_6_bytes(void);
+void xtrtest_zeros_valid_empty(void);
+// END OF AUTOMATED LISTING OF ALL XTRTEST TESTCASES
+// clang-format on
+// @formatter: on
 
 #ifdef __cplusplus
 }

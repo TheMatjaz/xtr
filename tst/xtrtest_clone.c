@@ -31,7 +31,7 @@
 
 #include "xtrtest.h"
 
-static void
+void
 xtrtest_clone_valid_empty_xtr(void)
 {
     xtr_t* original = xtr_new_empty();
@@ -51,7 +51,7 @@ xtrtest_clone_valid_empty_xtr(void)
     xtr_free(&clone);
 }
 
-static void
+void
 xtrtest_clone_valid_1_char_xtr(void)
 {
     xtr_t* original = xtr_from_str("a");
@@ -71,7 +71,7 @@ xtrtest_clone_valid_1_char_xtr(void)
     xtr_free(&clone);
 }
 
-static void
+void
 xtrtest_clone_valid_6_char_xtr(void)
 {
     xtr_t* original = xtr_from_str("Abcdef");
@@ -89,13 +89,4 @@ xtrtest_clone_valid_6_char_xtr(void)
 
     xtr_free(&original);
     xtr_free(&clone);
-}
-
-void
-xtrtest_clone(void)
-{
-    xtrtest_clone_valid_empty_xtr();
-    xtrtest_clone_valid_1_char_xtr();
-    xtrtest_clone_valid_6_char_xtr();
-    atto_report();
 }

@@ -31,7 +31,7 @@
 
 #include "xtrtest.h"
 
-static void
+void
 xtrtest_from_str_with_capacity_valid_null_string_0_bytes(void)
 {
     // Should provide an empty string with 0 available free bytes
@@ -45,7 +45,7 @@ xtrtest_from_str_with_capacity_valid_null_string_0_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_with_capacity_valid_null_string_6_bytes(void)
 {
     // Should provide an empty string with 6 available free bytes
@@ -59,7 +59,7 @@ xtrtest_from_str_with_capacity_valid_null_string_6_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_with_capacity_valid_empty_string_0_bytes(void)
 {
     // Should provide an empty string with 0 available free bytes
@@ -73,7 +73,7 @@ xtrtest_from_str_with_capacity_valid_empty_string_0_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_with_capacity_valid_empty_string_1_byte(void)
 {
     // Should provide an empty string with 1 available free bytes
@@ -87,7 +87,7 @@ xtrtest_from_str_with_capacity_valid_empty_string_1_byte(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_with_capacity_valid_empty_string_15_bytes(void)
 {
     // Should provide an empty string with 15 available free bytes
@@ -101,7 +101,7 @@ xtrtest_from_str_with_capacity_valid_empty_string_15_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_with_capacity_valid_1_char_0_bytes(void)
 {
     // Should provide a 1-char string with 0 available free bytes
@@ -116,7 +116,7 @@ xtrtest_from_str_with_capacity_valid_1_char_0_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_with_capacity_valid_1_char_1_bytes(void)
 {
     // Should provide a 1-char string with 0 available free bytes
@@ -131,7 +131,7 @@ xtrtest_from_str_with_capacity_valid_1_char_1_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_with_capacity_valid_1_char_2_bytes(void)
 {
     // Should provide a 1-char string with 0 available free bytes
@@ -146,7 +146,7 @@ xtrtest_from_str_with_capacity_valid_1_char_2_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_with_capacity_valid_6_chars_6_bytes(void)
 {
     // Should provide a 6-char string with 0 available free bytes
@@ -161,7 +161,7 @@ xtrtest_from_str_with_capacity_valid_6_chars_6_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_with_capacity_valid_6_chars_4_bytes(void)
 {
     // Should provide a 6-char string with 0 available free bytes
@@ -176,7 +176,7 @@ xtrtest_from_str_with_capacity_valid_6_chars_4_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_with_capacity_valid_6_chars_10_bytes(void)
 {
     // Should provide a 6-char string with 4 available free bytes
@@ -190,7 +190,7 @@ xtrtest_from_str_with_capacity_valid_6_chars_10_bytes(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_with_capacity_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
@@ -198,30 +198,11 @@ xtrtest_from_str_with_capacity_fail_malloc(void)
     atto_eq(obtained, NULL);
 }
 
-static void
+void
 xtrtest_new_ensure_fail_size_overflow(void)
 {
     xtr_t* obtained = xtr_from_str_capac(NULL, SIZE_MAX);
     atto_eq(obtained, NULL);
     obtained = xtr_from_str_capac("abc", SIZE_MAX);
     atto_eq(obtained, NULL);
-}
-
-void
-xtrtest_from_str_with_capacity(void)
-{
-    xtrtest_from_str_with_capacity_valid_empty_string_0_bytes();
-    xtrtest_from_str_with_capacity_valid_null_string_0_bytes();
-    xtrtest_from_str_with_capacity_valid_null_string_6_bytes();
-    xtrtest_from_str_with_capacity_valid_empty_string_1_byte();
-    xtrtest_from_str_with_capacity_valid_empty_string_15_bytes();
-    xtrtest_from_str_with_capacity_valid_1_char_0_bytes();
-    xtrtest_from_str_with_capacity_valid_1_char_1_bytes();
-    xtrtest_from_str_with_capacity_valid_1_char_2_bytes();
-    xtrtest_from_str_with_capacity_valid_6_chars_6_bytes();
-    xtrtest_from_str_with_capacity_valid_6_chars_4_bytes();
-    xtrtest_from_str_with_capacity_valid_6_chars_10_bytes();
-    xtrtest_from_str_with_capacity_fail_malloc();
-    xtrtest_new_ensure_fail_size_overflow();
-    atto_report();
 }

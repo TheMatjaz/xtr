@@ -31,7 +31,7 @@
 
 #include "xtrtest.h"
 
-static void
+void
 xtrtest_free_valid(void)
 {
     xtr_t* obtained = xtr_new_empty();
@@ -40,19 +40,11 @@ xtrtest_free_valid(void)
     atto_eq(obtained, NULL);
 }
 
-static void
+void
 xtrtest_free_valid_on_null_input(void)
 {
     // Just testing that nothing crashes
     xtr_free(NULL);
     xtr_t* xtr = NULL;
     xtr_free(&xtr);
-}
-
-void
-xtrtest_free(void)
-{
-    xtrtest_free_valid();
-    xtrtest_free_valid_on_null_input();
-    atto_report();
 }

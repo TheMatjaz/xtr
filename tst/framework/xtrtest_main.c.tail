@@ -1,0 +1,6 @@
+    // END OF AUTOMATED LISTING OF ALL XTRTEST TESTCASES
+    // clang-format on
+    // @formatter: on
+    atto_report();
+    return atto_at_least_one_fail;
+}

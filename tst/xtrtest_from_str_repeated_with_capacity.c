@@ -31,7 +31,7 @@
 
 #include "xtrtest.h"
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_null_0_times_0_space(void)
 {
     // Produces an empty xtring
@@ -45,7 +45,7 @@ xtrtest_from_str_repeated_with_capacity_valid_null_0_times_0_space(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_null_0_times_7_space(void)
 {
     // Produces an empty xtring
@@ -59,7 +59,7 @@ xtrtest_from_str_repeated_with_capacity_valid_null_0_times_7_space(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_null_1_time_0_space(void)
 {
     // Produces an empty xtring
@@ -73,7 +73,7 @@ xtrtest_from_str_repeated_with_capacity_valid_null_1_time_0_space(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_null_1_time_7_space(void)
 {
     // Produces an empty xtring
@@ -87,7 +87,7 @@ xtrtest_from_str_repeated_with_capacity_valid_null_1_time_7_space(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_times_0_space(void)
 {
     // Produces an empty xtring
@@ -101,7 +101,7 @@ xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_times_0_space(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_times_7_space(void)
 {
     // Produces an empty xtring
@@ -115,7 +115,7 @@ xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_times_7_space(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_space(void)
 {
     // Produces an empty xtring
@@ -129,7 +129,7 @@ xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_space(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_empty_string_7_space(void)
 {
     // Produces an empty xtring
@@ -143,7 +143,7 @@ xtrtest_from_str_repeated_with_capacity_valid_empty_string_7_space(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_0_times_0_space(void)
 {
     // Produces an empty xtring
@@ -157,7 +157,7 @@ xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_0_times_0_space(void
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_0_times_7_space(void)
 {
     // Produces an empty xtring
@@ -171,7 +171,7 @@ xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_0_times_7_space(void
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_1_times_0_space(void)
 {
     // Produces "a"
@@ -185,7 +185,7 @@ xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_1_times_0_space(void
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_1_times_7_space(void)
 {
     // Produces "a"
@@ -199,7 +199,7 @@ xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_1_times_7_space(void
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_2_times_0_space(void)
 {
     // Produces "a"
@@ -213,7 +213,7 @@ xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_2_times_0_space(void
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_2_times_7_space(void)
 {
     // Produces "a"
@@ -227,7 +227,7 @@ xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_2_times_7_space(void
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_6_bytes_string_3_times_0_space(void)
 {
     xtr_t* obtained = xtr_from_str_repeat_capac("Abcdef", 3, 0);
@@ -240,7 +240,7 @@ xtrtest_from_str_repeated_with_capacity_valid_6_bytes_string_3_times_0_space(voi
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_valid_6_bytes_string_3_times_20_space(void)
 {
     xtr_t* obtained = xtr_from_str_repeat_capac("Abcdef", 3, 20);
@@ -253,33 +253,10 @@ xtrtest_from_str_repeated_with_capacity_valid_6_bytes_string_3_times_20_space(vo
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_with_capacity_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
     xtr_t* obtained = xtr_from_str_repeat_capac("abc", 2, 0);
     atto_eq(obtained, NULL);
-}
-
-void
-xtrtest_from_str_repeated_with_capacity(void)
-{
-    xtrtest_from_str_repeated_with_capacity_valid_null_0_times_0_space();
-    xtrtest_from_str_repeated_with_capacity_valid_null_0_times_7_space();
-    xtrtest_from_str_repeated_with_capacity_valid_null_1_time_0_space();
-    xtrtest_from_str_repeated_with_capacity_valid_null_1_time_7_space();
-    xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_times_0_space();
-    xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_times_7_space();
-    xtrtest_from_str_repeated_with_capacity_valid_empty_string_0_space();
-    xtrtest_from_str_repeated_with_capacity_valid_empty_string_7_space();
-    xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_0_times_0_space();
-    xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_0_times_7_space();
-    xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_1_times_0_space();
-    xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_1_times_7_space();
-    xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_2_times_0_space();
-    xtrtest_from_str_repeated_with_capacity_valid_1_byte_string_2_times_7_space();
-    xtrtest_from_str_repeated_with_capacity_valid_6_bytes_string_3_times_0_space();
-    xtrtest_from_str_repeated_with_capacity_valid_6_bytes_string_3_times_20_space();
-    xtrtest_from_str_repeated_with_capacity_fail_malloc();
-    atto_report();
 }

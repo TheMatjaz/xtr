@@ -3,7 +3,8 @@
                    factoryName="Application" folderName="Test" REDIRECT_INPUT="false"
                    ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false"
                    PASS_PARENT_ENVS_2="true" PROJECT_NAME="Xtr" TARGET_NAME="xtrtest"
-                   CONFIG_NAME="Debug-WSL" RUN_TARGET_PROJECT_NAME="Xtr" RUN_TARGET_NAME="xtrtest">
+                   CONFIG_NAME="clang_debug" RUN_TARGET_PROJECT_NAME="Xtr"
+                   RUN_TARGET_NAME="xtrtest">
         <envs>
             <env name="CONSOLE_WIDTH" value="200"/>
         </envs>

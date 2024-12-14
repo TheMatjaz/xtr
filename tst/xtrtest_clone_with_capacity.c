@@ -31,7 +31,7 @@
 
 #include "xtrtest.h"
 
-static void
+void
 xtrtest_clone_with_capacity_valid_empty_xtr_same_capacity(void)
 {
     xtr_t* original = xtr_new_empty();
@@ -51,7 +51,7 @@ xtrtest_clone_with_capacity_valid_empty_xtr_same_capacity(void)
     xtr_free(&clone);
 }
 
-static void
+void
 xtrtest_clone_with_capacity_valid_empty_xtr_more_capacity(void)
 {
     xtr_t* original = xtr_new_empty();
@@ -71,7 +71,7 @@ xtrtest_clone_with_capacity_valid_empty_xtr_more_capacity(void)
     xtr_free(&clone);
 }
 
-static void
+void
 xtrtest_clone_with_capacity_valid_1_char_xtr_less_capacity(void)
 {
     xtr_t* original = xtr_from_str("a");
@@ -91,7 +91,7 @@ xtrtest_clone_with_capacity_valid_1_char_xtr_less_capacity(void)
     xtr_free(&clone);
 }
 
-static void
+void
 xtrtest_clone_with_capacity_valid_1_char_xtr_same_capacity(void)
 {
     xtr_t* original = xtr_from_str("a");
@@ -111,7 +111,7 @@ xtrtest_clone_with_capacity_valid_1_char_xtr_same_capacity(void)
     xtr_free(&clone);
 }
 
-static void
+void
 xtrtest_clone_with_capacity_valid_1_char_xtr_more_capacity(void)
 {
     xtr_t* original = xtr_from_str("a");
@@ -129,15 +129,4 @@ xtrtest_clone_with_capacity_valid_1_char_xtr_more_capacity(void)
 
     xtr_free(&original);
     xtr_free(&clone);
-}
-
-void
-xtrtest_clone_with_capacity(void)
-{
-    xtrtest_clone_with_capacity_valid_empty_xtr_same_capacity();
-    xtrtest_clone_with_capacity_valid_empty_xtr_more_capacity();
-    xtrtest_clone_with_capacity_valid_1_char_xtr_less_capacity();
-    xtrtest_clone_with_capacity_valid_1_char_xtr_same_capacity();
-    xtrtest_clone_with_capacity_valid_1_char_xtr_more_capacity();
-    atto_report();
 }

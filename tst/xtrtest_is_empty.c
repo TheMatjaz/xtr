@@ -31,13 +31,13 @@
 
 #include "xtrtest.h"
 
-static void
+void
 xtrtest_is_empty_valid_null(void)
 {
     atto_true(xtr_is_empty(NULL));
 }
 
-static void
+void
 xtrtest_is_empty_valid_empty(void)
 {
     xtr_t* obtained = xtr_new_empty();
@@ -45,7 +45,7 @@ xtrtest_is_empty_valid_empty(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_is_empty_valid_empty_with_capacity(void)
 {
     xtr_t* obtained = xtr_new(1);
@@ -53,20 +53,10 @@ xtrtest_is_empty_valid_empty_with_capacity(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_is_empty_valid_non_empty(void)
 {
     xtr_t* obtained = xtr_from_str("a");
     atto_false(xtr_is_empty(obtained));
     xtr_free(&obtained);
-}
-
-void
-xtrtest_is_empty(void)
-{
-    xtrtest_is_empty_valid_null();
-    xtrtest_is_empty_valid_empty();
-    xtrtest_is_empty_valid_empty_with_capacity();
-    xtrtest_is_empty_valid_non_empty();
-    atto_report();
 }

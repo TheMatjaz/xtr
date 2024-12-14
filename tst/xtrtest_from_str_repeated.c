@@ -31,7 +31,7 @@
 
 #include "xtrtest.h"
 
-static void
+void
 xtrtest_from_str_repeated_valid_null_0_times(void)
 {
     // Produces an empty xtring
@@ -45,7 +45,7 @@ xtrtest_from_str_repeated_valid_null_0_times(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_valid_null_1_time(void)
 {
     // Produces an empty xtring
@@ -59,7 +59,7 @@ xtrtest_from_str_repeated_valid_null_1_time(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_valid_empty_string_0_times(void)
 {
     // Produces an empty xtring
@@ -73,7 +73,7 @@ xtrtest_from_str_repeated_valid_empty_string_0_times(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_valid_empty_string(void)
 {
     // Produces an empty xtring
@@ -87,7 +87,7 @@ xtrtest_from_str_repeated_valid_empty_string(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_valid_1_byte_string_0_times(void)
 {
     // Produces an empty xtring
@@ -101,7 +101,7 @@ xtrtest_from_str_repeated_valid_1_byte_string_0_times(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_valid_1_byte_string_1_times(void)
 {
     // Produces "a"
@@ -115,7 +115,7 @@ xtrtest_from_str_repeated_valid_1_byte_string_1_times(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_valid_1_byte_string_2_times(void)
 {
     // Produces "a"
@@ -129,7 +129,7 @@ xtrtest_from_str_repeated_valid_1_byte_string_2_times(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_valid_6_bytes_string_3_times(void)
 {
     xtr_t* obtained = xtr_from_str_repeat("Abcdef", 3);
@@ -142,25 +142,10 @@ xtrtest_from_str_repeated_valid_6_bytes_string_3_times(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_repeated_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
     xtr_t* obtained = xtr_from_str_repeat("abc", 2);
     atto_eq(obtained, NULL);
-}
-
-void
-xtrtest_from_str_repeated(void)
-{
-    xtrtest_from_str_repeated_valid_null_0_times();
-    xtrtest_from_str_repeated_valid_null_1_time();
-    xtrtest_from_str_repeated_valid_empty_string_0_times();
-    xtrtest_from_str_repeated_valid_empty_string();
-    xtrtest_from_str_repeated_valid_1_byte_string_0_times();
-    xtrtest_from_str_repeated_valid_1_byte_string_1_times();
-    xtrtest_from_str_repeated_valid_1_byte_string_2_times();
-    xtrtest_from_str_repeated_valid_6_bytes_string_3_times();
-    xtrtest_from_str_repeated_fail_malloc();
-    atto_report();
 }

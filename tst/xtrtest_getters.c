@@ -35,18 +35,11 @@
 // in every other test in the suite, as they are being used to verify
 // the state of the xtr_t structure.
 
-static void
+void
 xtrtest_getters_do_nothing_on_null_input(void)
 {
     atto_eq(xtr_available(NULL), 0);
     atto_eq(xtr_capacity(NULL), 0);
     atto_eq(xtr_length(NULL), 0);
     atto_eq(xtr_cstring(NULL), NULL);
-}
-
-void
-xtrtest_getters(void)
-{
-    xtrtest_getters_do_nothing_on_null_input();
-    atto_report();
 }

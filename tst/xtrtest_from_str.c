@@ -31,7 +31,7 @@
 
 #include "xtrtest.h"
 
-static void
+void
 xtrtest_from_str_valid_null(void)
 {
     xtr_t* obtained = xtr_from_str(NULL);
@@ -44,7 +44,7 @@ xtrtest_from_str_valid_null(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_valid_empty_string(void)
 {
     xtr_t* obtained = xtr_from_str("");
@@ -57,7 +57,7 @@ xtrtest_from_str_valid_empty_string(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_valid_1_byte_string(void)
 {
     xtr_t* obtained = xtr_from_str("a");
@@ -70,7 +70,7 @@ xtrtest_from_str_valid_1_byte_string(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_valid_6_bytes_string(void)
 {
     xtr_t* obtained = xtr_from_str("Abcdef");
@@ -83,21 +83,10 @@ xtrtest_from_str_valid_6_bytes_string(void)
     xtr_free(&obtained);
 }
 
-static void
+void
 xtrtest_from_str_fail_malloc(void)
 {
     xtrtest_malloc_fail_after(0);
     xtr_t* obtained = xtr_from_str("abc");
     atto_eq(obtained, NULL);
-}
-
-void
-xtrtest_from_str(void)
-{
-    xtrtest_from_str_valid_null();
-    xtrtest_from_str_valid_empty_string();
-    xtrtest_from_str_valid_1_byte_string();
-    xtrtest_from_str_valid_6_bytes_string();
-    xtrtest_from_str_fail_malloc();
-    atto_report();
 }
